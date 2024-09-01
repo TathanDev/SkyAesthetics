@@ -2,6 +2,10 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
+loom {
+    accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+}
+
 repositories {
     maven { url 'https://maven.quiltmc.org/repository/release/' }
 }
