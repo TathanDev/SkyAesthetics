@@ -35,9 +35,13 @@ quilt/run
 quilt/.gradle
 quilt/build
 
+common/.gradle
+common/build
+
 gradlew
 gradlew.bat
 
 .idea
 .gradle
+
 
