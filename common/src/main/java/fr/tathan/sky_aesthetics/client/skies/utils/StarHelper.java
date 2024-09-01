@@ -3,12 +3,16 @@ package fr.tathan.sky_aesthetics.client.skies.utils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
+import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.BooleanUtils;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
@@ -29,6 +33,7 @@ public class StarHelper {
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
 
+
         for (int i = 0; i < stars; i++) {
             float d0 = random.nextFloat() * 2.0F - 1.0F;
             float d1 = random.nextFloat() * 2.0F - 1.0F;
@@ -37,9 +42,13 @@ public class StarHelper {
             float d4 = d0 * d0 + d1 * d1 + d2 * d2;
             if (d4 < 1.0f && d4 > 0.01f) {
                 d4 = (float) (1.0f / Math.sqrt(d4));
+
+                //Position of star
                 d0 *= d4;
                 d1 *= d4;
                 d2 *= d4;
+
+
                 float d5 = d0 * 100.0f;
                 float d6 = d1 * 100.0f;
                 float d7 = d2 * 100.0f;
@@ -60,7 +69,8 @@ public class StarHelper {
                     float d22 = d19 * d16 + d18 * d15;
                     float d23 = d21 * d12 + 0f * d13;
                     float d24 = 0f * d12 - d21 * d13;
-                    float d25 = d24 * d9 - d22 * d10;
+                    float d25 = d24 * d9
+                            - d22 * d10;
                     float d26 = d22 * d9 + d24 * d10;
 
                     int color1 = r == -1 ? i : r;
@@ -76,6 +86,50 @@ public class StarHelper {
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();
         return vertexBuffer;
+    }
+
+    public static VertexBuffer createConstellation(Constellation constellation) {
+        Tesselator tesselator = Tesselator.getInstance();
+        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        Star.Color color = constellation.color();
+
+        float x = (float)( constellation.firstPoint().x );
+        float y = (float)( constellation.firstPoint().y);
+        float z = (float)( constellation.firstPoint().z);
+
+        float scale = constellation.scale();
+
+        // First Point
+        bufferBuilder.addVertex(x, y, z).setColor(color.r(), color.g(), color.b(),0xAA);
+        bufferBuilder.addVertex(x + scale ,y , z ).setColor(color.r(), color.g(), color.b(),0xAA);
+        bufferBuilder.addVertex(x + scale, y  , z + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+        bufferBuilder.addVertex(x ,y , z + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+
+        for (Vec3 point : constellation.points()) {
+
+            float pointX = (float)( x + point.x);
+            float pointY = (float)( y + point.y);
+            float pointZ = (float)( z + point.z);
+
+            for (int j = 0; j < 4; ++j) {
+
+                bufferBuilder.addVertex(pointX, pointY, pointZ).setColor(color.r(), color.g(), color.b(),0xAA);
+                bufferBuilder.addVertex(pointX + scale ,pointY , pointZ ).setColor(color.r(), color.g(), color.b(),0xAA);
+                bufferBuilder.addVertex(pointX + scale, pointY  , pointZ + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+                bufferBuilder.addVertex(pointX ,pointY , pointZ + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+            }
+        }
+
+        vertexBuffer.bind();
+        vertexBuffer.upload(bufferBuilder.buildOrThrow());
+        VertexBuffer.unbind();
+        return vertexBuffer;
+
     }
 
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix) {

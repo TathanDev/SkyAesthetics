@@ -1,10 +1,11 @@
-package fr.tathan.sky_aesthetics.client.skies.record;
+package fr.tathan.sky_aesthetics.client.data;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
+import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -26,8 +27,6 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        SkyAesthetics.LOG.error("Registering");
-
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
             SkyProperties skyProperties = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();

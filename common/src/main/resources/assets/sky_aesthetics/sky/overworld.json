@@ -22,16 +22,38 @@
   ],
   "sunrise_color": 16755035,
   "stars": {
-    "vanilla": true,
-    "count": 30000,
+    "vanilla": false,
+    "count": 3000,
     "all_days_visible": false,
-    "scale": 0.1,
+    "scale": 0.05,
     "color": {
-      "r": 190,
-      "g": 160,
-      "b": -1
+      "r": 255,
+      "g": 255,
+      "b": 255
     }
   },
   "sky_type": "NORMAL",
-  "sky_objects": []
+  "sky_objects": [],
+  "constellations": [
+    {
+      "scale": 0.01,
+      "color": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+      },
+      "firstPoint": [0.04559607, 0.47792587, 0.877216],
+      "points": [
+        [-0.05, -0.05, 0],
+        [-0.09, -0.09, 0],
+        [-0.17, -0.09, 0],
+        [-0.1, -0.15, 0],
+        [-0.18, -0.15, 0]
+
+
+
+
+      ]
+    }
+  ]
 }

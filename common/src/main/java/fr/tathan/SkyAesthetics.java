@@ -3,7 +3,7 @@ package fr.tathan;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ public final class SkyAesthetics {
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
 
         registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_renderer"), new SkyPropertiesData());
+
     }
 
 }
