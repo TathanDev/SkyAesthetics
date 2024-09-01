@@ -90,11 +90,14 @@ public class SkyRenderer {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
 
         if(properties.stars().vanilla()) {
-            RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-            FogRenderer.setupNoFog();
-            this.starBuffer.bind();
-            this.starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionShader());
-            VertexBuffer.unbind();
+            if(starLight > 0.0f) {
+                RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
+                FogRenderer.setupNoFog();
+                this.starBuffer.bind();
+                this.starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionShader());
+                VertexBuffer.unbind();
+            }
+            return;
         }
 
         if (properties.stars().allDaysVisible()){
