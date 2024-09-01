@@ -38,6 +38,8 @@ quilt/build
 common/.gradle
 common/build
 
+gradle
+
 gradlew
 gradlew.bat
 
