@@ -132,9 +132,9 @@ public class StarHelper {
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix) {
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(-90));
+        poseStack.mulPose(Axis.XP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
         vertexBuffer.bind();
         vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
@@ -144,7 +144,6 @@ public class StarHelper {
 
     public static VertexBuffer createVanillaStars() {
         VertexBuffer starBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-
 
         starBuffer.bind();
         starBuffer.upload(createVanillaStars(Tesselator.getInstance()));
