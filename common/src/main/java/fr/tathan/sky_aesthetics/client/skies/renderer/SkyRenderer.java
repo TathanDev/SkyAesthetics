@@ -143,14 +143,16 @@ public class SkyRenderer {
             return;
         }
 
+        float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
+
         if (properties.stars().allDaysVisible()){
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, nightAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
         } else if (starLight > 0.2F) {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, nightAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
         }
         if (properties.fog()) fogCallback.run();
 

@@ -23,6 +23,7 @@
   "sunrise_color": 16755035,
   "stars": {
     "vanilla": false,
+    "moving_stars": false,
     "count": 3000,
     "all_days_visible": false,
     "scale": 0.05,

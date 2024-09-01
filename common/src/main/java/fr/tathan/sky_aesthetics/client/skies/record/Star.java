@@ -3,9 +3,10 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-public record Star(boolean vanilla, int count, boolean allDaysVisible, float scale, Color color) {
+public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Color color) {
     public static final Codec<Star> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(Star::vanilla),
+            Codec.BOOL.fieldOf("moving_stars").forGetter(Star::movingStars),
             Codec.INT.fieldOf("count").forGetter(Star::count),
             Codec.BOOL.fieldOf("all_days_visible").forGetter(Star::allDaysVisible),
             Codec.FLOAT.fieldOf("scale").forGetter(Star::scale),
