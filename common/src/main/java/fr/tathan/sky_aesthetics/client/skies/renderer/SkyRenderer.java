@@ -61,7 +61,7 @@ public class SkyRenderer {
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
 
         // Star
-        //renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback);
+        renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback);
 
         // Sun
         if (customVanillaObject.sun()) {
