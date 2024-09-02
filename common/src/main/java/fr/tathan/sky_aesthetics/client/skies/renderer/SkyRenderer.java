@@ -45,12 +45,18 @@ public class SkyRenderer {
         float nightAngle = dayAngle + 180;
 
         Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
+
+        if(properties.skyColor().customColor()) {
+            vec3 = properties.skyColor().color();
+        }
+
         float r = (float) vec3.x;
         float g = (float) vec3.y;
         float b = (float) vec3.z;
 
         FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
+
         RenderSystem.setShaderColor(r, g, b, 1.0f);
 
         ShaderInstance shaderInstance = RenderSystem.getShader();
@@ -126,6 +132,6 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveSnowAndRain() {
-        return properties.weather().isEmpty();
+        return !properties.rain();
     }
 }
