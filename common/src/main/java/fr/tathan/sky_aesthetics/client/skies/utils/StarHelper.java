@@ -18,10 +18,11 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.List;
 import java.util.Random;
 
 public class StarHelper {
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b) {
+    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, List<Constellation> constellations) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
@@ -33,7 +34,7 @@ public class StarHelper {
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
 
-
+        /** Stars **/
         for (int i = 0; i < stars; i++) {
             float d0 = random.nextFloat() * 2.0F - 1.0F;
             float d1 = random.nextFloat() * 2.0F - 1.0F;
@@ -47,7 +48,6 @@ public class StarHelper {
                 d0 *= d4;
                 d1 *= d4;
                 d2 *= d4;
-
 
                 float d5 = d0 * 100.0f;
                 float d6 = d1 * 100.0f;
@@ -82,46 +82,44 @@ public class StarHelper {
             }
         }
 
-        vertexBuffer.bind();
-        vertexBuffer.upload(bufferBuilder.buildOrThrow());
-        VertexBuffer.unbind();
-        return vertexBuffer;
-    }
+        /** Constellation **/
+        for (Constellation constellation : constellations) {
+            Star.Color color = constellation.color();
 
-    public static VertexBuffer createConstellation(Constellation constellation) {
-        Tesselator tesselator = Tesselator.getInstance();
-        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+            float x = (float)( constellation.firstPoint().x );
+            float y = (float)( constellation.firstPoint().y);
+            float z = (float)( constellation.firstPoint().z);
 
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            float d4 = x * x + y * y + z * z;
 
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        Star.Color color = constellation.color();
+            d4 = (float) (1.0f / Math.sqrt(d4));
 
-        float x = (float)( constellation.firstPoint().x );
-        float y = (float)( constellation.firstPoint().y);
-        float z = (float)( constellation.firstPoint().z);
+            x *= d4;
+            y *= d4;
+            z *= d4;
 
-        float scale = constellation.scale();
+            float constellationScale = constellation.scale();
 
-        // First Point
-        bufferBuilder.addVertex(x, y, z).setColor(color.r(), color.g(), color.b(),0xAA);
-        bufferBuilder.addVertex(x + scale ,y , z ).setColor(color.r(), color.g(), color.b(),0xAA);
-        bufferBuilder.addVertex(x + scale, y  , z + scale).setColor(color.r(), color.g(), color.b(),0xAA);
-        bufferBuilder.addVertex(x ,y , z + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+            // First Point
+            bufferBuilder.addVertex(x, y, z).setColor(color.r(), color.g(), color.b(),0xAA);
+            bufferBuilder.addVertex(x + constellationScale ,y , z ).setColor(color.r(), color.g(), color.b(),0xAA);
+            bufferBuilder.addVertex(x + constellationScale, y  , z + constellationScale).setColor(color.r(), color.g(), color.b(),0xAA);
+            bufferBuilder.addVertex(x ,y , z + constellationScale).setColor(color.r(), color.g(), color.b(),0xAA);
 
-        for (Vec3 point : constellation.points()) {
+            for (Vec3 point : constellation.points()) {
 
-            float pointX = (float)( x + point.x);
-            float pointY = (float)( y + point.y);
-            float pointZ = (float)( z + point.z);
+                float pointX = (float)( x + point.x);
+                float pointY = (float)( y + point.y);
+                float pointZ = (float)( z + point.z);
 
-            for (int j = 0; j < 4; ++j) {
+                for (int j = 0; j < 4; ++j) {
 
-                bufferBuilder.addVertex(pointX, pointY, pointZ).setColor(color.r(), color.g(), color.b(),0xAA);
-                bufferBuilder.addVertex(pointX + scale ,pointY , pointZ ).setColor(color.r(), color.g(), color.b(),0xAA);
-                bufferBuilder.addVertex(pointX + scale, pointY  , pointZ + scale).setColor(color.r(), color.g(), color.b(),0xAA);
-                bufferBuilder.addVertex(pointX ,pointY , pointZ + scale).setColor(color.r(), color.g(), color.b(),0xAA);
+                    bufferBuilder.addVertex(pointX, pointY, pointZ).setColor(color.r(), color.g(), color.b(),0xAA);
+                    bufferBuilder.addVertex(pointX + constellationScale ,pointY , pointZ ).setColor(color.r(), color.g(), color.b(),0xAA);
+                    bufferBuilder.addVertex(pointX + constellationScale, pointY  , pointZ + constellationScale).setColor(color.r(), color.g(), color.b(),0xAA);
+                    bufferBuilder.addVertex(pointX ,pointY , pointZ + constellationScale).setColor(color.r(), color.g(), color.b(),0xAA);
+                }
             }
         }
 
@@ -129,8 +127,8 @@ public class StarHelper {
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();
         return vertexBuffer;
-
     }
+
 
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime) {
         poseStack.pushPose();

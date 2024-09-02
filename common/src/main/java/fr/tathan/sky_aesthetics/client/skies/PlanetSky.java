@@ -26,6 +26,15 @@ public class PlanetSky extends DimensionSpecialEffects {
         return false;
     }
 
+    @Override
+    public SkyType skyType() {
+        return switch (properties.skyType()) {
+            case "END" -> SkyType.END;
+            case "NONE" -> SkyType.NONE;
+            case null, default -> SkyType.NORMAL;
+        };
+    }
+
     public SkyRenderer getRenderer() {
         return renderer;
     }
