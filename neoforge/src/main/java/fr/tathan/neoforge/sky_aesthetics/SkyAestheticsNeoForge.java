@@ -1,4 +1,4 @@
-package fr.tathan.neoforge;
+package fr.tathan.neoforge.sky_aesthetics;
 
 import net.neoforged.fml.common.Mod;
 
@@ -8,6 +8,7 @@ import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
 @Mod(SkyAesthetics.MODID)
 public final class SkyAestheticsNeoForge {
+
     public SkyAestheticsNeoForge() {
         SkyAesthetics.init();
         NeoForge.EVENT_BUS.addListener(SkyAestheticsNeoForge::onAddReloadListenerEvent);

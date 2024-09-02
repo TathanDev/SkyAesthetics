@@ -67,7 +67,6 @@ public class SkyRenderer {
             SkyHelper.renderEndSky(poseStack);
         }
 
-
         // Star
         renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
 

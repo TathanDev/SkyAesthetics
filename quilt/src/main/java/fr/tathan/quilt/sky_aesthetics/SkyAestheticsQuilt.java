@@ -1,4 +1,4 @@
-package fr.tathan.quilt;
+package fr.tathan.quilt.sky_aesthetics;
 
 import net.fabricmc.api.ModInitializer;
 

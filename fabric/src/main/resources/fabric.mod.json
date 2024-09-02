@@ -16,7 +16,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "fr.tathan.fabric.SkyAestheticsFabric"
+      "fr.tathan.fabric.sky_aesthetics.SkyAestheticsFabric"
     ]
   },
   "mixins": [

@@ -16,7 +16,7 @@
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
       "init": [
-        "fr.tathan.quilt.ExampleModQuilt"
+        "fr.tathan.quilt.sky_aesthetics.SkyAestheticsQuilt"
       ]
     },
     "depends": [
