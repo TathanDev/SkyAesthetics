@@ -21,7 +21,6 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        // Write common init code here.
     }
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {

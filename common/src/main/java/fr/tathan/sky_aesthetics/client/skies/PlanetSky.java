@@ -2,7 +2,6 @@ package fr.tathan.sky_aesthetics.client.skies;
 
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
-import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
