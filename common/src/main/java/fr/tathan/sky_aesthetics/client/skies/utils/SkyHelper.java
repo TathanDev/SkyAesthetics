@@ -9,6 +9,7 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
@@ -109,6 +110,54 @@ public class SkyHelper {
         }
     }
 
+    public static void renderEndSky(PoseStack poseStack) {
+        RenderSystem.enableBlend();
+        RenderSystem.depthMask(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getEndSkyLocation());
+        Tesselator tesselator = Tesselator.getInstance();
 
+        for(int i = 0; i < 6; ++i) {
+            poseStack.pushPose();
+            if (i == 1) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(90.0F));
+            }
+
+            if (i == 2) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90.0F));
+            }
+
+            if (i == 3) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180.0F));
+            }
+
+            if (i == 4) {
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
+            }
+
+            if (i == 5) {
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90.0F));
+            }
+
+            Matrix4f matrix4f = poseStack.last().pose();
+            BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, -100.0F).setUv(0.0F, 0.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, 100.0F).setUv(0.0F, 16.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, 100.0F).setUv(16.0F, 16.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, -100.0F).setUv(16.0F, 0.0F).setColor(-14145496);
+            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+            poseStack.popPose();
+        }
+
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+    }
+
+    public static boolean skyTypeToHasGround(String skyType) {
+        return switch (skyType) {
+            case "END" -> false ;
+            case null, default -> true;
+        };
+    }
 
 }

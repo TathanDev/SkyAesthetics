@@ -1,14 +1,14 @@
 {
   "id": "minecraft:overworld",
-  "cloud": true,
+  "cloud": false,
   "cloud_height": 192,
-  "fog": true,
+  "fog": false,
   "custom_vanilla_objects": {
-    "sun": true,
+    "sun": false,
     "sun_texture": "textures/environment/sun.png",
     "sun_height": 450,
     "sun_size": 200,
-    "moon": true,
+    "moon": false,
     "moon_phase": true,
     "moon_texture": "textures/environment/moon_phases.png",
     "moon_height": 75,
@@ -24,7 +24,7 @@
   "stars": {
     "vanilla": false,
     "moving_stars": false,
-    "count": 3000,
+    "count": 3,
     "all_days_visible": false,
     "scale": 0.05,
     "color": {
@@ -33,28 +33,6 @@
       "b": 255
     }
   },
-  "sky_type": "NORMAL",
-  "sky_objects": [],
-  "constellations": [
-    {
-      "scale": 0.01,
-      "color": {
-        "r": 255,
-        "g": 255,
-        "b": 255
-      },
-      "firstPoint": [0.04559607, 0.47792587, 0.877216],
-      "points": [
-        [-0.05, -0.05, 0],
-        [-0.09, -0.09, 0],
-        [-0.17, -0.09, 0],
-        [-0.1, -0.15, 0],
-        [-0.18, -0.15, 0]
-
-
-
-
-      ]
-    }
-  ]
+  "sky_type": "END",
+  "sky_objects": []
 }
