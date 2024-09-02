@@ -17,7 +17,7 @@ import net.minecraft.world.level.Level;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SkyPropertiesData extends SimpleJsonResourceReloadListener {
+public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
 
     public static final Map<ResourceKey<Level>, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
