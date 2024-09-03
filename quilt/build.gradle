@@ -13,6 +13,7 @@ repositories {
 architectury {
     platformSetupLoomIde()
     loader('quilt')
+    
 }
 
 configurations {
