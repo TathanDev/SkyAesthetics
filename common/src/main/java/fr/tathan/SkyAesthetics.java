@@ -25,7 +25,7 @@ public final class SkyAesthetics {
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
 
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_renderer"), new SkyPropertiesData());
+        registry.accept(new ResourceLocation(MODID, "sky_renderer"), new SkyPropertiesData());
 
     }
 

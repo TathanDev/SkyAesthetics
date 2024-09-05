@@ -22,7 +22,6 @@ public class SkyHelper {
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().bind();
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().drawWithShader(matrix4f, projectionMatrix, shaderInstance);
 
-
         VertexBuffer.unbind();
     }
 
@@ -62,12 +61,14 @@ public class SkyHelper {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, texture);
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -size, y, -size).setUv(startX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, -size).setUv(endX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, size).setUv(endX, startY);
-        bufferBuilder.addVertex(matrix4f, -size, y, size).setUv(startX, startY);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+        bufferBuilder.vertex(matrix4f, -size, y, -size).uv(startX, endY).endVertex();
+        bufferBuilder.vertex(matrix4f, size, y, -size).uv(endX, endY).endVertex();
+        bufferBuilder.vertex(matrix4f, size, y, size).uv(endX, startY).endVertex();
+        bufferBuilder.vertex(matrix4f, -size, y, size).uv(startX, startY).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         poseStack.popPose();
 
         if (blend) {
@@ -98,12 +99,14 @@ public class SkyHelper {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, object.texture());
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), -object.size()).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), -object.size()).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), object.size()).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), object.size()).setUv(0f, 1f);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+        bufferBuilder.vertex(matrix4f, -object.size(), object.height(), -object.size()).uv(0f, 0f).endVertex();
+        bufferBuilder.vertex(matrix4f, object.size(), object.height(), -object.size()).uv(1f, 0f).endVertex();
+        bufferBuilder.vertex(matrix4f, object.size(), object.height(), object.size()).uv(1f, 1f).endVertex();
+        bufferBuilder.vertex(matrix4f, -object.size(), object.height(), object.size()).uv(0f, 1f).endVertex();
+        BufferUploader.drawWithShader(bufferBuilder.end());
         poseStack.popPose();
 
         if (object.blend()) {
@@ -141,12 +144,14 @@ public class SkyHelper {
             }
 
             Matrix4f matrix4f = poseStack.last().pose();
-            BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, -100.0F).setUv(0.0F, 0.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, 100.0F).setUv(0.0F, 16.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, 100.0F).setUv(16.0F, 16.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, -100.0F).setUv(16.0F, 0.0F).setColor(-14145496);
-            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+            BufferBuilder bufferBuilder = tesselator.getBuilder();
+            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+            bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, -100.0F).uv(0.0F, 0.0F).color(-14145496).endVertex();
+            bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, 100.0F).uv(0.0F, 16.0F).color(-14145496).endVertex();
+            bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, 100.0F).uv(16.0F, 16.0F).color(-14145496).endVertex();
+            bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, -100.0F).uv(16.0F, 0.0F).color(-14145496).endVertex();
+            BufferUploader.drawWithShader(bufferBuilder.end());
             poseStack.popPose();
         }
 
@@ -161,39 +166,5 @@ public class SkyHelper {
         };
     }
 
-    public static void renderSunrise(ClientLevel level, float partialTick, PoseStack poseStack, float[] color) {
-        Tesselator tesselator = Tesselator.getInstance();
-
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(90));
-
-        poseStack.mulPose(Axis.ZP.rotationDegrees(0));
-
-        float sunAngle = Mth.sin(level.getSunAngle(partialTick)) < 0 ? 180 : 0;
-        poseStack.mulPose(Axis.ZP.rotationDegrees(sunAngle));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(90));
-
-        float r = color[0];
-        float g = color[1];
-        float b = color[2];
-
-        Matrix4f matrix = poseStack.last().pose();
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-        bufferBuilder.addVertex(matrix, 0, 100, 0).setColor(r, g, b, color[3]);
-
-        for (int i = 0; i <= 16; i++) {
-            float angle = (float) i * (float) (Math.PI * 2) / 16;
-            float x = Mth.sin(angle);
-            float y = Mth.cos(angle);
-
-            bufferBuilder.addVertex(matrix, x * 120, y * 120, -y * 40 * color[3]).setColor(r, g, b, 0);
-        }
-
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        poseStack.popPose();
-    }
 
 }

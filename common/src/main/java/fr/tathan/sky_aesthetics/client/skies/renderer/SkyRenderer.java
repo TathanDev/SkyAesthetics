@@ -57,6 +57,7 @@ public class SkyRenderer {
         FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
 
+
         RenderSystem.setShaderColor(r, g, b, 1.0f);
 
         ShaderInstance shaderInstance = RenderSystem.getShader();
