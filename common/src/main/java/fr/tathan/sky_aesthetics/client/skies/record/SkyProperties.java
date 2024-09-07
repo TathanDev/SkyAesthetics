@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.Optional;
 
 public record SkyProperties(
         ResourceKey<Level> id,
@@ -18,7 +19,7 @@ public record SkyProperties(
         Star stars,
         String skyType,
         List<SkyObject> skyObjects,
-        List<Constellation> constellations
+        Optional<List<Constellation>> constellations
 ) {
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("id").forGetter(SkyProperties::id),
@@ -30,6 +31,6 @@ public record SkyProperties(
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
-            Constellation.CODEC.listOf().fieldOf("constellations").forGetter(SkyProperties::constellations)
+            Constellation.CODEC.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations)
     ).apply(instance, SkyProperties::new));
 }

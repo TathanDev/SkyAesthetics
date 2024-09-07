@@ -37,10 +37,10 @@
   "sky_objects": [],
   "constellations": [
     {
-      "scale": 0.01,
+      "scale": 1,
       "color": {
-        "r": 255,
-        "g": 255,
+        "r": 0,
+        "g": 0,
         "b": 255
       },
       "firstPoint": [0.04559607, 0.47792587, 0.877216],
