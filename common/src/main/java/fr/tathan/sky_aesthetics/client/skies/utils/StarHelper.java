@@ -87,7 +87,7 @@ public class StarHelper {
 
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(nightTime));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
         vertexBuffer.bind();
         vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());

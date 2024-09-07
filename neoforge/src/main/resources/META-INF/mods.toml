@@ -1,11 +1,11 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "[2,)"
 issueTrackerURL = "https://github.com/TathanDev/SkyAesthetics/issues"
 license = "Insert License Here"
 
 [[mods]]
 modId = "sky_aesthetics"
-version = "${version}"
+version = "1.0.0"
 displayName = "Sky Aesthetics"
 authors = "The Stellaris Team"
 description = '''
@@ -16,14 +16,14 @@ Change the skybox of Minecraft like you want !
 [[dependencies.sky_aesthetics]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.0,)"
+versionRange = "[20.0,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.sky_aesthetics]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,)"
+versionRange = "[1.20.4,)"
 ordering = "NONE"
 side = "BOTH"
 

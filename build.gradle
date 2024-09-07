@@ -19,6 +19,7 @@ subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
+    apply plugin: 'me.modmuss50.mod-publish-plugin'
 
     def modLoader = project.name
     def isCommon = (modLoader == "common")
@@ -59,9 +60,9 @@ subprojects {
         it.options.release = 21
     }
 
-    if (!isCommon && !modLoader == "quilt") {
+    if (!isCommon ) {
         publishMods {
-            file = file("../${modLoader.capitalize()}/build/libs/sky_aesthetics-${minecraft_version}-${modLoader}-${mod_version}.jar")
+            file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
             changelog = file("../changelog.md").getText('UTF-8')
             type = STABLE
             modLoaders.add(modLoader)

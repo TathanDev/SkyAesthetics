@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,19 +27,17 @@ public abstract class LevelRendererMixin {
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(Matrix4f matrix4f, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+    private void renderCustomSkyboxes(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
-        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera) && SkyPropertiesData.SKY_PROPERTIES.containsKey(level.dimension())) {
-            PoseStack poseStack = new PoseStack();
-            poseStack.mulPose(matrix4f);
-            SkyPropertiesData.SKY_PROPERTIES.get(level.dimension()).getRenderer().render(Minecraft.getInstance().level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+        if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera) && SkyPropertiesData.SKY_PROPERTIES.containsKey(level.dimension())) {
+            SkyPropertiesData.SKY_PROPERTIES.get(level.dimension()).getRenderer().render(Minecraft.getInstance().level, poseStack, matrix4f, f, camera, runnable);
             ci.cancel();
         }
     }
 
     @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
         if (SkyPropertiesData.SKY_PROPERTIES.containsKey(level.dimension())) {
             if(SkyPropertiesData.SKY_PROPERTIES.get(level.dimension()).getRenderer().shouldRemoveCloud()) {
                 ci.cancel();
