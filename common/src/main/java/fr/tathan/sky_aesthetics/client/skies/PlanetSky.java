@@ -22,6 +22,15 @@ public class PlanetSky extends DimensionSpecialEffects {
     }
 
     @Override
+    public SkyType skyType() {
+        return switch (properties.skyType()) {
+            case "END" -> SkyType.END;
+            case "NONE" -> SkyType.NONE;
+            case null, default -> SkyType.NORMAL;
+        };
+    }
+
+    @Override
     public boolean isFoggyAt(int x, int y) {
         return false;
     }

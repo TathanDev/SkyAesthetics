@@ -1,13 +1,14 @@
 {
   "schema_version": 1,
   "quilt_loader": {
-    "group": "${group}",
+    "group": "fr.tathan.sky_aesthetics",
     "id": "sky_aesthetics",
     "version": "${version}",
     "metadata": {
       "name": "Sky Aesthetics",
       "description": "Change the skybox of Minecraft like you want !",
       "contributors": {
+        "The Stellaris Team": "Team",
         "TATHAN": "Author"
       },
       "icon": "assets/sky_aesthetics/icon.png"
@@ -15,16 +16,12 @@
     "intermediate_mappings": "net.fabricmc:intermediary",
     "entrypoints": {
       "init": [
-        "fr.tathan.quilt.ExampleModQuilt"
+        "fr.tathan.quilt.sky_aesthetics.SkyAestheticsQuilt"
       ]
     },
     "depends": [
       {
         "id": "quilt_loader",
-        "version": "*"
-      },
-      {
-        "id": "quilt_base",
         "version": "*"
       },
       {

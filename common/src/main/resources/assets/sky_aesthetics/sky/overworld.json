@@ -3,6 +3,7 @@
   "cloud": true,
   "cloud_height": 192,
   "fog": true,
+  "rain": true,
   "custom_vanilla_objects": {
     "sun": true,
     "sun_texture": "textures/environment/sun.png",
@@ -14,12 +15,7 @@
     "moon_height": 75,
     "moon_size": 75
   },
-  "weather": [
-    {
-      "rain": true,
-      "acid_rain": false
-    }
-  ],
+
   "sunrise_color": 16755035,
   "stars": {
     "vanilla": false,
@@ -45,6 +41,10 @@
     }
   },
   "sky_type": "END",
+  "sky_color": {
+    "custom_color": false,
+    "color": [255, 255, 255]
+  },
   "sky_objects": [],
   "constellations": [
     "sky_aesthetics:big_dipper"

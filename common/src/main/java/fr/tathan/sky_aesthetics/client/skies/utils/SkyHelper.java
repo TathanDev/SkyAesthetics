@@ -10,9 +10,9 @@ import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
@@ -21,6 +21,8 @@ public class SkyHelper {
     public static void drawSky(Matrix4f matrix4f, Matrix4f projectionMatrix, ShaderInstance shaderInstance, Tesselator tesselator, PoseStack poseStack, float partialTick) {
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().bind();
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().drawWithShader(matrix4f, projectionMatrix, shaderInstance);
+
+
         VertexBuffer.unbind();
     }
 
@@ -109,6 +111,89 @@ public class SkyHelper {
         }
     }
 
+    public static void renderEndSky(PoseStack poseStack) {
+        RenderSystem.enableBlend();
+        RenderSystem.depthMask(false);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShaderTexture(0, ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getEndSkyLocation());
+        Tesselator tesselator = Tesselator.getInstance();
 
+        for(int i = 0; i < 6; ++i) {
+            poseStack.pushPose();
+            if (i == 1) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(90.0F));
+            }
+
+            if (i == 2) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90.0F));
+            }
+
+            if (i == 3) {
+                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180.0F));
+            }
+
+            if (i == 4) {
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
+            }
+
+            if (i == 5) {
+                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90.0F));
+            }
+
+            Matrix4f matrix4f = poseStack.last().pose();
+            BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, -100.0F).setUv(0.0F, 0.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, 100.0F).setUv(0.0F, 16.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, 100.0F).setUv(16.0F, 16.0F).setColor(-14145496);
+            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, -100.0F).setUv(16.0F, 0.0F).setColor(-14145496);
+            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+            poseStack.popPose();
+        }
+
+        RenderSystem.depthMask(true);
+        RenderSystem.disableBlend();
+    }
+
+    public static boolean skyTypeToHasGround(String skyType) {
+        return switch (skyType) {
+            case "END" -> false ;
+            case null, default -> true;
+        };
+    }
+
+    public static void renderSunrise(ClientLevel level, float partialTick, PoseStack poseStack, float[] color) {
+        Tesselator tesselator = Tesselator.getInstance();
+
+
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.XP.rotationDegrees(90));
+
+        poseStack.mulPose(Axis.ZP.rotationDegrees(0));
+
+        float sunAngle = Mth.sin(level.getSunAngle(partialTick)) < 0 ? 180 : 0;
+        poseStack.mulPose(Axis.ZP.rotationDegrees(sunAngle));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(90));
+
+        float r = color[0];
+        float g = color[1];
+        float b = color[2];
+
+        Matrix4f matrix = poseStack.last().pose();
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
+        bufferBuilder.addVertex(matrix, 0, 100, 0).setColor(r, g, b, color[3]);
+
+        for (int i = 0; i <= 16; i++) {
+            float angle = (float) i * (float) (Math.PI * 2) / 16;
+            float x = Mth.sin(angle);
+            float y = Mth.cos(angle);
+
+            bufferBuilder.addVertex(matrix, x * 120, y * 120, -y * 40 * color[3]).setColor(r, g, b, 0);
+        }
+
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        poseStack.popPose();
+    }
 
 }

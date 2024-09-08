@@ -1,3 +1,1 @@
 accessWidener v2 named
-
-accessible method net/minecraft/client/renderer/LevelRenderer drawStars (Lcom/mojang/blaze3d/vertex/BufferBuilder;)Lcom/mojang/blaze3d/vertex/BufferBuilder$RenderedBuffer;

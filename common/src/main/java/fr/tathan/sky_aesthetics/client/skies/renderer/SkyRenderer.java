@@ -6,6 +6,9 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
+import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
+import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
+import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.client.Camera;
@@ -18,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 import java.util.*;
+import java.util.Objects;
 
 public class SkyRenderer {
 
@@ -47,16 +51,29 @@ public class SkyRenderer {
         float nightAngle = dayAngle + 180;
 
         Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
+
+        if(properties.skyColor().customColor()) {
+            vec3 = properties.skyColor().color();
+        }
+
         float r = (float) vec3.x;
         float g = (float) vec3.y;
         float b = (float) vec3.z;
 
         FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
+
         RenderSystem.setShaderColor(r, g, b, 1.0f);
 
         ShaderInstance shaderInstance = RenderSystem.getShader();
-        SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
+
+
+
+        if(Objects.equals(properties.skyType(), "NORMAL")) {
+            SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
+        } else if(Objects.equals(properties.skyType(), "END")) {
+            SkyHelper.renderEndSky(poseStack);
+        }
 
         // Star
         renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
@@ -65,7 +82,6 @@ public class SkyRenderer {
             handleShootingStars(level, poseStack, projectionMatrix, shootingStar);
 
         }));
-
 
         // Sun
         if (customVanillaObject.sun()) {
@@ -151,6 +167,6 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveSnowAndRain() {
-        return properties.weather().isEmpty();
+        return !properties.rain();
     }
 }
