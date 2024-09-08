@@ -4,10 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
-import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
+import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.skies.record.*;
+import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.client.Camera;
@@ -15,15 +14,17 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-import java.util.ArrayList;
+import java.util.*;
 
 public class SkyRenderer {
 
     private final SkyProperties properties;
     private final VertexBuffer starBuffer;
+    private final Map<UUID, ShootingStar> shootingStars;
 
     public SkyRenderer(SkyProperties properties) {
         this.properties = properties;
@@ -33,7 +34,7 @@ public class SkyRenderer {
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
-
+        this.shootingStars = new HashMap<>();
     }
 
 
@@ -59,7 +60,9 @@ public class SkyRenderer {
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
 
         // Star
-        renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
+        //renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
+
+        handleShootingStars(level, poseStack, projectionMatrix);
 
         // Sun
         if (customVanillaObject.sun()) {
@@ -83,6 +86,34 @@ public class SkyRenderer {
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
+    }
+
+    private void handleShootingStars(Level level, PoseStack poseStack, Matrix4f projectionMatrix) {
+        if(!level.isClientSide) return;
+
+        Random random = new Random();
+        if (random.nextInt(100) > 90) {
+            UUID starId = UUID.randomUUID();
+            var shootingStar = new ShootingStar(random.nextInt(10, 100), this.properties.stars(), starId);
+            this.shootingStars.putIfAbsent(starId, shootingStar);
+        }
+
+        if(this.shootingStars == null || this.shootingStars.isEmpty() ) return;
+
+        ArrayList<UUID> starsToRemove = new ArrayList<>();
+
+
+
+        for (Iterator<ShootingStar> iterator = this.shootingStars.values().iterator(); iterator.hasNext();) {
+            ShootingStar shootingStar = (ShootingStar) iterator.next();
+            if (shootingStar.render(poseStack, projectionMatrix)) {
+                starsToRemove.add(shootingStar.starId);
+            }
+        }
+
+        starsToRemove.forEach(this.shootingStars::remove);
+
+
     }
 
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {
