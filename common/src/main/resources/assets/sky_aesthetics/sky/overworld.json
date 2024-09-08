@@ -24,7 +24,7 @@
   "stars": {
     "vanilla": false,
     "moving_stars": false,
-    "count": 3000,
+    "count": 100,
     "all_days_visible": false,
     "scale": 0.05,
     "color": {
@@ -33,7 +33,7 @@
       "b": 255
     },
     "shooting_stars": {
-      "pourcentage": 99,
+      "percentage": 99,
       "random_lifetime": [20, 100],
       "scale": 0.5,
       "speed": 0.4,
@@ -47,21 +47,6 @@
   "sky_type": "END",
   "sky_objects": [],
   "constellations": [
-    {
-      "scale": 1,
-      "color": {
-        "r": 0,
-        "g": 0,
-        "b": 255
-      },
-      "firstPoint": [0.04559607, 0.47792587, 0.877216],
-      "points": [
-        [-0.05, -0.05, 0],
-        [-0.09, -0.09, 0],
-        [-0.17, -0.09, 0],
-        [-0.1, -0.15, 0],
-        [-0.18, -0.15, 0]
-      ]
-    }
+    "sky_aesthetics:big_dipper"
   ]
 }

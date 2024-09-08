@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +29,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
 
     }
 
-    public record ShootingStars(int pourcentage, Vec2 randomLifetime, float scale, float speed, Color color) {
+    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Color color) {
 
         public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> {
             return Util.fixedSize(list, 2).map((listx) -> {
@@ -42,7 +41,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
 
 
         public static final Codec<ShootingStars> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.fieldOf("pourcentage").forGetter(ShootingStars::pourcentage),
+                Codec.INT.fieldOf("percentage").forGetter(ShootingStars::percentage),
                 VEC2.fieldOf("random_lifetime").forGetter(ShootingStars::randomLifetime),
                 Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
                 Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),

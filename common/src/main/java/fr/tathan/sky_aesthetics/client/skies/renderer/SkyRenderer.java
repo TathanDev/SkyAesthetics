@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -60,7 +59,7 @@ public class SkyRenderer {
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
 
         // Star
-        //renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
+        renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
 
         properties.stars().shootingStars().ifPresent((shootingStar -> {
             handleShootingStars(level, poseStack, projectionMatrix, shootingStar);
@@ -96,7 +95,7 @@ public class SkyRenderer {
         if(!level.isClientSide) return;
 
         Random random = new Random();
-        if (random.nextInt(101) >= shootingStarConfig.pourcentage()) {
+        if (random.nextInt(101) >= shootingStarConfig.percentage()) {
             UUID starId = UUID.randomUUID();
             var shootingStar = new ShootingStar((float) random.nextInt( (int) shootingStarConfig.randomLifetime().x, (int) shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
             this.shootingStars.putIfAbsent(starId, shootingStar);

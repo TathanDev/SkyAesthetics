@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
@@ -23,7 +24,8 @@ import java.util.Optional;
 import java.util.Random;
 
 public class StarHelper {
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<Constellation>> constellations) {
+
+    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
@@ -84,26 +86,34 @@ public class StarHelper {
         }
         /** Constellation **/
         if (constellations.isPresent()) {
-            for (Constellation constellation : constellations.get()) {
-                Star.Color color = constellation.color();
+            SkyAesthetics.LOG.error("Is present");
 
-                float x = (float)( constellation.firstPoint().x );
-                float y = (float)( constellation.firstPoint().y);
-                float z = (float)( constellation.firstPoint().z);
+            for (String constellationId : constellations.get()) {
 
-                // First Point
-                createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder);
+                Constellation constellation = ConstellationsData.CONSTELLATIONS.get(constellationId);
+                if(constellation != null) {
+                    Star.Color color = constellation.color();
 
-                for (Vec3 point : constellation.points()) {
+                    float x = (float)( constellation.firstPoint().x );
+                    float y = (float)( constellation.firstPoint().y);
+                    float z = (float)( constellation.firstPoint().z);
 
-                    Vec3 pointPos = new Vec3(x + point.x, y + point.y, z + point.z);
+                    // First Point
+                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder);
 
-                    createStar(pointPos, color, (int) constellation.scale(), random, bufferBuilder);
+                    for (Vec3 point : constellation.points()) {
 
+                        Vec3 pointPos = new Vec3(x + point.x, y + point.y, z + point.z);
+
+                        createStar(pointPos, color, (int) constellation.scale(), random, bufferBuilder);
+
+                    }
+                } else {
+                    SkyAesthetics.LOG.error("{} is null", constellationId);
                 }
+
             }
         }
-
 
         vertexBuffer.bind();
         vertexBuffer.upload(bufferBuilder.buildOrThrow());

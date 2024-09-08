@@ -19,7 +19,7 @@ public record SkyProperties(
         Star stars,
         String skyType,
         List<SkyObject> skyObjects,
-        Optional<List<Constellation>> constellations
+        Optional<List<String>> constellations
 ) {
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("id").forGetter(SkyProperties::id),
@@ -31,6 +31,6 @@ public record SkyProperties(
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
-            Constellation.CODEC.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations)
+            Codec.STRING.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations)
     ).apply(instance, SkyProperties::new));
 }
