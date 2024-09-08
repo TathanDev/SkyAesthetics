@@ -1,0 +1,52 @@
+{
+  "id": "minecraft:overworld",
+  "cloud": true,
+  "cloud_height": 192,
+  "fog": true,
+  "rain": true,
+  "custom_vanilla_objects": {
+    "sun": true,
+    "sun_texture": "textures/environment/sun.png",
+    "sun_height": 450,
+    "sun_size": 200,
+    "moon": true,
+    "moon_phase": true,
+    "moon_texture": "textures/environment/moon_phases.png",
+    "moon_height": 75,
+    "moon_size": 75
+  },
+
+  "sunrise_color": 16755035,
+  "stars": {
+    "vanilla": false,
+    "moving_stars": false,
+    "count": 100,
+    "all_days_visible": false,
+    "scale": 0.05,
+    "color": {
+      "r": 255,
+      "g": 255,
+      "b": 255
+    },
+    "shooting_stars": {
+      "percentage": 99,
+      "random_lifetime": [20, 100],
+      "scale": 0.5,
+      "speed": 0.4,
+      "color": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+      }
+    }
+  },
+  "sky_type": "END",
+  "sky_color": {
+    "custom_color": false,
+    "color": [255, 255, 255]
+  },
+  "sky_objects": [],
+  "constellations": [
+    "sky_aesthetics:big_dipper"
+  ]
+}
