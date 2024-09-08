@@ -2,15 +2,23 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.Util;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 
-public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Color color) {
+import java.util.List;
+import java.util.Optional;
+
+public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Color color, Optional<ShootingStars> shootingStars) {
     public static final Codec<Star> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(Star::vanilla),
             Codec.BOOL.fieldOf("moving_stars").forGetter(Star::movingStars),
             Codec.INT.fieldOf("count").forGetter(Star::count),
             Codec.BOOL.fieldOf("all_days_visible").forGetter(Star::allDaysVisible),
             Codec.FLOAT.fieldOf("scale").forGetter(Star::scale),
-            Color.CODEC.fieldOf("color").forGetter(Star::color)
+            Color.CODEC.fieldOf("color").forGetter(Star::color),
+            ShootingStars.CODEC.optionalFieldOf("shooting_stars").forGetter(Star::shootingStars)
+
     ).apply(instance, Star::new));
 
     public record Color(int r, int g, int b) {
@@ -21,5 +29,30 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
         ).apply(instance, Color::new));
 
     }
+
+    public record ShootingStars(int pourcentage, Vec2 randomLifetime, float scale, float speed, Color color) {
+
+        public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> {
+            return Util.fixedSize(list, 2).map((listx) -> {
+                return new Vec2(listx.get(0), listx.get(1));
+            });
+        }, (vec2) -> {
+            return List.of(vec2.x, vec2.y);
+        });
+
+
+        public static final Codec<ShootingStars> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("pourcentage").forGetter(ShootingStars::pourcentage),
+                VEC2.fieldOf("random_lifetime").forGetter(ShootingStars::randomLifetime),
+                Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
+                Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),
+                Color.CODEC.fieldOf("color").forGetter(ShootingStars::color)
+
+        ).apply(instance, ShootingStars::new));
+
+
+
+    }
+
 
 }

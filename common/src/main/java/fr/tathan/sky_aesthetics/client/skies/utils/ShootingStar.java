@@ -17,23 +17,23 @@ import java.util.UUID;
 public class ShootingStar {
 
     private final float lifeTime;
-    private final Star starConfig;
+    private final Star.ShootingStars starConfig;
     private final VertexBuffer starBuffer;
     public final UUID starId;
     private float life;
     private final float randomSpeedModifier;
 
-    public ShootingStar(float lifeTime, Star starConfig, UUID starId){
+    public ShootingStar(float lifeTime, Star.ShootingStars starConfig, UUID starId){
 
         this.lifeTime = lifeTime;
         this.starConfig = starConfig;
-        this.starBuffer = createStar();
+        this.starBuffer = createStar(starConfig.color());
         this.starId = starId;
         this.life = 0;
         this.randomSpeedModifier = new Random().nextInt(-20, 10);
     }
 
-    private VertexBuffer createStar() {
+    private VertexBuffer createStar(Star.Color color) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
@@ -43,7 +43,7 @@ public class ShootingStar {
 
 
         Vec3 randomPos = new Vec3(random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F);
-        StarHelper.createStar(randomPos, this.starConfig.color(), (int) 0.5, random, bufferBuilder);
+        StarHelper.createStar(randomPos, color, (int) starConfig.scale(), random, bufferBuilder);
         vertexBuffer.bind();
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();
@@ -52,7 +52,7 @@ public class ShootingStar {
     }
 
     public boolean render(PoseStack poseStack, Matrix4f projectionMatrix) {
-        life ++;
+        life += this.starConfig.speed();
         if (life >= lifeTime) {
             return true;
         }

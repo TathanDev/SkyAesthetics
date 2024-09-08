@@ -31,6 +31,17 @@
       "r": 255,
       "g": 255,
       "b": 255
+    },
+    "shooting_stars": {
+      "pourcentage": 99,
+      "random_lifetime": [20, 100],
+      "scale": 0.5,
+      "speed": 0.4,
+      "color": {
+        "r": 255,
+        "g": 255,
+        "b": 255
+      }
     }
   },
   "sky_type": "END",
