@@ -15,38 +15,24 @@
     "moon_height": 75,
     "moon_size": 75
   },
-
   "sunrise_color": 16755035,
   "stars": {
     "vanilla": false,
-    "moving_stars": false,
-    "count": 100,
+    "moving_stars": true,
+    "count": 30000,
     "all_days_visible": false,
     "scale": 0.05,
     "color": {
-      "r": 255,
-      "g": 255,
-      "b": 255
-    },
-    "shooting_stars": {
-      "percentage": 99,
-      "random_lifetime": [20, 100],
-      "scale": 0.5,
-      "speed": 0.4,
-      "color": {
-        "r": 255,
-        "g": 255,
-        "b": 255
-      }
+      "r": 190,
+      "g": 160,
+      "b": -1
     }
   },
-  "sky_type": "END",
   "sky_color": {
     "custom_color": false,
     "color": [255, 255, 255]
   },
-  "sky_objects": [],
-  "constellations": [
-    "sky_aesthetics:big_dipper"
-  ]
+
+  "sky_type": "NORMAL",
+  "sky_objects": []
 }

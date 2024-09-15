@@ -43,7 +43,7 @@ public class ShootingStar {
 
 
         Vec3 randomPos = new Vec3(random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F);
-        StarHelper.createStar(randomPos, color, (int) starConfig.scale(), random, bufferBuilder);
+        StarHelper.createStar(randomPos, color, starConfig.scale(), random, bufferBuilder);
         vertexBuffer.bind();
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();

@@ -105,7 +105,7 @@ public class StarHelper {
 
                         Vec3 pointPos = new Vec3(x + point.x, y + point.y, z + point.z);
 
-                        createStar(pointPos, color, (int) constellation.scale(), random, bufferBuilder);
+                        createStar(pointPos, color, constellation.scale(), random, bufferBuilder);
 
                     }
                 } else {
@@ -122,7 +122,7 @@ public class StarHelper {
     }
 
 
-    public static void createStar(Vec3 pos, Star.Color color, int scale, Random random, BufferBuilder bufferBuilder) {
+    public static void createStar(Vec3 pos, Star.Color color, float scale, Random random, BufferBuilder bufferBuilder) {
         float d0 = (float) pos.x;
         float d1 = (float) pos.y;
         float d2 = (float) pos.z;
@@ -167,7 +167,7 @@ public class StarHelper {
 
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(nightTime));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
         vertexBuffer.bind();
         vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
