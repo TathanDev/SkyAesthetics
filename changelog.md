@@ -1,6 +1,5 @@
-# Sky Aesthetics 1.1.0
+# Sky Aesthetics 1.1.2
 
-This update bring 2 new features :
-
-- Shooting Stars
-- Constellations 
+## Fixes
+- Fix shooting stars showing when it's day
+- remove test file

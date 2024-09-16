@@ -79,7 +79,7 @@ public class SkyRenderer {
         renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
 
         properties.stars().shootingStars().ifPresent((shootingStar -> {
-            handleShootingStars(level, poseStack, projectionMatrix, shootingStar);
+            handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick);
 
         }));
 
@@ -107,11 +107,16 @@ public class SkyRenderer {
         RenderSystem.depthMask(true);
     }
 
-    private void handleShootingStars(Level level, PoseStack poseStack, Matrix4f projectionMatrix, Star.ShootingStars shootingStarConfig) {
+    private void handleShootingStars(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, Star star, float partialTick) {
         if(!level.isClientSide) return;
 
+        float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
+
+        if(!star.allDaysVisible() && starLight > 0.2F) return;
+
+        Star.ShootingStars shootingStarConfig = star.shootingStars().get();
         Random random = new Random();
-        if (random.nextInt(101) >= shootingStarConfig.percentage()) {
+        if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
             UUID starId = UUID.randomUUID();
             var shootingStar = new ShootingStar((float) random.nextInt( (int) shootingStarConfig.randomLifetime().x, (int) shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
             this.shootingStars.putIfAbsent(starId, shootingStar);
@@ -121,6 +126,7 @@ public class SkyRenderer {
         ArrayList<UUID> starsToRemove = new ArrayList<>();
         for (Iterator<ShootingStar> iterator = this.shootingStars.values().iterator(); iterator.hasNext();) {
             ShootingStar shootingStar = (ShootingStar) iterator.next();
+
             if (shootingStar.render(poseStack, projectionMatrix)) {
                 starsToRemove.add(shootingStar.starId);
             }
