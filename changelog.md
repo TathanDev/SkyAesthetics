@@ -1,5 +1,5 @@
-# Sky Aesthetics 1.1.2
+# Sky Aesthetics 1.1.3
 
 ## Fixes
-- Fix shooting stars showing when it's day
-- remove test file
+- Fix shooting stars showing when it's day (again)
+- Fix cloud value

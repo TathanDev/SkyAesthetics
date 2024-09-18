@@ -112,7 +112,10 @@ public class SkyRenderer {
 
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
 
-        if(!star.allDaysVisible() && starLight > 0.2F) return;
+        if(!star.allDaysVisible() && !(starLight > 0.2F)) {
+            if(!shootingStars.isEmpty()) shootingStars.clear();
+            return;
+        }
 
         Star.ShootingStars shootingStarConfig = star.shootingStars().get();
         Random random = new Random();
@@ -169,7 +172,7 @@ public class SkyRenderer {
 
 
     public Boolean shouldRemoveCloud() {
-        return properties.cloud();
+        return !properties.cloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
