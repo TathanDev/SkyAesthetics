@@ -13,7 +13,7 @@
     "sources": "https://github.com/TathanDev/SkyAesthetics"
   },
   "license": "CC0-1.0",
-  "icon": "assets/sky_aesthetics/icon.png",
+  "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
     "main": [
