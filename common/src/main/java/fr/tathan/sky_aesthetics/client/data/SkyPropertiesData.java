@@ -31,7 +31,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
             SkyProperties skyProperties = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
             PlanetSky planetSky = new PlanetSky(skyProperties);
-            SkyAesthetics.LOG.error(skyProperties.id() + " | registered");
+            SkyAesthetics.LOG.info(skyProperties.id() + " | registered");
 
             SKY_PROPERTIES.putIfAbsent(skyProperties.id(), planetSky);
         });

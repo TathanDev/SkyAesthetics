@@ -27,7 +27,7 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener {
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "constellation");
             Constellation constellation = Constellation.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
-            SkyAesthetics.LOG.error(constellation.id() + " | registered");
+            SkyAesthetics.LOG.info(constellation.id() + " | registered");
 
             CONSTELLATIONS.putIfAbsent(constellation.id(), constellation);
         });
