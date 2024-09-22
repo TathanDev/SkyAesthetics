@@ -1,12 +1,19 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
+import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.DebugScreenOverlay;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,11 +36,24 @@ public abstract class LevelRendererMixin {
     private void renderCustomSkyboxes(Matrix4f matrix4f, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
-        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera) && SkyPropertiesData.SKY_PROPERTIES.containsKey(level.dimension())) {
-            PoseStack poseStack = new PoseStack();
-            poseStack.mulPose(matrix4f);
-            SkyPropertiesData.SKY_PROPERTIES.get(level.dimension()).getRenderer().render(Minecraft.getInstance().level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-            ci.cancel();
+        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
+
+            for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+                if (sky.getProperties().world().equals(level.dimension())) {
+                    PoseStack poseStack = new PoseStack();
+                    poseStack.mulPose(matrix4f);
+
+                    SkyRenderer renderer = sky.getRenderer();
+
+                    if(renderer.isSkyRendered()) {
+                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                        ci.cancel();
+                    }
+
+                }
+
+            }
+
         }
     }
 

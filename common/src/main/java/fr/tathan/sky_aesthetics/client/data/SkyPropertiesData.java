@@ -19,7 +19,7 @@ import java.util.Map;
 
 public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
 
-    public static final Map<ResourceKey<Level>, PlanetSky> SKY_PROPERTIES = new HashMap<>();
+    public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
         super(SkyAesthetics.GSON, "sky");
@@ -33,7 +33,12 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             PlanetSky planetSky = new PlanetSky(skyProperties);
             SkyAesthetics.LOG.info(skyProperties.id() + " | registered");
 
-            SKY_PROPERTIES.putIfAbsent(skyProperties.id(), planetSky);
+            if(skyProperties.id().isPresent()) {
+                SKY_PROPERTIES.putIfAbsent(skyProperties.id().get(), planetSky);
+            } else {
+                SKY_PROPERTIES.putIfAbsent(skyProperties.world().location(), planetSky);
+
+            }
         });
 
     }
