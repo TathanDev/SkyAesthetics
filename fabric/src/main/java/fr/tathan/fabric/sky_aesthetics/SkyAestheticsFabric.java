@@ -18,21 +18,7 @@ public final class SkyAestheticsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
         SkyAesthetics.init();
-        onAddReloadListener();
     }
 
-    public static void onAddReloadListener() {
-        SkyAesthetics.onAddReloadListenerEvent((id, listener) -> ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
-            @Override
-            public ResourceLocation getFabricId() {
-                return id;
-            }
-
-            @Override
-            public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier synchronizer, @NotNull ResourceManager manager, @NotNull ProfilerFiller prepareProfiler, @NotNull ProfilerFiller applyProfiler, @NotNull Executor prepareExecutor, @NotNull Executor applyExecutor) {
-                return listener.reload(synchronizer, manager, prepareProfiler, applyProfiler, prepareExecutor, applyExecutor);
-            }
-        }));
-    }
 
 }

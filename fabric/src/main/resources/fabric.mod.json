@@ -18,6 +18,9 @@
   "entrypoints": {
     "main": [
       "fr.tathan.fabric.sky_aesthetics.SkyAestheticsFabric"
+    ],
+    "client": [
+        "fr.tathan.fabric.sky_aesthetics.SkyAestheticsClientFabric"
     ]
   },
   "mixins": [

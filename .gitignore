@@ -50,3 +50,4 @@ gradlew.bat
 .idea
 .gradle
 
+common/src/main/resources/assets/sky_aesthetics/sky/test.json
