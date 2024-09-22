@@ -31,12 +31,14 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
             SkyProperties skyProperties = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
             PlanetSky planetSky = new PlanetSky(skyProperties);
-            SkyAesthetics.LOG.info(skyProperties.id() + " | registered");
 
             if(skyProperties.id().isPresent()) {
                 SKY_PROPERTIES.putIfAbsent(skyProperties.id().get(), planetSky);
+                SkyAesthetics.LOG.info(skyProperties.id().get() + " | registered");
+
             } else {
                 SKY_PROPERTIES.putIfAbsent(skyProperties.world().location(), planetSky);
+                SkyAesthetics.LOG.info(skyProperties.world().location() + " | registered");
 
             }
         });
