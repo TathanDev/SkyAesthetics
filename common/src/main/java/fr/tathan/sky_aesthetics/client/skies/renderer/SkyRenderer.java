@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
@@ -12,11 +13,14 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
-import net.minecraft.world.level.Level;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -42,6 +46,8 @@ public class SkyRenderer {
 
 
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+        if(!isSkyRendered()) return;
+
         if (properties.fog()) fogCallback.run();
 
         Tesselator tesselator = Tesselator.getInstance();
@@ -177,5 +183,29 @@ public class SkyRenderer {
 
     public Boolean shouldRemoveSnowAndRain() {
         return !properties.rain();
+    }
+
+    public boolean isSkyRendered() {
+
+        if(!this.properties.renderCondition().isPresent() || !this.properties.renderCondition().get().condition()) return true;
+        SkyProperties.RenderCondition condition = this.properties.renderCondition().get();
+        ServerLevel level = this.getServerLevel();
+        LocalPlayer player = Minecraft.getInstance().player;
+
+        if (player == null || level == null) return false;
+
+        if(condition.biomes().isPresent()) {
+            return level.getBiome(player.getOnPos()).is(condition.biomes().get());
+        } else if (condition.biome().isPresent()) {
+            return level.getBiome(player.getOnPos()).is(condition.biome().get());
+        }
+
+        return true;
+    }
+
+    private ServerLevel getServerLevel() {
+        Minecraft minecraft = Minecraft.getInstance();
+        IntegratedServer integratedServer = minecraft.getSingleplayerServer();
+        return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
 }
