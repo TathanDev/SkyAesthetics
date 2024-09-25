@@ -6,7 +6,6 @@ import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -50,22 +49,12 @@ public class ShootingStar {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-
-
-        BufferBuilder bufferBuilder;
-
-        if (this.starConfig.location().isPresent()) {
-            bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        } else {
-            bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-
-        }
-
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         Random random = new Random();
 
 
         Vec3 randomPos = new Vec3(random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F);
-        StarHelper.createStar(randomPos, color, starConfig.scale(), random, bufferBuilder, this.starConfig.location().isPresent());
+        StarHelper.createStar(randomPos, color, starConfig.scale(), random, bufferBuilder);
         vertexBuffer.bind();
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();
@@ -78,19 +67,11 @@ public class ShootingStar {
         if (life >= lifeTime) {
             return true;
         }
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
-        if (!this.starConfig.location().isPresent()) {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            RenderSystem.setShaderColor(5f, 4f, 5f, 5f);
-        }
+        RenderSystem.setShaderColor(5f, 4f, 5f, 5f);
 
         poseStack.pushPose();
-
-        if(this.starConfig.location().isPresent()) {
-            RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-            RenderSystem.setShader(GameRenderer::getPositionTexShader);
-            RenderSystem.setShaderTexture(0, this.starConfig.location().get());
-        }
 
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.XP.rotationDegrees(life + 180));
