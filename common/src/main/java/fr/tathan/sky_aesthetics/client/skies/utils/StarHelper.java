@@ -99,13 +99,13 @@ public class StarHelper {
                     float z = (float)( constellation.firstPoint().z);
 
                     // First Point
-                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder);
+                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder, false);
 
                     for (Vec3 point : constellation.points()) {
 
                         Vec3 pointPos = new Vec3(x + point.x, y + point.y, z + point.z);
 
-                        createStar(pointPos, color, constellation.scale(), random, bufferBuilder);
+                        createStar(pointPos, color, constellation.scale(), random, bufferBuilder, false);
 
                     }
                 } else {
@@ -122,7 +122,7 @@ public class StarHelper {
     }
 
 
-    public static void createStar(Vec3 pos, Star.Color color, float scale, Random random, BufferBuilder bufferBuilder) {
+    public static void createStar(Vec3 pos, Star.Color color, float scale, Random random, BufferBuilder bufferBuilder, boolean texture) {
         float d0 = (float) pos.x;
         float d1 = (float) pos.y;
         float d2 = (float) pos.z;
@@ -160,7 +160,17 @@ public class StarHelper {
                     - d22 * d10;
             float d26 = d22 * d9 + d24 * d10;
 
-            bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color.r(), color.g(), color.b(), 0xAA);
+            if(texture) {
+                switch (j) {
+                    case 0 -> bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setUv(0f, 0f);
+                    case 1 -> bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setUv(1f, 0f);
+                    case 2 -> bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setUv(1f, 1f);
+                    case 3 -> bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setUv(0f, 1f);
+                }
+            } else {
+                bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color.r(), color.g(), color.b(), 0xAA);
+            }
+
         }
 
     }

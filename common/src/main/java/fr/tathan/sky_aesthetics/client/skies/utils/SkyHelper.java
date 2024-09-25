@@ -161,39 +161,4 @@ public class SkyHelper {
         };
     }
 
-    public static void renderSunrise(ClientLevel level, float partialTick, PoseStack poseStack, float[] color) {
-        Tesselator tesselator = Tesselator.getInstance();
-
-
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(90));
-
-        poseStack.mulPose(Axis.ZP.rotationDegrees(0));
-
-        float sunAngle = Mth.sin(level.getSunAngle(partialTick)) < 0 ? 180 : 0;
-        poseStack.mulPose(Axis.ZP.rotationDegrees(sunAngle));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(90));
-
-        float r = color[0];
-        float g = color[1];
-        float b = color[2];
-
-        Matrix4f matrix = poseStack.last().pose();
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR);
-        bufferBuilder.addVertex(matrix, 0, 100, 0).setColor(r, g, b, color[3]);
-
-        for (int i = 0; i <= 16; i++) {
-            float angle = (float) i * (float) (Math.PI * 2) / 16;
-            float x = Mth.sin(angle);
-            float y = Mth.cos(angle);
-
-            bufferBuilder.addVertex(matrix, x * 120, y * 120, -y * 40 * color[3]).setColor(r, g, b, 0);
-        }
-
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        poseStack.popPose();
-    }
-
 }

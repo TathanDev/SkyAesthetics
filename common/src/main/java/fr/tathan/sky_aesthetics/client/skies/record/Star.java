@@ -3,6 +3,7 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.List;
@@ -29,7 +30,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
 
     }
 
-    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Color color, Optional<Integer> rotation) {
+    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Color color, Optional<Integer> rotation, Optional<ResourceLocation> location) {
 
         public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> {
             return Util.fixedSize(list, 2).map((listx) -> {
@@ -46,7 +47,8 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
                 Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
                 Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),
                 Color.CODEC.fieldOf("color").forGetter(ShootingStars::color),
-                Codec.INT.optionalFieldOf("rotation").forGetter(ShootingStars::rotation)
+                Codec.INT.optionalFieldOf("rotation").forGetter(ShootingStars::rotation),
+                ResourceLocation.CODEC.optionalFieldOf("location").forGetter(ShootingStars::location)
         ).apply(instance, ShootingStars::new));
 
 
