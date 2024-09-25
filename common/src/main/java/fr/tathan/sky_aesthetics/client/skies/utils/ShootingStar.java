@@ -21,6 +21,8 @@ public class ShootingStar {
     private final VertexBuffer starBuffer;
     public final UUID starId;
     private float life;
+    private final int rotation;
+
     private final float randomSpeedModifier;
 
     public ShootingStar(float lifeTime, Star.ShootingStars starConfig, UUID starId){
@@ -31,6 +33,15 @@ public class ShootingStar {
         this.starId = starId;
         this.life = 0;
         this.randomSpeedModifier = new Random().nextInt(-20, 10);
+
+        if(starConfig.rotation().isPresent()) {
+            switch (starConfig.rotation().get()) {
+                case 0 -> this.rotation = new Random().nextInt(360);
+                default -> this.rotation = starConfig.rotation().get();
+            }
+        } else {
+            this.rotation = 0;
+        }
     }
 
     private VertexBuffer createStar(Star.Color color) {
@@ -61,7 +72,9 @@ public class ShootingStar {
         RenderSystem.setShaderColor(5f, 4f, 5f, 5f);
 
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(life));
+
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+        poseStack.mulPose(Axis.XP.rotationDegrees(life + 180));
 
         FogRenderer.setupNoFog();
         this.starBuffer.bind();

@@ -29,7 +29,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
 
     }
 
-    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Color color) {
+    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Color color, Optional<Integer> rotation) {
 
         public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> {
             return Util.fixedSize(list, 2).map((listx) -> {
@@ -45,8 +45,8 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
                 VEC2.fieldOf("random_lifetime").forGetter(ShootingStars::randomLifetime),
                 Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
                 Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),
-                Color.CODEC.fieldOf("color").forGetter(ShootingStars::color)
-
+                Color.CODEC.fieldOf("color").forGetter(ShootingStars::color),
+                Codec.INT.optionalFieldOf("rotation").forGetter(ShootingStars::rotation)
         ).apply(instance, ShootingStars::new));
 
 
