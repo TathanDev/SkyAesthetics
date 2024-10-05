@@ -67,6 +67,7 @@ subprojects {
             projectSlug = "sky-aesthetics" // Required for discord webhook
             accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
             minecraftVersions.add("${minecraft_version}")
+            minecraftVersions.add("${supported_version}")
             javaVersions.add(JavaVersion.VERSION_21)
         }
 
@@ -74,6 +75,8 @@ subprojects {
             projectId = "2zaNpyqY"
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
             minecraftVersions.add("${minecraft_version}")
+            minecraftVersions.add("${supported_version}")
+
         }
 
     }
