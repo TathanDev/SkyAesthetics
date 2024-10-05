@@ -42,7 +42,6 @@ quilt/build
 common/.gradle
 common/build
 
-gradle
 
 .idea
 .gradle
