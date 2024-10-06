@@ -15,7 +15,6 @@ common/src/main/resources/assets/sky_aesthetics/sky/*
 
 
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
