@@ -27,31 +27,26 @@ public abstract class LevelRendererMixin {
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(Matrix4f matrix4f, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+    private void renderCustomSkyboxes(PoseStack poseStack, Matrix4f matrix4f, float f, Camera camera, boolean bl, Runnable runnable, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
-        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
+        if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
 
             for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
                 if (sky.getProperties().world().equals(level.dimension())) {
-                    PoseStack poseStack = new PoseStack();
-                    poseStack.mulPose(matrix4f);
-
                     SkyRenderer renderer = sky.getRenderer();
 
                     if(renderer.isSkyRendered()) {
-                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                        renderer.render(level, poseStack, matrix4f, f, camera, runnable);
                         ci.cancel();
                     }
                 }
-
             }
-
         }
     }
 
     @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f matrix4f, float f, double d, double e, double g, CallbackInfo ci) {
         for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
                 SkyRenderer renderer = sky.getRenderer();

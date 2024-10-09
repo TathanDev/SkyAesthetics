@@ -2,7 +2,6 @@ package fr.tathan.fabric.sky_aesthetics;
 
 import fr.tathan.SkyAesthetics;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.minecraft.resources.ResourceLocation;

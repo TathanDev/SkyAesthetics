@@ -34,11 +34,9 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             if(skyProperties.id().isPresent()) {
                 SKY_PROPERTIES.putIfAbsent(skyProperties.id().get(), planetSky);
                 SkyAesthetics.LOG.info(skyProperties.id().get() + " | registered");
-
             } else {
                 SKY_PROPERTIES.putIfAbsent(skyProperties.world().location(), planetSky);
                 SkyAesthetics.LOG.info(skyProperties.world().location() + " | registered");
-
             }
         });
 

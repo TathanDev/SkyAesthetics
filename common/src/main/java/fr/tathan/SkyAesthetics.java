@@ -25,10 +25,8 @@ public final class SkyAesthetics {
     }
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
-
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "constellation"), new ConstellationsData());
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_renderer"), new SkyPropertiesData());
-
+        registry.accept(new ResourceLocation(MODID, "constellation"), new ConstellationsData());
+        registry.accept(new ResourceLocation(MODID, "sky_renderer"), new SkyPropertiesData());
     }
 
 }

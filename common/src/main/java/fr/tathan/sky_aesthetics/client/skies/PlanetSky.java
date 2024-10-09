@@ -26,7 +26,7 @@ public class PlanetSky extends DimensionSpecialEffects {
         return switch (properties.skyType()) {
             case "END" -> SkyType.END;
             case "NONE" -> SkyType.NONE;
-            case null, default -> SkyType.NORMAL;
+            default -> SkyType.NORMAL;
         };
     }
 

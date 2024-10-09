@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -49,14 +47,15 @@ public class ShootingStar {
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        Random random = new Random();
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
+        Random random = new Random();
 
         Vec3 randomPos = new Vec3(random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F);
         StarHelper.createStar(randomPos, color, starConfig.scale(), random, bufferBuilder);
         vertexBuffer.bind();
-        vertexBuffer.upload(bufferBuilder.buildOrThrow());
+        vertexBuffer.upload(bufferBuilder.end());
         VertexBuffer.unbind();
 
         return vertexBuffer;

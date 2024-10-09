@@ -32,7 +32,8 @@ public class StarHelper {
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
         Random random = new Random();
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
@@ -80,7 +81,7 @@ public class StarHelper {
                     int color2 = g == -1 ? i : g;
                     int color3 = b == -1 ? i : b;
 
-                    bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color1, color2, color3, 0xAA);
+                    bufferBuilder.vertex(d5 + d25, d6 + d23, d7 + d26).color(color1, color2, color3, 0xAA);
                 }
             }
         }
@@ -116,7 +117,7 @@ public class StarHelper {
         }
 
         vertexBuffer.bind();
-        vertexBuffer.upload(bufferBuilder.buildOrThrow());
+        vertexBuffer.upload(bufferBuilder.end());
         VertexBuffer.unbind();
         return vertexBuffer;
     }
@@ -160,7 +161,7 @@ public class StarHelper {
                     - d22 * d10;
             float d26 = d22 * d9 + d24 * d10;
 
-            bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color.r(), color.g(), color.b(), 0xAA);
+            bufferBuilder.vertex(d5 + d25, d6 + d23, d7 + d26).color(color.r(), color.g(), color.b(), 0xAA);
         }
 
     }
@@ -186,29 +187,35 @@ public class StarHelper {
     }
 
 
-    public static MeshData createVanillaStars(Tesselator tesselator) {
+    public static BufferBuilder.RenderedBuffer createVanillaStars(Tesselator tesselator) {
         RandomSource randomSource = RandomSource.create(10842L);
         float f = 100.0F;
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
         for(int j = 0; j < 1500; ++j) {
             float g = randomSource.nextFloat() * 2.0F - 1.0F;
             float h = randomSource.nextFloat() * 2.0F - 1.0F;
             float k = randomSource.nextFloat() * 2.0F - 1.0F;
             float l = 0.15F + randomSource.nextFloat() * 0.1F;
-            float m = Mth.lengthSquared(g, h, k);
+            float m = (float) Mth.lengthSquared(g, h, k);
             if (!(m <= 0.010000001F) && !(m >= 1.0F)) {
                 Vector3f vector3f = (new Vector3f(g, h, k)).normalize(100.0F);
                 float n = (float)(randomSource.nextDouble() * 3.1415927410125732 * 2.0);
                 Quaternionf quaternionf = (new Quaternionf()).rotateTo(new Vector3f(0.0F, 0.0F, -1.0F), vector3f).rotateZ(n);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
+                Vector3f vector3f1 = vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf));
+
+                bufferBuilder.vertex(vector3f1.x, vector3f1.y, vector3f1.z).color(255);
+                vector3f1 = vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf));
+                bufferBuilder.vertex(vector3f1.x, vector3f1.y, vector3f1.z).color(255);
+                vector3f1 = vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf));
+                bufferBuilder.vertex(vector3f1.x, vector3f1.y, vector3f1.z).color(255);
+                vector3f1 = vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf));
+                bufferBuilder.vertex(vector3f1.x, vector3f1.y, vector3f1.z).color(255);
             }
         }
 
-        return bufferBuilder.buildOrThrow();
+        return bufferBuilder.end();
     }
 
 }

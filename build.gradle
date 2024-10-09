@@ -18,6 +18,7 @@ subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
+    apply plugin: 'me.modmuss50.mod-publish-plugin'
 
 
     def modLoader = project.name
@@ -51,34 +52,7 @@ subprojects {
     }
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
-    }
-
-
-    publishMods {
-        file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
-        changelog = file("../changelog.md").getText('UTF-8')
-        type = STABLE
-        modLoaders.add(modLoader)
-        displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
-
-        curseforge {
-            projectId = "1096636"
-            projectSlug = "sky-aesthetics" // Required for discord webhook
-            accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-            minecraftVersions.add("${minecraft_version}")
-            minecraftVersions.add("${supported_version}")
-            javaVersions.add(JavaVersion.VERSION_21)
-        }
-
-        modrinth {
-            projectId = "2zaNpyqY"
-            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-            minecraftVersions.add("${minecraft_version}")
-            minecraftVersions.add("${supported_version}")
-
-        }
-
+        it.options.release = 17
     }
 
     // Configure Maven publishing.
@@ -97,5 +71,28 @@ subprojects {
             // The repositories here will be used for publishing your artifact, not for
             // retrieving dependencies.
         }
+    }
+
+    publishMods {
+        file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
+        changelog = file("../changelog.md").getText('UTF-8')
+        type = STABLE
+        modLoaders.add(modLoader)
+        displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
+
+        curseforge {
+            projectId = "1096636"
+            projectSlug = "sky-aesthetics" // Required for discord webhook
+            accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+            minecraftVersions.add("${minecraft_version}")
+            javaVersions.add(JavaVersion.VERSION_21)
+        }
+
+        modrinth {
+            projectId = "2zaNpyqY"
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            minecraftVersions.add("${minecraft_version}")
+        }
+
     }
 }

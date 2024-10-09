@@ -12,7 +12,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
@@ -62,12 +61,13 @@ public class SkyHelper {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, texture);
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -size, y, -size).setUv(startX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, -size).setUv(endX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, size).setUv(endX, startY);
-        bufferBuilder.addVertex(matrix4f, -size, y, size).setUv(startX, startY);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix4f, -size, y, -size).uv(startX, endY);
+        bufferBuilder.vertex(matrix4f, size, y, -size).uv(endX, endY);
+        bufferBuilder.vertex(matrix4f, size, y, size).uv(endX, startY);
+        bufferBuilder.vertex(matrix4f, -size, y, size).uv(startX, startY);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         poseStack.popPose();
 
         if (blend) {
@@ -98,12 +98,13 @@ public class SkyHelper {
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, object.texture());
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), -object.size()).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), -object.size()).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), object.size()).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), object.size()).setUv(0f, 1f);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        BufferBuilder bufferBuilder = tesselator.getBuilder();
+        bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        bufferBuilder.vertex(matrix4f, -object.size(), object.height(), -object.size()).uv(0f, 0f);
+        bufferBuilder.vertex(matrix4f, object.size(), object.height(), -object.size()).uv(1f, 0f);
+        bufferBuilder.vertex(matrix4f, object.size(), object.height(), object.size()).uv(1f, 1f);
+        bufferBuilder.vertex(matrix4f, -object.size(), object.height(), object.size()).uv(0f, 1f);
+        BufferUploader.drawWithShader(bufferBuilder.end());
         poseStack.popPose();
 
         if (object.blend()) {
@@ -141,12 +142,13 @@ public class SkyHelper {
             }
 
             Matrix4f matrix4f = poseStack.last().pose();
-            BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, -100.0F).setUv(0.0F, 0.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, -100.0F, -100.0F, 100.0F).setUv(0.0F, 16.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, 100.0F).setUv(16.0F, 16.0F).setColor(-14145496);
-            bufferBuilder.addVertex(matrix4f, 100.0F, -100.0F, -100.0F).setUv(16.0F, 0.0F).setColor(-14145496);
-            BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+            BufferBuilder bufferBuilder = tesselator.getBuilder();
+            bufferBuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+            bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, -100.0F).uv(0.0F, 0.0F).color(-14145496);
+            bufferBuilder.vertex(matrix4f, -100.0F, -100.0F, 100.0F).uv(0.0F, 16.0F).color(-14145496);
+            bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, 100.0F).uv(16.0F, 16.0F).color(-14145496);
+            bufferBuilder.vertex(matrix4f, 100.0F, -100.0F, -100.0F).uv(16.0F, 0.0F).color(-14145496);
+            BufferUploader.drawWithShader(bufferBuilder.end());
             poseStack.popPose();
         }
 
@@ -157,7 +159,7 @@ public class SkyHelper {
     public static boolean skyTypeToHasGround(String skyType) {
         return switch (skyType) {
             case "END" -> false ;
-            case null, default -> true;
+            default -> true;
         };
     }
 

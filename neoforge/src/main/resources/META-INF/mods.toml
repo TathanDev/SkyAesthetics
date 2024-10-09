@@ -5,7 +5,7 @@ license = "Insert License Here"
 
 [[mods]]
 modId = "sky_aesthetics"
-version = "1.0.0"
+version = "${version}"
 displayName = "Sky Aesthetics"
 authors = "The Stellaris Team"
 description = '''
@@ -16,7 +16,7 @@ logoFile = "logo.png"
 [[dependencies.sky_aesthetics]]
 modId = "neoforge"
 type = "required"
-versionRange = "[20.0,)"
+versionRange = "[20.4,)"
 ordering = "NONE"
 side = "BOTH"
 
