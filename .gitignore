@@ -10,8 +10,11 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
+common/src/main/resources/assets/sky_aesthetics/sky/test.json
+common/src/main/resources/assets/sky_aesthetics/sky/*
+
+
 # Package Files #
-*.jar
 *.war
 *.nar
 *.ear
@@ -38,12 +41,6 @@ quilt/build
 common/.gradle
 common/build
 
-gradle
-
-gradlew
-gradlew.bat
 
 .idea
 .gradle
-
-

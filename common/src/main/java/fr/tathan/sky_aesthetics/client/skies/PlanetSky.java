@@ -35,6 +35,7 @@ public class PlanetSky extends DimensionSpecialEffects {
         return false;
     }
 
+
     public SkyRenderer getRenderer() {
         return renderer;
     }

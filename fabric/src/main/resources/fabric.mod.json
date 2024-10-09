@@ -5,18 +5,22 @@
   "name": "Sky Aesthetics",
   "description": "Change the skybox of Minecraft like you want !",
   "authors": [
-    "The Stellaris Team"
+    "The Stellaris Team",
+    "TATHAN | Maintener"
   ],
   "contact": {
     "homepage": "https://discord.gg/Rc7Mxcy2m3",
     "sources": "https://github.com/TathanDev/SkyAesthetics"
   },
   "license": "CC0-1.0",
-  "icon": "assets/sky_aesthetics/icon.png",
+  "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
     "main": [
       "fr.tathan.fabric.sky_aesthetics.SkyAestheticsFabric"
+    ],
+    "client": [
+        "fr.tathan.fabric.sky_aesthetics.SkyAestheticsClientFabric"
     ]
   },
   "mixins": [

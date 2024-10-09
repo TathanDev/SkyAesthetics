@@ -2,8 +2,7 @@ plugins {
     id 'dev.architectury.loom' version '1.7-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
-    id "me.modmuss50.mod-publish-plugin" version "0.6.3"
-
+    id 'me.modmuss50.mod-publish-plugin' version '0.7.4' apply false
 }
 
 architectury {
@@ -19,10 +18,9 @@ subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
-    apply plugin: 'me.modmuss50.mod-publish-plugin'
+
 
     def modLoader = project.name
-    def isCommon = (modLoader == "common")
 
     base {
         // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
@@ -30,11 +28,7 @@ subprojects {
     }
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
+        maven { url "https://maven.terraformersmc.com/releases" }
     }
 
     loom {
@@ -60,28 +54,31 @@ subprojects {
         it.options.release = 21
     }
 
-    if (!isCommon ) {
-        publishMods {
-            file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
-            changelog = file("../changelog.md").getText('UTF-8')
-            type = STABLE
-            modLoaders.add(modLoader)
-            displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
 
-            curseforge {
-                projectId = "1096636"
-                projectSlug = "sky-aesthetics" // Required for discord webhook
-                accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-                minecraftVersions.add("${minecraft_version}")
-                javaVersions.add(JavaVersion.VERSION_21)
-            }
+    publishMods {
+        file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
+        changelog = file("../changelog.md").getText('UTF-8')
+        type = STABLE
+        modLoaders.add(modLoader)
+        displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
 
-            modrinth {
-                projectId = "2zaNpyqY"
-                accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-                minecraftVersions.add("${minecraft_version}")
-            }
+        curseforge {
+            projectId = "1096636"
+            projectSlug = "sky-aesthetics" // Required for discord webhook
+            accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
+            minecraftVersions.add("${minecraft_version}")
+            minecraftVersions.add("${supported_version}")
+            javaVersions.add(JavaVersion.VERSION_21)
         }
+
+        modrinth {
+            projectId = "2zaNpyqY"
+            accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+            minecraftVersions.add("${minecraft_version}")
+            minecraftVersions.add("${supported_version}")
+
+        }
+
     }
 
     // Configure Maven publishing.
