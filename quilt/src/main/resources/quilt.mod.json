@@ -9,7 +9,8 @@
       "description": "Change the skybox of Minecraft like you want !",
       "contributors": {
         "The Stellaris Team": "Team",
-        "TATHAN": "Author"
+        "TATHAN": "Author",
+        "St0x0ef": "Author"
       },
       "icon": "assets/sky_aesthetics/icon.png"
     },
@@ -26,7 +27,7 @@
       },
       {
         "id": "minecraft",
-        "version": ">=1.21"
+        "version": ">=1.20"
       }
     ]
   },

@@ -47,8 +47,8 @@ subprojects {
         // If you remove this line, sources will not be generated.
         withSourcesJar()
 
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     tasks.withType(JavaCompile).configureEach {
@@ -85,7 +85,7 @@ subprojects {
             projectSlug = "sky-aesthetics" // Required for discord webhook
             accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
             minecraftVersions.add("${minecraft_version}")
-            javaVersions.add(JavaVersion.VERSION_21)
+            javaVersions.add(JavaVersion.VERSION_17)
         }
 
         modrinth {
@@ -93,6 +93,5 @@ subprojects {
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
             minecraftVersions.add("${minecraft_version}")
         }
-
     }
 }

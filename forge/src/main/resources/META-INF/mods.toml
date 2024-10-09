@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[1,)"
+loaderVersion = "[49,)"
 issueTrackerURL = "https://github.com/TathanDev/SkyAesthetics/issues"
 license = "MIT"
 
@@ -14,9 +14,9 @@ Change the skybox of Minecraft like you want !
 logoFile = "logo.png"
 
 [[dependencies.sky_aesthetics]]
-modId = "neoforge"
+modId = "forge"
 type = "required"
-versionRange = "[20.4,)"
+versionRange = "[49,)"
 ordering = "NONE"
 side = "BOTH"
 

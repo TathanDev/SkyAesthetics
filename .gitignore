@@ -34,6 +34,10 @@ neoforge/run
 neoforge/.gradle
 neoforge/build
 
+forge/run
+forge/.gradle
+forge/build
+
 quilt/run
 quilt/.gradle
 quilt/build

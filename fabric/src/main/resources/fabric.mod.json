@@ -6,13 +6,14 @@
   "description": "Change the skybox of Minecraft like you want !",
   "authors": [
     "The Stellaris Team",
-    "TATHAN | Maintener"
+    "TATHAN | Maintener",
+    "St0x0ef | Maintener"
   ],
   "contact": {
     "homepage": "https://discord.gg/Rc7Mxcy2m3",
     "sources": "https://github.com/TathanDev/SkyAesthetics"
   },
-  "license": "CC0-1.0",
+  "license": "MIT",
   "icon": "logo.png",
   "environment": "*",
   "entrypoints": {
@@ -29,7 +30,7 @@
   "depends": {
     "fabricloader": ">=0.16.3",
     "minecraft": "~1.20.4",
-    "java": ">=21",
+    "java": ">=17",
     "fabric-api": "*"
   },
   "suggests": {
