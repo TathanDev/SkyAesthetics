@@ -24,6 +24,7 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener {
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+        CONSTELLATIONS.clear();
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "constellation");
             Constellation constellation = Constellation.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
