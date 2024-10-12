@@ -17,10 +17,10 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "fr.tathan.fabric.sky_aesthetics.SkyAestheticsFabric"
+      "fr.tathan.sky_aesthetics.fabric.SkyAestheticsFabric"
     ],
     "client": [
-        "fr.tathan.fabric.sky_aesthetics.SkyAestheticsClientFabric"
+      "fr.tathan.sky_aesthetics.fabric.SkyAestheticsClientFabric"
     ]
   },
   "mixins": [

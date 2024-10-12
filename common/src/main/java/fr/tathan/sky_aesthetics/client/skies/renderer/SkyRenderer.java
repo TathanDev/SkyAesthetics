@@ -12,12 +12,15 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
+import fr.tathan.sky_aesthetics.helper.PlatformHelper;
+import fr.tathan.sky_aesthetics.helper.SkyCompat;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
@@ -45,7 +48,7 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
         if(!isSkyRendered()) return;
 
         if (properties.fog()) fogCallback.run();
@@ -89,14 +92,18 @@ public class SkyRenderer {
 
         }));
 
+
         // Sun
         if (customVanillaObject.sun()) {
-            SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+           SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+
         }
 
         // Moon
         if (customVanillaObject.moon()) {
-            if (customVanillaObject.moonPhase()) {
+            if(PlatformHelper.isModLoaded("lunar")) {
+                SkyCompat.drawLunarSky(level, frustumMatrix, projectionMatrix, tesselator, poseStack, customVanillaObject.moonSize(), camera, nightAngle);
+            } else if (customVanillaObject.moonPhase()) {
                 SkyHelper.drawMoonWithPhase(level, tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
             } else {
                 SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
@@ -134,15 +141,13 @@ public class SkyRenderer {
         if(this.shootingStars == null || this.shootingStars.isEmpty() ) return;
         ArrayList<UUID> starsToRemove = new ArrayList<>();
         for (Iterator<ShootingStar> iterator = this.shootingStars.values().iterator(); iterator.hasNext();) {
-            ShootingStar shootingStar = (ShootingStar) iterator.next();
+            ShootingStar shootingStar = iterator.next();
 
             if (shootingStar.render(poseStack, projectionMatrix)) {
                 starsToRemove.add(shootingStar.starId);
             }
         }
         starsToRemove.forEach(this.shootingStars::remove);
-
-
     }
 
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {

@@ -27,7 +27,7 @@ public abstract class LevelRendererMixin {
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(Matrix4f matrix4f, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+    private void renderCustomSkyboxes(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
         if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
@@ -35,16 +35,15 @@ public abstract class LevelRendererMixin {
             for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
                 if (sky.getProperties().world().equals(level.dimension())) {
                     PoseStack poseStack = new PoseStack();
-                    poseStack.mulPose(matrix4f);
+                    poseStack.mulPose(frustumMatrix);
 
                     SkyRenderer renderer = sky.getRenderer();
 
                     if(renderer.isSkyRendered()) {
-                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                        renderer.render(level, poseStack, frustumMatrix, projectionMatrix, partialTick, camera, fogCallback);
                         ci.cancel();
                     }
                 }
-
             }
 
         }

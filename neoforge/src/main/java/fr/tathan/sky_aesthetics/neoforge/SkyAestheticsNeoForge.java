@@ -1,13 +1,10 @@
-package fr.tathan.neoforge.sky_aesthetics;
+package fr.tathan.sky_aesthetics.neoforge;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import fr.tathan.SkyAesthetics;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 @Mod(SkyAesthetics.MODID)

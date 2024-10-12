@@ -30,6 +30,9 @@ subprojects {
 
     repositories {
         maven { url "https://maven.terraformersmc.com/releases" }
+        maven { url "https://maven.shedaniel.me/" }
+        maven { url "https://maven.saps.dev/releases" }
+
     }
 
     loom {
@@ -39,6 +42,13 @@ subprojects {
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings loom.officialMojangMappings()
+
+        if(modLoader != "quilt") {
+            if(modLoader != "common") {
+                modApi "me.shedaniel.cloth:cloth-config-$modLoader:15.0.140"
+            }
+            modImplementation "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+        }
     }
 
     java {
