@@ -47,7 +47,7 @@ subprojects {
             if(modLoader != "common") {
                 modApi "me.shedaniel.cloth:cloth-config-$modLoader:15.0.140"
             }
-            modImplementation "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+            modApi "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
         }
     }
 
@@ -86,26 +86,34 @@ subprojects {
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
             minecraftVersions.add("${minecraft_version}")
             minecraftVersions.add("${supported_version}")
-
         }
-
     }
 
-    // Configure Maven publishing.
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = base.archivesName.get()
-                from components.java
+    if(modLoader != "quilt") {
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    groupId "fr.tathan.sky-aesthetics"
+                    artifactId "sky-aesthetics-$modLoader-" + minecraft_version
+                    version project.version
+                    from components.java
+                    pom {
+                        name = "Sky Aesthetics" + modLoader.capitalize()
+                        url = "https://github.com/TathanDev/SkyAesthetics"
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    url = "https://maven.odysseyus.fr/releases/"
+                    credentials {
+                        username = System.getenv("MAVEN_USER")
+                        password = System.getenv("MAVEN_PASS")
+                    }
+                }
             }
         }
-
-        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-        repositories {
-            // Add repositories to publish to here.
-            // Notice: This block does NOT have the same function as the block in the top level.
-            // The repositories here will be used for publishing your artifact, not for
-            // retrieving dependencies.
-        }
     }
+
 }

@@ -21,8 +21,8 @@ public class SkyCompat {
         float startY = yCoord / 2.0F;
         float endX = (xCoord + 1) / 4.0F;
         float endY = (yCoord + 1) / 2.0F;
-
-        SkyHelper.drawCelestialBody(MoonHandler.getMoonTexture(ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png")), tesselator, poseStack, y, getLunarMoonSize(), dayAngle, startX, endX, startY, endY, true, getLunarMoonColor());
+        float[] color = LunarMoonInfosAccessor.sky_aesthetic$moonColor();
+        SkyHelper.drawCelestialBody(MoonHandler.getMoonTexture(ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png")), tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true, color);
     }
 
     public static float[] getLunarMoonColor() {
@@ -36,13 +36,10 @@ public class SkyCompat {
     }
 
     public static float getLunarMoonSize() {
-        switch (LunarMoonInfosAccessor.sky_aesthetic$eventId()) {
-            case "lunar:big_moon":
-                return 40f;
-            case "lunar:tiny_moon":
-                return 10f;
-            default:
-                return 20f;
-        }
+        return switch (LunarMoonInfosAccessor.sky_aesthetic$eventId()) {
+            case "lunar:big_moon" -> 40f;
+            case "lunar:tiny_moon" -> 10f;
+            default -> 20f;
+        };
     }
 }

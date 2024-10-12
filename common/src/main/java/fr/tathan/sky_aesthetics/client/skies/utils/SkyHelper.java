@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
@@ -28,14 +29,13 @@ public class SkyHelper {
     }
 
     public static void drawMoonWithPhase(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
-        int moonPhase = level.getMoonPhase();
+        int moonPhase = 3;
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
         float startX = xCoord / 4.0F;
         float startY = yCoord / 2.0F;
         float endX = (xCoord + 1) / 4.0F;
         float endY = (yCoord + 1) / 2.0F;
-
         drawCelestialBody(moon.moonTexture(), tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
     }
 
@@ -48,7 +48,7 @@ public class SkyHelper {
     }
 
     public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
-        drawCelestialBody(texture, tesselator, poseStack, y, size, dayAngle, 0f, 1f, 1f, 0f, blend, new float[]{1f, 1f, 1f, 1f});
+        drawCelestialBody(texture, tesselator, poseStack, y, size, dayAngle, startX, endX, startY, endY, blend, new float[]{1f, 1f, 1f, 1f});
 
     }
 
