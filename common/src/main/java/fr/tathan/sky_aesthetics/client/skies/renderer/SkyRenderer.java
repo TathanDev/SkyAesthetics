@@ -102,7 +102,7 @@ public class SkyRenderer {
         // Moon
         if (customVanillaObject.moon()) {
             if(PlatformHelper.isModLoaded("lunar")) {
-                SkyCompat.drawLunarSky(level, frustumMatrix, projectionMatrix, tesselator, poseStack, customVanillaObject.moonSize(), camera, nightAngle);
+                SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize(), nightAngle);
             } else if (customVanillaObject.moonPhase()) {
                 SkyHelper.drawMoonWithPhase(level, tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
             } else {

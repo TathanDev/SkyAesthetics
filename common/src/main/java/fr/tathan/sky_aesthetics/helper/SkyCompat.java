@@ -13,7 +13,7 @@ import org.joml.Matrix4f;
 
 public class SkyCompat {
 
-    public static void drawLunarSky(ClientLevel level, Matrix4f frustumMatrix, Matrix4f projectionMatrix, Tesselator tesselator, PoseStack poseStack, float y, Camera camera, float dayAngle) {
+    public static void drawLunarSky(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float y, float dayAngle) {
         int moonPhase = level.getMoonPhase();
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
@@ -22,7 +22,7 @@ public class SkyCompat {
         float endX = (xCoord + 1) / 4.0F;
         float endY = (yCoord + 1) / 2.0F;
 
-        SkyHelper.drawCelestialBody(MoonHandler.getMoonTexture(ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png")), tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true, getLunarMoonColor());
+        SkyHelper.drawCelestialBody(MoonHandler.getMoonTexture(ResourceLocation.withDefaultNamespace("textures/environment/moon_phases.png")), tesselator, poseStack, y, getLunarMoonSize(), dayAngle, startX, endX, startY, endY, true, getLunarMoonColor());
     }
 
     public static float[] getLunarMoonColor() {
@@ -33,6 +33,16 @@ public class SkyCompat {
             default:
                 return moonColor;
         }
+    }
 
+    public static float getLunarMoonSize() {
+        switch (LunarMoonInfosAccessor.sky_aesthetic$eventId()) {
+            case "lunar:big_moon":
+                return 40f;
+            case "lunar:tiny_moon":
+                return 10f;
+            default:
+                return 20f;
+        }
     }
 }
