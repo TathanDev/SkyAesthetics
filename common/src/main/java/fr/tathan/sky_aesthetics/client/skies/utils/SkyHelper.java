@@ -4,7 +4,6 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
@@ -13,7 +12,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 

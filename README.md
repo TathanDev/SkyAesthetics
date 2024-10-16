@@ -14,7 +14,7 @@ that even resourcepack creators can change the sky!
 
 ## What can be made
 
-Here are some possiblities you can do with the mod:
+Here are some possibilities you can do with the mod:
 
 - Add any object in the sky
 - Change or remove sun/moon texture
@@ -51,3 +51,7 @@ to install resourcepacks for things to change.
 
 The mod is still in development, so bugs may happen. Please report them on the
 [issue tracker](https://github.com/TathanDev/SkyAesthetics/issues)!
+
+**I want to indicate that my mod/resourcepack is use Sky Aesthetics. How ?**
+
+You can use badges with the [Devin Badges Styles](https://intergrav.github.io/devins-badges-docs/) and you can find them here : [Badges](https://github.com/TathanDev/SkyAesthetics/tree/main/assets/badges)
