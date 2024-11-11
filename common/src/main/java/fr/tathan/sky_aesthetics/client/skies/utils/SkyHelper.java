@@ -50,7 +50,7 @@ public class SkyHelper {
 
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, @Nullable float[] color) {
+    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
         if (blend) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -67,14 +67,19 @@ public class SkyHelper {
             color = new float[]{1f, 1f, 1f, 1f};
         }
 
+        float ratio = 1;
+        if (y > 16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) {
+            ratio = (16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) / y;
+        }
+
         RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, texture);
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -size, y, -size).setUv(startX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, -size).setUv(endX, endY);
-        bufferBuilder.addVertex(matrix4f, size, y, size).setUv(endX, startY);
-        bufferBuilder.addVertex(matrix4f, -size, y, size).setUv(startX, startY);
+        bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY);
+        bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY);
+        bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY);
+        bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY);
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         poseStack.popPose();
 
@@ -103,14 +108,19 @@ public class SkyHelper {
 
         Matrix4f matrix4f = poseStack.last().pose();
 
+        float ratio = 1;
+        if (object.height() > 16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) {
+            ratio = (16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) / object.height();
+        }
+
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, object.texture());
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), -object.size()).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), -object.size()).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, object.size(), object.height(), object.size()).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -object.size(), object.height(), object.size()).setUv(0f, 1f);
+        bufferBuilder.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(0f, 0f);
+        bufferBuilder.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(1f, 0f);
+        bufferBuilder.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(1f, 1f);
+        bufferBuilder.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(0f, 1f);
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
         poseStack.popPose();
 
@@ -128,24 +138,11 @@ public class SkyHelper {
 
         for(int i = 0; i < 6; ++i) {
             poseStack.pushPose();
-            if (i == 1) {
-                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(90.0F));
-            }
 
-            if (i == 2) {
-                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90.0F));
-            }
-
-            if (i == 3) {
-                poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(180.0F));
-            }
-
-            if (i == 4) {
-                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(90.0F));
-            }
-
-            if (i == 5) {
-                poseStack.mulPose(com.mojang.math.Axis.ZP.rotationDegrees(-90.0F));
+            switch (i) {
+                case 1, 4 -> poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(90.0F));
+                case 2, 5 -> poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(-90.0F));
+                case 3 -> poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(270.0F));
             }
 
             Matrix4f matrix4f = poseStack.last().pose();
@@ -168,5 +165,4 @@ public class SkyHelper {
             case null, default -> true;
         };
     }
-
 }

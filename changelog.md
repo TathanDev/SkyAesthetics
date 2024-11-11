@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.2.4
+# Sky Aesthetics 1.2.6
 
 ## Fix
-- Fix [#10](https://github.com/TathanDev/SkyAesthetics/issues/10) : Remove better compat with Lunar 
+- Fix sky rendering bug
