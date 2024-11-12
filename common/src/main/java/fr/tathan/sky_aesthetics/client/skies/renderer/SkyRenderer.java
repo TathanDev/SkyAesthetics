@@ -4,24 +4,23 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.sky_aesthetics.client.skies.record.*;
+import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
+import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
+import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
+import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
-import fr.tathan.sky_aesthetics.helper.PlatformHelper;
-import fr.tathan.sky_aesthetics.helper.SkyCompat;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
+import java.awt.*;
 import java.util.*;
 
 public class SkyRenderer {
@@ -42,10 +41,10 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, FogParameters fog) {
         if(!isSkyRendered()) return;
 
-        if (properties.fog()) fogCallback.run();
+        SkyAesthetics.LOG.error("Test");
 
         Tesselator tesselator = Tesselator.getInstance();
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
@@ -53,48 +52,35 @@ public class SkyRenderer {
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
         float nightAngle = dayAngle + 180;
 
-        Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
-
-        if(properties.skyColor().customColor()) {
-            vec3 = properties.skyColor().color();
-        }
-
-        float r = (float) vec3.x;
-        float g = (float) vec3.y;
-        float b = (float) vec3.z;
-
-        FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
 
-        RenderSystem.setShaderColor(r, g, b, 1.0f);
+        int c = level.getSkyColor(camera.getPosition(), partialTick);
+        if(properties.skyColor().customColor()) {
+            c = properties.skyColor().color();
+        }
+        Color color = new Color(c);
 
-        ShaderInstance shaderInstance = RenderSystem.getShader();
+        RenderSystem.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), 1.0f);
 
-
-
-        if(Objects.equals(properties.skyType(), "NORMAL")) {
-            SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance);
-        } else if(Objects.equals(properties.skyType(), "END")) {
+        if (Objects.equals(properties.skyType(), "NORMAL")) {
+            SkyHelper.renderSky();
+        } else if (Objects.equals(properties.skyType(), "END")) {
             SkyHelper.renderEndSky(poseStack);
         }
 
         // Star
-        renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
+        renderStars(level, partialTick, poseStack, nightAngle, fog);
 
-        properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
-
+        properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
 
         // Sun
         if (customVanillaObject.sun()) {
            SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
-
         }
 
         // Moon
         if (customVanillaObject.moon()) {
-            if(PlatformHelper.isModLoaded("lunar")) {
-                SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize(), nightAngle);
-            } else if (customVanillaObject.moonPhase()) {
+            if (customVanillaObject.moonPhase()) {
                 SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
             } else {
                 SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
@@ -105,13 +91,12 @@ public class SkyRenderer {
         for (SkyObject skyObject : properties.skyObjects()) {
             SkyHelper.drawCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
         }
-        if (properties.fog()) fogCallback.run();
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
     }
 
-    private void handleShootingStars(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, Star star, float partialTick) {
+    private void handleShootingStars(ClientLevel level, PoseStack poseStack, Star star, float partialTick) {
         if(!level.isClientSide) return;
 
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
@@ -132,22 +117,22 @@ public class SkyRenderer {
         if(this.shootingStars == null || this.shootingStars.isEmpty() ) return;
         ArrayList<UUID> starsToRemove = new ArrayList<>();
         for (ShootingStar shootingStar : this.shootingStars.values()) {
-            if (shootingStar.render(poseStack, projectionMatrix)) {
+            if (shootingStar.render(poseStack)) {
                 starsToRemove.add(shootingStar.starId);
             }
         }
         starsToRemove.forEach(this.shootingStars::remove);
     }
 
-    private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {
+    private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, float nightAngle, FogParameters fog) {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
 
         if(properties.stars().vanilla()) {
             if(starLight > 0.0f) {
                 RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-                FogRenderer.setupNoFog();
+                RenderSystem.setShaderFog(fog);
                 this.starBuffer.bind();
-                this.starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionShader());
+                this.starBuffer.drawWithShader(poseStack.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
                 VertexBuffer.unbind();
             }
             return;
@@ -156,18 +141,14 @@ public class SkyRenderer {
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
 
         if (properties.stars().allDaysVisible()){
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, starsAngle);
         } else if (starLight > 0.2F) {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
             RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, starsAngle);
         }
-
-
-        if (properties.fog()) fogCallback.run();
-
     }
 
 

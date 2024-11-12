@@ -23,5 +23,4 @@ public final class SkyAestheticsNeoForge {
             SkyAesthetics.onAddReloadListenerEvent((id, listener) -> event.registerReloadListener(listener));
         }
     }
-
 }

@@ -8,18 +8,19 @@ import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ConstellationsData extends SimpleJsonResourceReloadListener {
+public class ConstellationsData extends SimpleJsonResourceReloadListener<JsonElement> {
 
     public static final Map<String, Constellation> CONSTELLATIONS = new HashMap<>();
 
     public ConstellationsData() {
-        super(SkyAesthetics.GSON, "constellation");
+        super(ExtraCodecs.JSON, "constellation");
     }
 
     @Override
@@ -28,7 +29,7 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener {
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "constellation");
             Constellation constellation = Constellation.CODEC.parse(JsonOps.INSTANCE, json).getOrThrow();
-            SkyAesthetics.LOG.info("{} | registered", constellation.id());
+            SkyAesthetics.LOG.info(constellation.id() + " | registered");
 
             CONSTELLATIONS.putIfAbsent(constellation.id(), constellation);
         });

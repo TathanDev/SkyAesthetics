@@ -14,8 +14,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 public final class SkyAestheticsClientFabric implements ClientModInitializer {
-
-
     @Override
     public void onInitializeClient() {
         onAddReloadListener();
@@ -29,10 +27,9 @@ public final class SkyAestheticsClientFabric implements ClientModInitializer {
             }
 
             @Override
-            public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier synchronizer, @NotNull ResourceManager manager, @NotNull ProfilerFiller prepareProfiler, @NotNull ProfilerFiller applyProfiler, @NotNull Executor prepareExecutor, @NotNull Executor applyExecutor) {
-                return listener.reload(synchronizer, manager, prepareProfiler, applyProfiler, prepareExecutor, applyExecutor);
+            public @NotNull CompletableFuture<Void> reload(@NotNull PreparationBarrier synchronizer, @NotNull ResourceManager manager, @NotNull Executor prepareExecutor, @NotNull Executor applyExecutor) {
+                return listener.reload(synchronizer, manager, prepareExecutor, applyExecutor);
             }
         }));
     }
-
 }

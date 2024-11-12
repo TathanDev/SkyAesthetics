@@ -1,15 +1,15 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.world.level.material.FogType;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -26,21 +26,18 @@ public abstract class LevelRendererMixin {
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
-    @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+    @Inject(method = "addSkyPass", at = @At(value = "HEAD"), cancellable = true)
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, float partialTick, FogParameters fogParameters, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
-
-        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
-
+        if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
             for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
                 if (sky.getProperties().world().equals(level.dimension())) {
                     PoseStack poseStack = new PoseStack();
-                    poseStack.mulPose(frustumMatrix);
 
                     SkyRenderer renderer = sky.getRenderer();
 
-                    if(renderer.isSkyRendered()) {
-                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                    if (renderer.isSkyRendered()) {
+                        renderer.render(level, poseStack, camera, partialTick, fogParameters);
                         ci.cancel();
                     }
                 }
@@ -49,8 +46,9 @@ public abstract class LevelRendererMixin {
         }
     }
 
-    @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+    /**
+    @Inject(method = "getCloudRenderer", at = @At(value = "HEAD"), cancellable = true)
+    private void cancelCloudRenderer(CallbackInfoReturnable<CloudRenderer> ci) {
         for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
                 SkyRenderer renderer = sky.getRenderer();
@@ -60,6 +58,7 @@ public abstract class LevelRendererMixin {
             }
         }
     }
+
 
     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
@@ -83,5 +82,5 @@ public abstract class LevelRendererMixin {
                 }
             }
         }
-    }
+    }*/
 }

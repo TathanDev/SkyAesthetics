@@ -9,18 +9,19 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
+public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElement>  {
 
     public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
-        super(SkyAesthetics.GSON, "sky");
+        super(ExtraCodecs.JSON, "sky");
     }
 
     @Override

@@ -1,13 +1,12 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
+import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 
 import java.util.Random;
 import java.util.UUID;
@@ -45,9 +44,9 @@ public class ShootingStar {
 
     private VertexBuffer createStar(Star.Color color) {
         Tesselator tesselator = Tesselator.getInstance();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
-        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+        VertexBuffer vertexBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         Random random = new Random();
 
@@ -61,12 +60,12 @@ public class ShootingStar {
         return vertexBuffer;
     }
 
-    public boolean render(PoseStack poseStack, Matrix4f projectionMatrix) {
+    public boolean render(PoseStack poseStack) {
         life += this.starConfig.speed();
         if (life >= lifeTime) {
             return true;
         }
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
         RenderSystem.setShaderColor(5f, 4f, 5f, 5f);
 
@@ -75,9 +74,8 @@ public class ShootingStar {
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.XP.rotationDegrees(life + 180));
 
-        FogRenderer.setupNoFog();
         this.starBuffer.bind();
-        this.starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
+        this.starBuffer.drawWithShader(poseStack.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
         VertexBuffer.unbind();
         poseStack.popPose();
         return false;

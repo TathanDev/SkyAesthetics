@@ -26,7 +26,7 @@ public class PlanetSky extends DimensionSpecialEffects {
         return switch (properties.skyType()) {
             case "END" -> SkyType.END;
             case "NONE" -> SkyType.NONE;
-            case null, default -> SkyType.NORMAL;
+            case null, default -> SkyType.OVERWORLD;
         };
     }
 
@@ -34,7 +34,6 @@ public class PlanetSky extends DimensionSpecialEffects {
     public boolean isFoggyAt(int x, int y) {
         return false;
     }
-
 
     public SkyRenderer getRenderer() {
         return renderer;
