@@ -40,7 +40,7 @@ public abstract class LevelRendererMixin {
                     SkyRenderer renderer = sky.getRenderer();
 
                     if(renderer.isSkyRendered()) {
-                        renderer.render(level, poseStack, frustumMatrix, projectionMatrix, partialTick, camera, fogCallback);
+                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
                         ci.cancel();
                     }
                 }

@@ -9,8 +9,6 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
-import java.util.ArrayList;
-import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
@@ -35,9 +33,10 @@ public class ShootingStar {
         this.randomSpeedModifier = new Random().nextInt(-20, 10);
 
         if(starConfig.rotation().isPresent()) {
-            switch (starConfig.rotation().get()) {
-                case 0 -> this.rotation = new Random().nextInt(360);
-                default -> this.rotation = starConfig.rotation().get();
+            if (starConfig.rotation().get() == 0) {
+                this.rotation = new Random().nextInt(360);
+            } else {
+                this.rotation = starConfig.rotation().get();
             }
         } else {
             this.rotation = 0;

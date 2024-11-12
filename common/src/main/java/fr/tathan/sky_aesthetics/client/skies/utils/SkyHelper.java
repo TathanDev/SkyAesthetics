@@ -4,12 +4,10 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -19,15 +17,14 @@ import org.joml.Matrix4f;
 import java.util.Objects;
 
 public class SkyHelper {
-    public static void drawSky(Matrix4f matrix4f, Matrix4f projectionMatrix, ShaderInstance shaderInstance, Tesselator tesselator, PoseStack poseStack, float partialTick) {
+    public static void drawSky(Matrix4f matrix4f, Matrix4f projectionMatrix, ShaderInstance shaderInstance) {
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().bind();
         ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).stellaris$getSkyBuffer().drawWithShader(matrix4f, projectionMatrix, shaderInstance);
-
 
         VertexBuffer.unbind();
     }
 
-    public static void drawMoonWithPhase(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
+    public static void drawMoonWithPhase(Tesselator tesselator, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
         int moonPhase = 3;
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
@@ -70,7 +67,7 @@ public class SkyHelper {
 
         float ratio = 1;
         if (y > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
-            ratio = (Minecraft.getInstance().gameRenderer.getRenderDistance()) / y;
+            ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / y;
         }
 
         RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
@@ -110,8 +107,8 @@ public class SkyHelper {
         Matrix4f matrix4f = poseStack.last().pose();
 
         float ratio = 1;
-        if (object.height() > 16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) {
-            ratio = (16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) / object.height();
+        if (object.height() > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
+            ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / object.height();
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

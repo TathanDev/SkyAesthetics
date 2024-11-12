@@ -4,12 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
-import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
@@ -20,7 +16,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
@@ -28,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 import java.util.*;
-import java.util.Objects;
 
 public class SkyRenderer {
 
@@ -48,7 +42,7 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
         if(!isSkyRendered()) return;
 
         if (properties.fog()) fogCallback.run();
@@ -79,7 +73,7 @@ public class SkyRenderer {
 
 
         if(Objects.equals(properties.skyType(), "NORMAL")) {
-            SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance, tesselator, poseStack, partialTick);
+            SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance);
         } else if(Objects.equals(properties.skyType(), "END")) {
             SkyHelper.renderEndSky(poseStack);
         }
@@ -87,10 +81,7 @@ public class SkyRenderer {
         // Star
         renderStars(level, partialTick, poseStack, projectionMatrix, fogCallback, nightAngle);
 
-        properties.stars().shootingStars().ifPresent((shootingStar -> {
-            handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick);
-
-        }));
+        properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
 
 
         // Sun
@@ -104,7 +95,7 @@ public class SkyRenderer {
             if(PlatformHelper.isModLoaded("lunar")) {
                 SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize(), nightAngle);
             } else if (customVanillaObject.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(level, tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
+                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
             } else {
                 SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
             }
@@ -140,9 +131,7 @@ public class SkyRenderer {
 
         if(this.shootingStars == null || this.shootingStars.isEmpty() ) return;
         ArrayList<UUID> starsToRemove = new ArrayList<>();
-        for (Iterator<ShootingStar> iterator = this.shootingStars.values().iterator(); iterator.hasNext();) {
-            ShootingStar shootingStar = iterator.next();
-
+        for (ShootingStar shootingStar : this.shootingStars.values()) {
             if (shootingStar.render(poseStack, projectionMatrix)) {
                 starsToRemove.add(shootingStar.starId);
             }
@@ -191,8 +180,7 @@ public class SkyRenderer {
     }
 
     public boolean isSkyRendered() {
-
-        if(!this.properties.renderCondition().isPresent() || !this.properties.renderCondition().get().condition()) return true;
+        if (this.properties.renderCondition().isEmpty() || !this.properties.renderCondition().get().condition()) return true;
         SkyProperties.RenderCondition condition = this.properties.renderCondition().get();
         ServerLevel level = this.getServerLevel();
         LocalPlayer player = Minecraft.getInstance().player;

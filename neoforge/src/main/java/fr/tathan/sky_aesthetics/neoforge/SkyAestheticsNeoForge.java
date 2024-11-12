@@ -20,9 +20,7 @@ public final class SkyAestheticsNeoForge {
 
         @SubscribeEvent
         public static void onClientSetup(RegisterClientReloadListenersEvent event) {
-            SkyAesthetics.onAddReloadListenerEvent((id, listener) -> {
-                event.registerReloadListener(listener);
-            });
+            SkyAesthetics.onAddReloadListenerEvent((id, listener) -> event.registerReloadListener(listener));
         }
     }
 

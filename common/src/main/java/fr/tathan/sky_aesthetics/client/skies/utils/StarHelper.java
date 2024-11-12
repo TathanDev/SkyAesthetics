@@ -188,7 +188,6 @@ public class StarHelper {
 
     public static MeshData createVanillaStars(Tesselator tesselator) {
         RandomSource randomSource = RandomSource.create(10842L);
-        float f = 100.0F;
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
 
         for(int j = 0; j < 1500; ++j) {

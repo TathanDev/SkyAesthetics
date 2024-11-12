@@ -2,7 +2,6 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 
 public record SkyColor(boolean customColor, Vec3 color) {

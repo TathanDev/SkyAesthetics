@@ -3,13 +3,10 @@ package fr.tathan.sky_aesthetics.helper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mrbysco.lunar.client.MoonHandler;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LunarMoonInfosAccessor;
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Matrix4f;
 
 public class SkyCompat {
 
@@ -27,12 +24,10 @@ public class SkyCompat {
 
     public static float[] getLunarMoonColor() {
         float[] moonColor = LunarMoonInfosAccessor.sky_aesthetic$moonColor();
-        switch (LunarMoonInfosAccessor.sky_aesthetic$eventId()) {
-            case "lunar:hero_moon":
-                return new float[]{moonColor[0] * 5f, 1.0F, 1.0F, 1.0F};
-            default:
-                return moonColor;
+        if (LunarMoonInfosAccessor.sky_aesthetic$eventId().equals("lunar:hero_moon")) {
+            return new float[]{moonColor[0] * 5f, 1.0F, 1.0F, 1.0F};
         }
+        return moonColor;
     }
 
     public static float getLunarMoonSize() {
