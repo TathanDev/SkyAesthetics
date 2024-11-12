@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
@@ -68,8 +69,8 @@ public class SkyHelper {
         }
 
         float ratio = 1;
-        if (y > 16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) {
-            ratio = (16 * Minecraft.getInstance().gameRenderer.getRenderDistance()) / y;
+        if (y > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
+            ratio = (Minecraft.getInstance().gameRenderer.getRenderDistance()) / y;
         }
 
         RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
