@@ -1,5 +1,5 @@
-# Sky Aesthetics 1.2.9
+# Sky Aesthetics 1.2.10
 
-## Changes
-- Change `sunrise_color` option
-  - Now require RGB value
+## Features
+- Added `sunrise_alpha_modifier` option
+  - This is a multiplier for the sunrise color alpha channel

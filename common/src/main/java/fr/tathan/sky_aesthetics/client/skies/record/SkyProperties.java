@@ -47,7 +47,7 @@ public record SkyProperties(
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
             Vec3.CODEC.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
-            Codec.FLOAT.optionalFieldOf("sunrise_modifier").forGetter(SkyProperties::sunriseModifier),
+            Codec.FLOAT.optionalFieldOf("sunrise_alpha_modifier").forGetter(SkyProperties::sunriseModifier),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
