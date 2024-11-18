@@ -1,5 +1,5 @@
-# Sky Aesthetics 1.2.7
+# Sky Aesthetics 1.2.9
 
-## Features
-- Add `sunrise_color` option
-  - this option allows you to change the color of the sunrise? Require a List of 4 floats
+## Changes
+- Change `sunrise_color` option
+  - Now require RGB value

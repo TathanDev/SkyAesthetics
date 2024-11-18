@@ -10,6 +10,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
@@ -25,7 +26,7 @@ public record SkyProperties(
         Boolean rain,
         CustomVanillaObject customVanillaObject,
         Star stars,
-        Optional<Vector4f> sunriseColor,
+        Optional<Vec3> sunriseColor,
         String skyType,
         SkyColor skyColor,
         List<SkyObject> skyObjects,
@@ -33,8 +34,6 @@ public record SkyProperties(
         Optional<RenderCondition> renderCondition
 
 ) {
-
-    public static Codec<Vector4f> VEC4F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 4).map((listx) -> new Vector4f(listx.getFirst(), listx.get(1), listx.get(2), listx.getLast())), (vec4) -> List.of(vec4.x, vec4.y, vec4.z, vec4.w));
 
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -46,7 +45,7 @@ public record SkyProperties(
             Codec.BOOL.fieldOf("rain").forGetter(SkyProperties::rain),
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
-            VEC4F.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
+            Vec3.CODEC.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),

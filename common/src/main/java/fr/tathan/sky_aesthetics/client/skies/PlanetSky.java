@@ -4,6 +4,8 @@ import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.util.FastColor;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -24,18 +26,31 @@ public class PlanetSky extends DimensionSpecialEffects {
     }
 
     @Override
-    public float @NotNull [] getSunriseColor(float f, float g) {
-        float[] color = super.getSunriseColor(f, g);
+    @Nullable
+    public float[] getSunriseColor(float timeOfDay, float partialTicks) {
+
+        this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
 
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
-            this.sunriseCol[0] = sunriseColor.x();
-            this.sunriseCol[1] = sunriseColor.y();
-            this.sunriseCol[2] = sunriseColor.z();
-            this.sunriseCol[3] = sunriseColor.w();
+            float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
+
+            if (g >= -0.4f && g <= 0.4f) {
+                float i = g / 0.4f * 0.5f + 0.5f;
+                float alpha = 1 - (1 - Mth.sin(i * (float) Math.PI)) * 0.99F;
+                alpha *= alpha;
+                this.sunriseCol[0] = i * 0.3f + (int) sunriseColor.x / 255f * 0.7f;
+                this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f * 0.5f;
+                this.sunriseCol[2] = (int) sunriseColor.z / 255f * 0.6f;
+                this.sunriseCol[3] = alpha;
+            } else {
+                this.sunriseCol = null;
+            }
 
         });
-        return color;
+        return this.sunriseCol;
+
     }
+
 
     @Override
     public SkyType skyType() {
