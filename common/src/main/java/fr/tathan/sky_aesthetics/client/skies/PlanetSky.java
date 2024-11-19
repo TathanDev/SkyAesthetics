@@ -34,7 +34,7 @@ public class PlanetSky extends DimensionSpecialEffects {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
-            if (g >= -0.4f && g <= 0.4f) {
+            if (g >= -0.4f && g <= 0.4f && this.sunriseCol != null) {
                 float i = g / 0.4f * 0.5f + 0.5f;
                 float alpha = 1 - (1 - Mth.sin(i * (float) Math.PI)) * 0.99F;
                 alpha *= alpha;

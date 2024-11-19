@@ -1,5 +1,4 @@
-# Sky Aesthetics 1.2.10
+# Sky Aesthetics 1.2.11
 
-## Features
-- Added `sunrise_alpha_modifier` option
-  - This is a multiplier for the sunrise color alpha channel
+## Fix
+- Fix sunrise color causing NullPointerException
