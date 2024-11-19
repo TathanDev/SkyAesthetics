@@ -44,8 +44,6 @@ public class SkyRenderer {
     public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, FogParameters fog) {
         if(!isSkyRendered()) return;
 
-        SkyAesthetics.LOG.error("Test");
-
         Tesselator tesselator = Tesselator.getInstance();
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
 
@@ -62,7 +60,7 @@ public class SkyRenderer {
 
         RenderSystem.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), 1.0f);
 
-        if (Objects.equals(properties.skyType(), "NORMAL")) {
+        if (Objects.equals(properties.skyType(), "OVERWORLD")) {
             SkyHelper.renderSky();
         } else if (Objects.equals(properties.skyType(), "END")) {
             SkyHelper.renderEndSky(poseStack);
