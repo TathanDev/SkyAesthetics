@@ -34,7 +34,7 @@ public class PlanetSky extends DimensionSpecialEffects {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
-            if (g >= -0.4f && g <= 0.4f && this.sunriseCol != null) {
+            if (g >= -0.4f && g <= 0.4f) {
                 float i = g / 0.4f * 0.5f + 0.5f;
                 float alpha = 1 - (1 - Mth.sin(i * (float) Math.PI)) * 0.99F;
                 alpha *= alpha;
@@ -45,13 +45,10 @@ public class PlanetSky extends DimensionSpecialEffects {
                 this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f * 0.5f;
                 this.sunriseCol[2] = (int) sunriseColor.z / 255f * 0.6f;
                 this.sunriseCol[3] = alpha;
-            } else {
-                this.sunriseCol = null;
             }
-
         });
-        return this.sunriseCol;
 
+        return this.sunriseCol;
     }
 
 
