@@ -37,6 +37,7 @@ public class PlanetSky extends DimensionSpecialEffects {
                 alpha *= alpha;
 
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
+                if(this.sunriseCol == null) this.sunriseCol = new float[4];
 
                 this.sunriseCol[0] = i * 0.3f + (int) sunriseColor.x / 255f * 0.7f;
                 this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f * 0.5f;
