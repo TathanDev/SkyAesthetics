@@ -27,7 +27,7 @@ public class PlanetSky extends DimensionSpecialEffects {
     }
 
     @Override
-    public float @NotNull [] getSunriseColor(float timeOfDay, float partialTicks) {
+    public @Nullable float[]  getSunriseColor(float timeOfDay, float partialTicks) {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
