@@ -1,1 +1,6 @@
 accessWidener v2 named
+
+accessible field net/minecraft/client/renderer/DimensionSpecialEffects sunriseCol [F
+mutable field net/minecraft/client/renderer/DimensionSpecialEffects sunriseCol [F
+accessible field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
+mutable field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;

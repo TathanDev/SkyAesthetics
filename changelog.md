@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.2.6
+# Sky Aesthetics 1.2.12
 
 ## Fix
-- Fix sky rendering bug
+- Fix sunrise color causing NullPointerException
