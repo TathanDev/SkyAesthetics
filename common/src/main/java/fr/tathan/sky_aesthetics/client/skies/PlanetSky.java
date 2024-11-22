@@ -43,9 +43,14 @@ public class PlanetSky extends DimensionSpecialEffects {
                 this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f * 0.5f;
                 this.sunriseCol[2] = (int) sunriseColor.z / 255f * 0.6f;
                 this.sunriseCol[3] = alpha;
+            } else {
+                this.sunriseCol = null;
             }
         });
 
+        if (this.sunriseCol == null) {
+            return super.getSunriseColor(timeOfDay, partialTicks);
+        }
         return this.sunriseCol;
     }
 
