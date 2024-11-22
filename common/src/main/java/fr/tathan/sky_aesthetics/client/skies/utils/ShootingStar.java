@@ -43,7 +43,7 @@ public class ShootingStar {
         }
     }
 
-    private VertexBuffer createStar(Star.Color color) {
+    private VertexBuffer createStar(Vec3 color) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
 

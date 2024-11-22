@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vec3 color, Optional<ShootingStars> shootingStars) {
+
     public static final Codec<Star> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(Star::vanilla),
             Codec.BOOL.fieldOf("moving_stars").forGetter(Star::movingStars),
@@ -21,11 +22,9 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
 
     ).apply(instance, Star::new));
 
-
     public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Vec3 color, Optional<Integer> rotation) {
 
         public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.getFirst(), listx.get(1))), (vec2) -> List.of(vec2.x, vec2.y));
-
 
         public static final Codec<ShootingStars> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("percentage").forGetter(ShootingStars::percentage),
