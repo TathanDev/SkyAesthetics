@@ -94,15 +94,12 @@ public class SkyHelper {
 
         poseStack.pushPose();
 
-        poseStack.mulPose(Axis.YP.rotationDegrees((float) object.rotation().y));
-        if(Objects.equals(object.rotationType(), "DAY")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
-        } else if(Objects.equals(object.rotationType(), "NIGHT")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle + 180));
-        } else {
-            poseStack.mulPose(Axis.XP.rotationDegrees((float) object.rotation().x));
-        }
-        poseStack.mulPose(Axis.ZP.rotationDegrees((float) object.rotation().z));
+
+        //Object Position
+        object.setObjectPosition(poseStack, dayAngle);
+
+        //Local Rotation
+        object.setObjectRotation(poseStack);
 
         Matrix4f matrix4f = poseStack.last().pose();
 
