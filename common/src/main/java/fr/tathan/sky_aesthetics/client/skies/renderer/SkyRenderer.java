@@ -21,6 +21,8 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.*;
 
@@ -55,19 +57,16 @@ public class SkyRenderer {
         float nightAngle = dayAngle + 180;
 
         Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
+        Vector4f vec4 = new Vector4f((float) vec3.x,(float) vec3.y,(float) vec3.z, 1.0f);
 
         if(properties.skyColor().customColor()) {
-            vec3 = properties.skyColor().color();
+            vec4 = properties.skyColor().color();
         }
-
-        float r = (float) vec3.x;
-        float g = (float) vec3.y;
-        float b = (float) vec3.z;
 
         FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
 
-        RenderSystem.setShaderColor(r, g, b, 1.0f);
+        RenderSystem.setShaderColor(vec4.x, vec4.y, vec4.z, vec4.w);
 
         ShaderInstance shaderInstance = RenderSystem.getShader();
 
