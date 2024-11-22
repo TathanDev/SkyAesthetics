@@ -21,7 +21,6 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.*;
@@ -36,7 +35,7 @@ public class SkyRenderer {
         this.properties = properties;
 
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().r(), properties.stars().color().g(), properties.stars().color().b(), properties.constellations());
+            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations());
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -69,8 +68,6 @@ public class SkyRenderer {
         RenderSystem.setShaderColor(vec4.x, vec4.y, vec4.z, vec4.w);
 
         ShaderInstance shaderInstance = RenderSystem.getShader();
-
-
 
         if(Objects.equals(properties.skyType(), "NORMAL")) {
             SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix, shaderInstance);
