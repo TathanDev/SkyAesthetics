@@ -6,7 +6,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
@@ -17,7 +16,6 @@ import java.util.Optional;
 public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec3 rotation, Optional<Vector3f> objectRotation, int height, String rotationType) {
 
     public static Codec<Vector3f> VEC3F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 3).map((listx) -> new Vector3f(listx.getFirst(), listx.get(1), listx.getLast())), (vector3f) -> List.of(vector3f.x, vector3f.y, vector3f.z));
-
 
     public static final Codec<SkyObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("texture").forGetter(SkyObject::texture),
@@ -39,7 +37,6 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
             poseStack.mulPose(Axis.XP.rotationDegrees((float) this.rotation().x));
         }
         poseStack.mulPose(Axis.ZP.rotationDegrees((float) this.rotation().z));
-
     }
 
     public void setObjectRotation(PoseStack poseStack) {

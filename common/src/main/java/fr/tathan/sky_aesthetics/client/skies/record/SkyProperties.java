@@ -30,8 +30,8 @@ public record SkyProperties(
         SkyColor skyColor,
         List<SkyObject> skyObjects,
         Optional<List<String>> constellations,
-        Optional<RenderCondition> renderCondition
-
+        Optional<RenderCondition> renderCondition,
+        Optional<CustomCloudColor> customCloudColor
 ) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -49,10 +49,9 @@ public record SkyProperties(
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             Codec.STRING.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations),
-            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
+            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
+            CustomCloudColor.CODEC.optionalFieldOf("custom_cloud_color").forGetter(SkyProperties::customCloudColor)
     ).apply(instance, SkyProperties::new));
-
-
 
     public record RenderCondition(boolean condition, Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome) {
         public static final Codec<RenderCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -60,6 +59,14 @@ public record SkyProperties(
                 TagKey.codec(Registries.BIOME).optionalFieldOf("biomes").forGetter(RenderCondition::biomes),
                 ResourceKey.codec(Registries.BIOME).optionalFieldOf("biome").forGetter(RenderCondition::biome)
         ).apply(instance, RenderCondition::new));
+    }
 
+    public record CustomCloudColor(Vec3 baseColor, Vec3 stormColor, Vec3 rainColor, boolean alwaysBaseColor) {
+        public static final Codec<CustomCloudColor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Vec3.CODEC.fieldOf("base_color").forGetter(CustomCloudColor::baseColor),
+                Vec3.CODEC.fieldOf("storm_color").forGetter(CustomCloudColor::stormColor),
+                Vec3.CODEC.fieldOf("rain_color").forGetter(CustomCloudColor::rainColor),
+                Codec.BOOL.fieldOf("always_base_color").forGetter(CustomCloudColor::alwaysBaseColor)
+        ).apply(instance, CustomCloudColor::new));
     }
 }

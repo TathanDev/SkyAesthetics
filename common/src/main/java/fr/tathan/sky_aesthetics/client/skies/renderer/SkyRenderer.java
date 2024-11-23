@@ -197,6 +197,22 @@ public class SkyRenderer {
         return true;
     }
 
+    public Vec3 getCloudColor(float rainLevel, float stormLevel) {
+        if(this.properties.customCloudColor().isPresent()) {
+            SkyProperties.CustomCloudColor color = this.properties.customCloudColor().get();
+
+            if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
+                return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);
+            } else if(rainLevel > 0.0f && !color.alwaysBaseColor()) {
+                return new Vec3(color.rainColor().x, color.rainColor().y, color.rainColor().z);
+            } else {
+                return new Vec3(color.baseColor().x, color.baseColor().y, color.baseColor().z);
+            }
+        }
+
+        return null;
+    }
+
     private ServerLevel getServerLevel() {
         Minecraft minecraft = Minecraft.getInstance();
         IntegratedServer integratedServer = minecraft.getSingleplayerServer();
