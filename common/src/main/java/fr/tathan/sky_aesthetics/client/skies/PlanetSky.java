@@ -3,7 +3,10 @@ package fr.tathan.sky_aesthetics.client.skies;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
+import net.minecraft.client.CloudStatus;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -37,10 +40,11 @@ public class PlanetSky extends DimensionSpecialEffects {
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
                 if(this.sunriseCol == null) this.sunriseCol = new float[4];
 
-                this.sunriseCol[0] = i * 0.3f + (int) sunriseColor.x / 255f ;
-                this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f ;
-                this.sunriseCol[2] = (int) sunriseColor.z / 255f ;
-                this.sunriseCol[3] = alpha;
+                this.sunriseCol[0] = (int) sunriseColor.x / 255f ;
+                this.sunriseCol[1] = (int) sunriseColor.y / 255f ;
+                this.sunriseCol[2] = (int) sunriseColor.z / 255f;
+                this.sunriseCol[3] = alpha * 1.5f;
+
             } else {
                 this.sunriseCol = null;
             }
