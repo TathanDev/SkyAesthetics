@@ -3,10 +3,7 @@ package fr.tathan.sky_aesthetics.client.skies;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
-import net.minecraft.client.CloudStatus;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +25,7 @@ public class PlanetSky extends DimensionSpecialEffects {
     }
 
     @Override
-    public @Nullable float[]  getSunriseColor(float timeOfDay, float partialTicks) {
+    public @Nullable float[] getSunriseColor(float timeOfDay, float partialTicks) {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
