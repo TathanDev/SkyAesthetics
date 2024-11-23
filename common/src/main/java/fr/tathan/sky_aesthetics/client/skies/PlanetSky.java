@@ -1,8 +1,8 @@
 package fr.tathan.sky_aesthetics.client.skies;
 
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
@@ -11,8 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
 
 public class PlanetSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
@@ -46,6 +44,7 @@ public class PlanetSky extends DimensionSpecialEffects {
                 this.sunriseCol[1] = (int) sunriseColor.y / 255f ;
                 this.sunriseCol[2] = (int) sunriseColor.z / 255f;
                 this.sunriseCol[3] = alpha * 1.5f;
+
             } else {
                 this.sunriseCol = null;
             }
@@ -55,6 +54,11 @@ public class PlanetSky extends DimensionSpecialEffects {
             return super.getSunriseColor(timeOfDay, partialTicks);
         }
         return this.sunriseCol;
+    }
+
+    @Override
+    public boolean hasGround() {
+        return SkyHelper.skyTypeToHasGround(properties.skyType());
     }
 
     @Override
