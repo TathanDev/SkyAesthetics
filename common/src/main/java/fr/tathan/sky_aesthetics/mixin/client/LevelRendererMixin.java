@@ -1,9 +1,6 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
-import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;

@@ -48,7 +48,6 @@ public class SkyRenderer {
 
         if (properties.fog()) fogCallback.run();
 
-
         Tesselator tesselator = Tesselator.getInstance();
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
 
