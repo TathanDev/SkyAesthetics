@@ -167,7 +167,7 @@ public class SkyRenderer {
 
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloud();
+        return !properties.cloudSettings().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -192,8 +192,8 @@ public class SkyRenderer {
     }
 
     public Vec3 getCloudColor(float rainLevel, float stormLevel) {
-        if(this.properties.customCloudColor().isPresent()) {
-            SkyProperties.CustomCloudColor color = this.properties.customCloudColor().get();
+        if(this.properties.cloudSettings().cloudColor().isPresent()) {
+            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
 
             if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
                 return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);

@@ -14,7 +14,7 @@ public class PlanetSky extends DimensionSpecialEffects {
     private final SkyProperties properties;
 
     public PlanetSky(SkyProperties properties) {
-        super(properties.cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
+        super(properties.cloudSettings().cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
         this.renderer = new SkyRenderer(properties);
     }

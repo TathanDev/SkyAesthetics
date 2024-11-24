@@ -16,8 +16,7 @@ import java.util.Optional;
 public record SkyProperties(
         ResourceKey<Level> world,
         Optional<ResourceLocation> id,
-        Boolean cloud,
-        Float cloudHeight,
+        CloudSettings cloudSettings,
         Boolean fog,
         Boolean rain,
         CustomVanillaObject customVanillaObject,
@@ -28,15 +27,12 @@ public record SkyProperties(
         SkyColor skyColor,
         List<SkyObject> skyObjects,
         Optional<List<String>> constellations,
-        Optional<RenderCondition> renderCondition,
-        Optional<CustomCloudColor> customCloudColor
-) {
+        Optional<RenderCondition> renderCondition) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             ResourceLocation.CODEC.optionalFieldOf("id").forGetter(SkyProperties::id),
-            Codec.BOOL.fieldOf("cloud").forGetter(SkyProperties::cloud),
-            Codec.FLOAT.fieldOf("cloud_height").forGetter(SkyProperties::cloudHeight),
+            CloudSettings.CODEC.fieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
             Codec.BOOL.fieldOf("fog").forGetter(SkyProperties::fog),
             Codec.BOOL.fieldOf("rain").forGetter(SkyProperties::rain),
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
@@ -47,8 +43,7 @@ public record SkyProperties(
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             Codec.STRING.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations),
-            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
-            CustomCloudColor.CODEC.optionalFieldOf("custom_cloud_color").forGetter(SkyProperties::customCloudColor)
+            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
     ).apply(instance, SkyProperties::new));
 
     public record RenderCondition(boolean condition, Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome) {
@@ -59,12 +54,4 @@ public record SkyProperties(
         ).apply(instance, RenderCondition::new));
     }
 
-    public record CustomCloudColor(Vec3 baseColor, Vec3 stormColor, Vec3 rainColor, boolean alwaysBaseColor) {
-        public static final Codec<CustomCloudColor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Vec3.CODEC.fieldOf("base_color").forGetter(CustomCloudColor::baseColor),
-                Vec3.CODEC.fieldOf("storm_color").forGetter(CustomCloudColor::stormColor),
-                Vec3.CODEC.fieldOf("rain_color").forGetter(CustomCloudColor::rainColor),
-                Codec.BOOL.fieldOf("always_base_color").forGetter(CustomCloudColor::alwaysBaseColor)
-        ).apply(instance, CustomCloudColor::new));
-    }
 }
