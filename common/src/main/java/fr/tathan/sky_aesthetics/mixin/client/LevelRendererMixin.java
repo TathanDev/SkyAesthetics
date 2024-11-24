@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -32,57 +33,41 @@ public abstract class LevelRendererMixin {
 
         if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
 
-            for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-                if (sky.getProperties().world().equals(level.dimension())) {
-                    PoseStack poseStack = new PoseStack();
-                    poseStack.mulPose(frustumMatrix);
+            SkyHelper.canRenderSky(level, (planetSky -> {
+                PoseStack poseStack = new PoseStack();
+                poseStack.mulPose(frustumMatrix);
 
-                    SkyRenderer renderer = sky.getRenderer();
-
-                    if(renderer.isSkyRendered()) {
-                        level.effects = sky;
-                        renderer.render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-                        ci.cancel();
-                    }
-                }
-            }
-
+                level.effects = planetSky;
+                planetSky.getRenderer().render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                ci.cancel();
+            }));
         }
     }
 
     @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-            if (sky.getProperties().world().equals(level.dimension())) {
-                SkyRenderer renderer = sky.getRenderer();
-                if(renderer.shouldRemoveCloud()) {
-                    ci.cancel();
-                }
+        SkyHelper.canRenderSky(level, (planetSky -> {
+            if(planetSky.getRenderer().shouldRemoveCloud()) {
+                ci.cancel();
             }
-        }
+        }));
     }
 
     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-            if (sky.getProperties().world().equals(level.dimension())) {
-                SkyRenderer renderer = sky.getRenderer();
-                if(renderer.shouldRemoveSnowAndRain()) {
-                    ci.cancel();
-                }
+        SkyHelper.canRenderSky(level, (planetSky -> {
+            if(planetSky.getRenderer().shouldRemoveSnowAndRain()) {
+                ci.cancel();
             }
-        }
+        }));
     }
 
     @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
     private void canRain(Camera camera, CallbackInfo ci) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-            if (sky.getProperties().world().equals(level.dimension())) {
-                SkyRenderer renderer = sky.getRenderer();
-                if(renderer.shouldRemoveSnowAndRain()) {
-                    ci.cancel();
-                }
+        SkyHelper.canRenderSky(level, (planetSky -> {
+            if(planetSky.getRenderer().shouldRemoveSnowAndRain()) {
+                ci.cancel();
             }
-        }
+        }));
     }
 }

@@ -3,12 +3,15 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
+
+import java.util.Optional;
 
 public record CustomVanillaObject(
         boolean sun, ResourceLocation sunTexture, float sunHeight, float sunSize,
-        boolean moon, boolean moonPhase,  ResourceLocation moonTexture, float moonHeight, float moonSize
+        boolean moon, boolean moonPhase,  ResourceLocation moonTexture, float moonHeight, float moonSize,
+        Optional<Vector3f> customFogColor
 ) {
-
 
     public static final Codec<CustomVanillaObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("sun").forGetter(CustomVanillaObject::sun),
@@ -19,7 +22,7 @@ public record CustomVanillaObject(
             Codec.BOOL.fieldOf("moon_phase").forGetter(CustomVanillaObject::moonPhase),
             ResourceLocation.CODEC.fieldOf("moon_texture").forGetter(CustomVanillaObject::moonTexture),
             Codec.FLOAT.fieldOf("moon_height").forGetter(CustomVanillaObject::moonHeight),
-            Codec.FLOAT.fieldOf("moon_size").forGetter(CustomVanillaObject::moonSize)
-
+            Codec.FLOAT.fieldOf("moon_size").forGetter(CustomVanillaObject::moonSize),
+            SkyObject.VEC3F.optionalFieldOf("custom_fog_color").forGetter(CustomVanillaObject::customFogColor)
     ).apply(instance, CustomVanillaObject::new));
 }
