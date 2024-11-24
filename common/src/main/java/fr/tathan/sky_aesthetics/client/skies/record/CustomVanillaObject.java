@@ -9,8 +9,7 @@ import java.util.Optional;
 
 public record CustomVanillaObject(
         boolean sun, ResourceLocation sunTexture, float sunHeight, float sunSize,
-        boolean moon, boolean moonPhase,  ResourceLocation moonTexture, float moonHeight, float moonSize,
-        Optional<Vector3f> customFogColor
+        boolean moon, boolean moonPhase,  ResourceLocation moonTexture, float moonHeight, float moonSize
 ) {
 
     public static final Codec<CustomVanillaObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -22,7 +21,6 @@ public record CustomVanillaObject(
             Codec.BOOL.fieldOf("moon_phase").forGetter(CustomVanillaObject::moonPhase),
             ResourceLocation.CODEC.fieldOf("moon_texture").forGetter(CustomVanillaObject::moonTexture),
             Codec.FLOAT.fieldOf("moon_height").forGetter(CustomVanillaObject::moonHeight),
-            Codec.FLOAT.fieldOf("moon_size").forGetter(CustomVanillaObject::moonSize),
-            SkyObject.VEC3F.optionalFieldOf("custom_fog_color").forGetter(CustomVanillaObject::customFogColor)
+            Codec.FLOAT.fieldOf("moon_size").forGetter(CustomVanillaObject::moonSize)
     ).apply(instance, CustomVanillaObject::new));
 }

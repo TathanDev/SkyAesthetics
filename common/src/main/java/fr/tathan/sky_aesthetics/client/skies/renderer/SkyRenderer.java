@@ -46,7 +46,7 @@ public class SkyRenderer {
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
         if(!isSkyRendered()) return;
 
-        if (properties.fog()) fogCallback.run();
+        runFogCallback(fogCallback);
 
         Tesselator tesselator = Tesselator.getInstance();
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
@@ -99,7 +99,7 @@ public class SkyRenderer {
         for (SkyObject skyObject : properties.skyObjects()) {
             SkyHelper.drawCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
         }
-        if (properties.fog()) fogCallback.run();
+        runFogCallback(fogCallback);
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
@@ -159,11 +159,17 @@ public class SkyRenderer {
             StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
         }
 
-
-        if (properties.fog()) fogCallback.run();
+        runFogCallback(fogCallback);
 
     }
 
+    public void runFogCallback(Runnable fogCallback) {
+        properties.fogSettings().ifPresent((fogSettings -> {
+            if(fogSettings.fog()) {
+                fogCallback.run();
+            }
+        }));
+    }
 
     public Boolean shouldRemoveCloud() {
         return !properties.cloudSettings().showCloud();
