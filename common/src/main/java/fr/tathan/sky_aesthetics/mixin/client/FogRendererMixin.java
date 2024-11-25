@@ -1,13 +1,10 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
-import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,6 +27,8 @@ public class FogRendererMixin {
     @Shadow
     private static float fogBlue;
 
+    private static ClientLevel level;
+
     @Inject(
             method = "setupColor",
             at = @At(
@@ -40,13 +39,37 @@ public class FogRendererMixin {
     )
     private static void setupCustomColor(Camera activeRenderInfo, float partialTicks, ClientLevel level, int renderDistanceChunks, float bossColorModifier, CallbackInfo ci) {
 
+        FogRendererMixin.level = level;
+
         SkyHelper.canRenderSky(level, (planetSky -> {
-            planetSky.getProperties().customVanillaObject().customFogColor().ifPresent(color -> {
-                fogRed = color.x();
-                fogGreen = color.y();
-                fogBlue = color.z();
+            planetSky.getProperties().fogSettings().ifPresent(settings -> {
+                settings.customFogColor().ifPresent(color -> {
+                    fogRed = color.x();
+                    fogGreen = color.y();
+                    fogBlue = color.z();
+                });
             });
         }));
-
     }
+
+    @Inject(
+            method = "setupFog",
+            at = @At(
+                    value = "TAIL"
+            )
+    )
+    private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, float farPlaneDistance, boolean shouldCreateFog, float partialTick, CallbackInfo ci) {
+
+        if (level != null) {
+            SkyHelper.canRenderSky(level, (planetSky -> {
+                planetSky.getProperties().fogSettings().ifPresent(settings -> {
+                    settings.fogDensity().ifPresent(density -> {
+                        RenderSystem.setShaderFogStart(density.x);
+                        RenderSystem.setShaderFogEnd(density.y);
+                    });
+                });
+            }));
+        };
+    }
+
 }
