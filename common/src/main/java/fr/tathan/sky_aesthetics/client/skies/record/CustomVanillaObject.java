@@ -3,9 +3,6 @@ package fr.tathan.sky_aesthetics.client.skies.record;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
-import org.joml.Vector3f;
-
-import java.util.Optional;
 
 public record CustomVanillaObject(
         boolean sun, ResourceLocation sunTexture, float sunHeight, float sunSize,
