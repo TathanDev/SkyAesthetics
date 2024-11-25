@@ -164,6 +164,12 @@ public class SkyRenderer {
     }
 
     public void runFogCallback(Runnable fogCallback) {
+
+        if(!properties.fogSettings().isPresent()) {
+            fogCallback.run();
+            return;
+        }
+
         properties.fogSettings().ifPresent((fogSettings -> {
             if(fogSettings.fog()) {
                 fogCallback.run();
