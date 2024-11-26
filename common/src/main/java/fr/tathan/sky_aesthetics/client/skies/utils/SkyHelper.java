@@ -4,10 +4,15 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
+import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class SkyHelper {
     public static void drawSky(Matrix4f matrix4f, Matrix4f projectionMatrix, ShaderInstance shaderInstance) {
@@ -159,5 +165,16 @@ public class SkyHelper {
             case "END" -> false ;
             case null, default -> true;
         };
+    }
+
+    public static void canRenderSky(ClientLevel level, Consumer<PlanetSky> action) {
+        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+            if (sky.getProperties().world().equals(level.dimension())) {
+                SkyRenderer renderer = sky.getRenderer();
+                if (renderer.isSkyRendered()) {
+                    action.accept(sky);
+                }
+            }
+        }
     }
 }

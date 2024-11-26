@@ -1,25 +1,42 @@
-# Sky Aesthetics 1.3.0
+# Sky Aesthetics 1.4.0
 
 ## Features
-- Custom Cloud Color
-- Sky Object Rotation
 
-## Breaking Changes
-- Change the color of the stars to a Vector3
-- Change the color of the constellation to a Vector3
+- Added Fog Settings
+  - Custom fog color
+  - Custom fog density
+
 ```json
 {
-  "color": [160, 180, -1]
+  "fog_settings": {
+    "fog": true,
+    "fog_color": [255, 0, 0],
+    "fog_density": [10, 11]
+  }
 }
 ```
 
-- Change the color of the sky Color to a Vector4f (R, G, B, and the alpha)
+- Added cloud settings
+  - Custom cloud color depending on the weather
+  - Cloud Height
+  - Render clouds
+  
 ```json
 {
-  "color": [160, 180, 200, 1]
+  "cloud_settings": {
+    "cloud": false,
+    "cloud_height": 192,
+    "cloud_color": {
+      "base_color": [255, 0, 0],
+      "rain_color": [0, 255, 0],
+      "storm_color": [0, 0, 255],
+      "always_base_color": false
+    }
+  }
 }
 ```
 
-## Fix
-- Fix sunrise color rendering ar midnigh ( #14 )
-- Fix wrong sunrise color  ( #15 )
+# Changes
+
+- Remove `fog` settings. You can now use `fog_settings` to enable fog.
+- Move `clouds` and `clouds_height` to `cloud_settings` to enable clouds.

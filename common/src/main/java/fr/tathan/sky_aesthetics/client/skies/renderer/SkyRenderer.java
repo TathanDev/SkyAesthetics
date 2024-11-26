@@ -46,8 +46,7 @@ public class SkyRenderer {
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
         if(!isSkyRendered()) return;
 
-        if (properties.fog()) fogCallback.run();
-
+        runFogCallback(fogCallback);
 
         Tesselator tesselator = Tesselator.getInstance();
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
@@ -100,7 +99,7 @@ public class SkyRenderer {
         for (SkyObject skyObject : properties.skyObjects()) {
             SkyHelper.drawCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
         }
-        if (properties.fog()) fogCallback.run();
+        runFogCallback(fogCallback);
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
@@ -160,14 +159,26 @@ public class SkyRenderer {
             StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
         }
 
-
-        if (properties.fog()) fogCallback.run();
+        runFogCallback(fogCallback);
 
     }
 
+    public void runFogCallback(Runnable fogCallback) {
+
+        if(!properties.fogSettings().isPresent()) {
+            fogCallback.run();
+            return;
+        }
+
+        properties.fogSettings().ifPresent((fogSettings -> {
+            if(fogSettings.fog()) {
+                fogCallback.run();
+            }
+        }));
+    }
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloud();
+        return !properties.cloudSettings().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -192,8 +203,8 @@ public class SkyRenderer {
     }
 
     public Vec3 getCloudColor(float rainLevel, float stormLevel) {
-        if(this.properties.customCloudColor().isPresent()) {
-            SkyProperties.CustomCloudColor color = this.properties.customCloudColor().get();
+        if(this.properties.cloudSettings().cloudColor().isPresent()) {
+            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
 
             if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
                 return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);

@@ -14,14 +14,15 @@ public class PlanetSky extends DimensionSpecialEffects {
     private final SkyProperties properties;
 
     public PlanetSky(SkyProperties properties) {
-        super(properties.cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
+        super(properties.cloudSettings().cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
         this.renderer = new SkyRenderer(properties);
     }
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-        return getProperties().fog() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
+
+        return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
     @Override

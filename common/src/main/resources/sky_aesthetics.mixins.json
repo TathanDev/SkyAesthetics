@@ -4,10 +4,11 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
+    "client.ClientLevelMixin",
+    "client.FogRendererMixin",
     "client.LevelRendererAccessor",
     "client.LevelRendererMixin",
-    "client.LunarMoonInfosAccessor",
-    "client.ClientLevelMixin"
+    "client.LunarMoonInfosAccessor"
   ],
   "mixins": [
   ],

@@ -9,7 +9,6 @@ public record CustomVanillaObject(
         boolean moon, boolean moonPhase,  ResourceLocation moonTexture, float moonHeight, float moonSize
 ) {
 
-
     public static final Codec<CustomVanillaObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("sun").forGetter(CustomVanillaObject::sun),
             ResourceLocation.CODEC.fieldOf("sun_texture").forGetter(CustomVanillaObject::sunTexture),
@@ -20,6 +19,5 @@ public record CustomVanillaObject(
             ResourceLocation.CODEC.fieldOf("moon_texture").forGetter(CustomVanillaObject::moonTexture),
             Codec.FLOAT.fieldOf("moon_height").forGetter(CustomVanillaObject::moonHeight),
             Codec.FLOAT.fieldOf("moon_size").forGetter(CustomVanillaObject::moonSize)
-
     ).apply(instance, CustomVanillaObject::new));
 }
