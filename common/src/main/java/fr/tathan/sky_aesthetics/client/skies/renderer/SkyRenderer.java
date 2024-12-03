@@ -19,6 +19,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 import java.awt.*;
 import java.util.*;
@@ -73,7 +74,7 @@ public class SkyRenderer {
 
         // Sun
         if (customVanillaObject.sun()) {
-           SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+            SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
         }
 
         // Moon
@@ -180,4 +181,21 @@ public class SkyRenderer {
         IntegratedServer integratedServer = minecraft.getSingleplayerServer();
         return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
+
+    public Vec3 getCloudColor(float rainLevel, float stormLevel) {
+        if(this.properties.cloudSettings().cloudColor().isPresent()) {
+            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
+
+            if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
+                return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);
+            } else if(rainLevel > 0.0f && !color.alwaysBaseColor()) {
+                return new Vec3(color.rainColor().x, color.rainColor().y, color.rainColor().z);
+            } else {
+                return new Vec3(color.baseColor().x, color.baseColor().y, color.baseColor().z);
+            }
+        }
+
+        return null;
+    }
+
 }

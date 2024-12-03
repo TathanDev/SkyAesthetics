@@ -91,7 +91,7 @@ public class StarHelper {
 
                 Constellation constellation = ConstellationsData.CONSTELLATIONS.get(constellationId);
                 if(constellation != null) {
-                    Star.Color color = constellation.color();
+                    Vec3 color = constellation.color();
 
                     float x = (float)( constellation.firstPoint().x );
                     float y = (float)( constellation.firstPoint().y);
@@ -121,7 +121,7 @@ public class StarHelper {
     }
 
 
-    public static void createStar(Vec3 pos, Star.Color color, float scale, Random random, BufferBuilder bufferBuilder) {
+    public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder) {
         float d0 = (float) pos.x;
         float d1 = (float) pos.y;
         float d2 = (float) pos.z;
@@ -159,7 +159,7 @@ public class StarHelper {
                     - d22 * d10;
             float d26 = d22 * d9 + d24 * d10;
 
-            bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color.r(), color.g(), color.b(), 0xAA);
+            bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
         }
 
     }

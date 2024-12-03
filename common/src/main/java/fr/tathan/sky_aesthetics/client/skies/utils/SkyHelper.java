@@ -4,15 +4,20 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
+import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 public class SkyHelper {
     private static final ResourceLocation END_SKY_TEXTURE = ResourceLocation.withDefaultNamespace("textures/environment/end_sky.png");
@@ -160,4 +165,16 @@ public class SkyHelper {
             case null, default -> true;
         };
     }
+
+    public static void canRenderSky(ClientLevel level, Consumer<PlanetSky> action) {
+        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+            if (sky.getProperties().world().equals(level.dimension())) {
+                SkyRenderer renderer = sky.getRenderer();
+                if (renderer.isSkyRendered()) {
+                    action.accept(sky);
+                }
+            }
+        }
+    }
+
 }

@@ -1,33 +1,32 @@
 package fr.tathan.sky_aesthetics.client.skies;
 
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-
 public class PlanetSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
     private final SkyProperties properties;
 
     public PlanetSky(SkyProperties properties) {
-        super(properties.cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
+        super(properties.cloudSettings().cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
         this.renderer = new SkyRenderer(properties);
     }
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-        return getProperties().fog() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
+
+        return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
     @Override
-    public float @NotNull [] getSunriseColor(float timeOfDay, float partialTicks) {
+    public @Nullable float[] getSunriseColor(float timeOfDay, float partialTicks) {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
@@ -37,17 +36,28 @@ public class PlanetSky extends DimensionSpecialEffects {
                 alpha *= alpha;
 
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
+                if(this.sunriseCol == null) this.sunriseCol = new float[4];
 
-                this.sunriseCol[0] = i * 0.3f + (int) sunriseColor.x / 255f * 0.7f;
-                this.sunriseCol[1] = i * i * 0.7f + (int) sunriseColor.y / 255f * 0.5f;
-                this.sunriseCol[2] = (int) sunriseColor.z / 255f * 0.6f;
-                this.sunriseCol[3] = alpha;
+                this.sunriseCol[0] = (int) sunriseColor.x / 255f ;
+                this.sunriseCol[1] = (int) sunriseColor.y / 255f ;
+                this.sunriseCol[2] = (int) sunriseColor.z / 255f;
+                this.sunriseCol[3] = alpha * 1.5f;
+
+            } else {
+                this.sunriseCol = null;
             }
         });
 
+        if (this.sunriseCol == null) {
+            return super.getSunriseColor(timeOfDay, partialTicks);
+        }
         return this.sunriseCol;
     }
 
+    @Override
+    public boolean hasGround() {
+        return SkyHelper.skyTypeToHasGround(properties.skyType());
+    }
 
     @Override
     public SkyType skyType() {

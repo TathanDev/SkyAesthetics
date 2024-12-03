@@ -16,9 +16,8 @@ import java.util.Optional;
 public record SkyProperties(
         ResourceKey<Level> world,
         Optional<ResourceLocation> id,
-        Boolean cloud,
-        Float cloudHeight,
-        Boolean fog,
+        CloudSettings cloudSettings,
+        Optional<FogSettings> fogSettings,
         Boolean rain,
         CustomVanillaObject customVanillaObject,
         Star stars,
@@ -28,17 +27,13 @@ public record SkyProperties(
         SkyColor skyColor,
         List<SkyObject> skyObjects,
         Optional<List<String>> constellations,
-        Optional<RenderCondition> renderCondition
-
-) {
-
+        Optional<RenderCondition> renderCondition) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             ResourceLocation.CODEC.optionalFieldOf("id").forGetter(SkyProperties::id),
-            Codec.BOOL.fieldOf("cloud").forGetter(SkyProperties::cloud),
-            Codec.FLOAT.fieldOf("cloud_height").forGetter(SkyProperties::cloudHeight),
-            Codec.BOOL.fieldOf("fog").forGetter(SkyProperties::fog),
+            CloudSettings.CODEC.fieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
+            FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings),
             Codec.BOOL.fieldOf("rain").forGetter(SkyProperties::rain),
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
@@ -51,14 +46,12 @@ public record SkyProperties(
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
     ).apply(instance, SkyProperties::new));
 
-
-
     public record RenderCondition(boolean condition, Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome) {
         public static final Codec<RenderCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.BOOL.fieldOf("condition").forGetter(RenderCondition::condition),
                 TagKey.codec(Registries.BIOME).optionalFieldOf("biomes").forGetter(RenderCondition::biomes),
                 ResourceKey.codec(Registries.BIOME).optionalFieldOf("biome").forGetter(RenderCondition::biome)
         ).apply(instance, RenderCondition::new));
-
     }
+
 }
