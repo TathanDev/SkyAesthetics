@@ -4,10 +4,12 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlanetSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
@@ -25,8 +27,18 @@ public class PlanetSky extends DimensionSpecialEffects {
         return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
+    public int getDefaultSunriseOrSunsetColor(float f) {
+        float g = Mth.cos(f * ((float)Math.PI * 2F));
+        float h = g / 0.4F * 0.5F + 0.5F;
+        float i = Mth.square(1.0F - (1.0F - Mth.sin(h * (float)Math.PI)) * 0.99F);
+        return ARGB.colorFromFloat(i, h * 0.3F + 0.7F, h * h * 0.7F + 0.2F, 0.2F);
+    }
+
     @Override
-    public @Nullable float[] getSunriseColor(float timeOfDay, float partialTicks) {
+    public int getSunriseOrSunsetColor(float timeOfDay) {
+
+        AtomicInteger sunriseCol = new AtomicInteger(this.getDefaultSunriseOrSunsetColor(timeOfDay));
+
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
@@ -36,22 +48,12 @@ public class PlanetSky extends DimensionSpecialEffects {
                 alpha *= alpha;
 
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
-                if(this.sunriseCol == null) this.sunriseCol = new float[4];
+                sunriseCol.set(ARGB.colorFromFloat(sunriseColor.x / 255f, sunriseColor.y / 255f, sunriseColor.z / 255f, alpha));
 
-                this.sunriseCol[0] = (int) sunriseColor.x / 255f ;
-                this.sunriseCol[1] = (int) sunriseColor.y / 255f ;
-                this.sunriseCol[2] = (int) sunriseColor.z / 255f;
-                this.sunriseCol[3] = alpha * 1.5f;
-
-            } else {
-                this.sunriseCol = null;
             }
         });
 
-        if (this.sunriseCol == null) {
-            return super.getSunriseColor(timeOfDay, partialTicks);
-        }
-        return this.sunriseCol;
+        return sunriseCol.get();
     }
 
     @Override

@@ -7,7 +7,6 @@ import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
-import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CoreShaders;
@@ -24,7 +23,7 @@ import java.util.Random;
 
 public class StarHelper {
 
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations) {
+    public static VertexBuffer createStars(float scale, int amountFancy, float r, float g, float b, Optional<List<String>> constellations) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(CoreShaders.POSITION_COLOR);
 
@@ -75,9 +74,9 @@ public class StarHelper {
                             - d22 * d10;
                     float d26 = d22 * d9 + d24 * d10;
 
-                    int color1 = r == -1 ? i : r;
-                    int color2 = g == -1 ? i : g;
-                    int color3 = b == -1 ? i : b;
+                    float color1 = r == -1 ? i : r;
+                    float color2 = g == -1 ? i : g;
+                    float color3 = b == -1 ? i : b;
 
                     bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color1, color2, color3, 0xAA);
                 }

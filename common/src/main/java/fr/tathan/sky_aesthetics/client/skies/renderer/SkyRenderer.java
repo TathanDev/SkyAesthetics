@@ -5,10 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
-import fr.tathan.sky_aesthetics.client.skies.record.Star;
+import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
@@ -20,6 +17,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector4f;
 
 import java.awt.*;
 import java.util.*;
@@ -34,7 +32,7 @@ public class SkyRenderer {
         this.properties = properties;
 
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().r(), properties.stars().color().g(), properties.stars().color().b(), properties.constellations());
+            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().x, properties.stars().color().y, properties.stars().color().z, properties.constellations());
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -53,13 +51,16 @@ public class SkyRenderer {
 
         RenderSystem.depthMask(false);
 
+
         int c = level.getSkyColor(camera.getPosition(), partialTick);
-        if(properties.skyColor().customColor()) {
-            c = properties.skyColor().color();
-        }
         Color color = new Color(c);
 
-        RenderSystem.setShaderColor(color.getRed(), color.getGreen(), color.getBlue(), 1.0f);
+        Vector4f skyColor = new Vector4f(color.getRed(), color.getGreen(), color.getBlue(), 1.0f);
+        if(properties.skyColor().customColor()) {
+            skyColor = properties.skyColor().color();
+        }
+
+        RenderSystem.setShaderColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
 
         if (Objects.equals(properties.skyType(), "OVERWORLD")) {
             SkyHelper.renderSky();
@@ -152,7 +153,7 @@ public class SkyRenderer {
 
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloud();
+        return !properties.cloudSettings().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -194,7 +195,6 @@ public class SkyRenderer {
                 return new Vec3(color.baseColor().x, color.baseColor().y, color.baseColor().z);
             }
         }
-
         return null;
     }
 

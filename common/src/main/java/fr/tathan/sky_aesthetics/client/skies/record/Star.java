@@ -5,11 +5,12 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
 
-public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vec3 color, Optional<ShootingStars> shootingStars) {
+public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vector3f color, Optional<ShootingStars> shootingStars) {
 
     public static final Codec<Star> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(Star::vanilla),
@@ -17,7 +18,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
             Codec.INT.fieldOf("count").forGetter(Star::count),
             Codec.BOOL.fieldOf("all_days_visible").forGetter(Star::allDaysVisible),
             Codec.FLOAT.fieldOf("scale").forGetter(Star::scale),
-            Vec3.CODEC.fieldOf("color").forGetter(Star::color),
+            SkyObject.VEC3F.fieldOf("color").forGetter(Star::color),
             ShootingStars.CODEC.optionalFieldOf("shooting_stars").forGetter(Star::shootingStars)
 
     ).apply(instance, Star::new));

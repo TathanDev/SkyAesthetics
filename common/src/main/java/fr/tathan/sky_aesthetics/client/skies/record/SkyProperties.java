@@ -9,6 +9,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,7 +22,7 @@ public record SkyProperties(
         Boolean rain,
         CustomVanillaObject customVanillaObject,
         Star stars,
-        Optional<Vec3> sunriseColor,
+        Optional<Vector3f> sunriseColor,
         Optional<Float> sunriseModifier,
         String skyType,
         SkyColor skyColor,
@@ -37,7 +38,7 @@ public record SkyProperties(
             Codec.BOOL.fieldOf("rain").forGetter(SkyProperties::rain),
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
-            Vec3.CODEC.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
+            SkyObject.VEC3F.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
             Codec.FLOAT.optionalFieldOf("sunrise_alpha_modifier").forGetter(SkyProperties::sunriseModifier),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
