@@ -64,7 +64,7 @@ subprojects {
     publishMods {
         file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
         changelog = file("../changelog.md").getText('UTF-8')
-        type = ALPHA
+        type = STABLE
         modLoaders.add(modLoader)
         displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
 
@@ -100,7 +100,7 @@ subprojects {
 
             repositories {
                 maven {
-                    url = "https://maven.odysseyus.fr/snapshots/"
+                    url = "https://maven.odysseyus.fr/releases/"
                     credentials {
                         username = System.getenv("MAVEN_USER")
                         password = System.getenv("MAVEN_PASS")

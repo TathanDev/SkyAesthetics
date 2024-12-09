@@ -51,7 +51,7 @@ public class SkyRenderer {
         if(!isSkyRendered()) return;
 
         if (Objects.equals(properties.skyType(), "END")) {
-            SkyHelper.renderEndSky(poseStack);
+            this.skyRenderer.renderEndSky(poseStack);
             return;
         }
 
