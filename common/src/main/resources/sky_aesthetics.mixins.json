@@ -6,7 +6,8 @@
   "client": [
     "client.ClientLevelMixin",
     "client.FogRendererMixin",
-    "client.LevelRendererMixin"
+    "client.LevelRendererMixin",
+    "client.RemoveSnowAndRainMixin"
   ],
   "mixins": [
   ],
