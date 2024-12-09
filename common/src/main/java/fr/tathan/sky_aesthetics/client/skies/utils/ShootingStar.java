@@ -6,7 +6,9 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4fStack;
 
 import java.util.Random;
 import java.util.UUID;
@@ -65,19 +67,37 @@ public class ShootingStar {
         if (life >= lifeTime) {
             return true;
         }
-        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-
-        RenderSystem.setShaderColor(5f, 4f, 5f, 5f);
-
         poseStack.pushPose();
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
 
         poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
         poseStack.mulPose(Axis.XP.rotationDegrees(life + 180));
 
+        matrix4fStack.mul(poseStack.last().pose());
+
+
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderFog(FogParameters.NO_FOG);
+
+
+
         this.starBuffer.bind();
-        this.starBuffer.drawWithShader(poseStack.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+        this.starBuffer.drawWithShader(matrix4fStack, RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
         VertexBuffer.unbind();
         poseStack.popPose();
+
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+        matrix4fStack.popMatrix();
+
         return false;
 
     }

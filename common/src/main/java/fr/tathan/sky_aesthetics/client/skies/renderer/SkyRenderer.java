@@ -4,7 +4,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -17,6 +19,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4fStack;
 import org.joml.Vector4f;
 
 import java.awt.*;
@@ -27,10 +30,12 @@ public class SkyRenderer {
     private final SkyProperties properties;
     private final VertexBuffer starBuffer;
     private final Map<UUID, ShootingStar> shootingStars;
+    private final net.minecraft.client.renderer.SkyRenderer skyRenderer = new net.minecraft.client.renderer.SkyRenderer();
+    private final PlanetSky planetSky;
 
-    public SkyRenderer(SkyProperties properties) {
+    public SkyRenderer(SkyProperties properties, PlanetSky planetSky) {
         this.properties = properties;
-
+        this.planetSky = planetSky;
         if(!properties.stars().vanilla()) {
             starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().x, properties.stars().color().y, properties.stars().color().z, properties.constellations());
         } else {
@@ -40,14 +45,22 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, FogParameters fog) {
+    public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator) {
         if(!isSkyRendered()) return;
 
-        Tesselator tesselator = Tesselator.getInstance();
+        if (Objects.equals(properties.skyType(), "END")) {
+            SkyHelper.renderEndSky(poseStack);
+            return;
+        }
+
         CustomVanillaObject customVanillaObject = properties.customVanillaObject();
 
-        float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
+        float dayAngle = gameTime * 360f;
         float nightAngle = dayAngle + 180;
+        float sunAngle = level.getSunAngle(partialTick);
+        boolean shouldRenderDarkDisc = Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F;
+        float rainLevel = 1.0F - level.getRainLevel(partialTick);
+
 
         RenderSystem.depthMask(false);
 
@@ -55,45 +68,55 @@ public class SkyRenderer {
         int c = level.getSkyColor(camera.getPosition(), partialTick);
         Color color = new Color(c);
 
-        Vector4f skyColor = new Vector4f(color.getRed(), color.getGreen(), color.getBlue(), 1.0f);
+        Vector4f skyColor = new Vector4f(color.getRed(), color.getGreen(), color.getBlue(), partialTick);
         if(properties.skyColor().customColor()) {
             skyColor = properties.skyColor().color();
         }
 
-        RenderSystem.setShaderColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
+        //Sky Disc
+        //this.skyRenderer.renderSkyDisc(skyColor.x, skyColor.y, skyColor.z);
 
-        if (Objects.equals(properties.skyType(), "OVERWORLD")) {
-            SkyHelper.renderSky();
-        } else if (Objects.equals(properties.skyType(), "END")) {
-            SkyHelper.renderEndSky(poseStack);
+        int sunsetColor = planetSky.getSunriseOrSunsetColor(gameTime);
+
+        if (planetSky.isSunriseOrSunset(gameTime)) {
+            this.skyRenderer.renderSunriseAndSunset(poseStack, tesselator, sunAngle, sunsetColor);
         }
 
-        // Star
+        this.skyRenderer.renderSunMoonAndStars(poseStack, tesselator, (gameTime), level.getMoonPhase(), rainLevel, level.getStarBrightness(partialTick) * rainLevel, fog);
+
         renderStars(level, partialTick, poseStack, nightAngle, fog);
 
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
 
-        // Sun
-        if (customVanillaObject.sun()) {
-            SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
-        }
 
-        // Moon
-        if (customVanillaObject.moon()) {
-            if (customVanillaObject.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
-            } else {
-                SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
-            }
-        }
+
+
+//        // Sun
+//        if (customVanillaObject.sun()) {
+//            this.skyRenderer.renderSun(rainLevel, tesselator, poseStack);
+//            //SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+//        }
+//
+//        // Moon
+//        if (customVanillaObject.moon()) {
+//            this.skyRenderer.renderMoon(level.getMoonPhase(), rainLevel, tesselator, poseStack);
+//
+//            if (customVanillaObject.moonPhase()) {
+//                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
+//            } else {
+//            SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
+//            }
+//        }
 
         // Other sky object
         for (SkyObject skyObject : properties.skyObjects()) {
-            SkyHelper.drawCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
+            SkyHelper.renderCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
         }
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.depthMask(true);
+        if (shouldRenderDarkDisc) {
+            this.skyRenderer.renderDarkDisc(poseStack);
+        }
+
     }
 
     private void handleShootingStars(ClientLevel level, PoseStack poseStack, Star star, float partialTick) {
@@ -108,7 +131,7 @@ public class SkyRenderer {
 
         Star.ShootingStars shootingStarConfig = star.shootingStars().get();
         Random random = new Random();
-        if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
+        if (random.nextInt(1001) == 0) {
             UUID starId = UUID.randomUUID();
             var shootingStar = new ShootingStar((float) random.nextInt( (int) shootingStarConfig.randomLifetime().x, (int) shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
             this.shootingStars.putIfAbsent(starId, shootingStar);
@@ -125,30 +148,50 @@ public class SkyRenderer {
     }
 
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, float nightAngle, FogParameters fog) {
-        float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
+
+        float rainLevel = 1.0F - level.getRainLevel(partialTick);
+        float starLight = level.getStarBrightness(partialTick) * rainLevel;
 
         if(properties.stars().vanilla()) {
             if(starLight > 0.0f) {
-                RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-                RenderSystem.setShaderFog(fog);
-                this.starBuffer.bind();
-                this.starBuffer.drawWithShader(poseStack.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-                VertexBuffer.unbind();
+                drawStar(this.starBuffer, poseStack, starLight, 0, fog);
             }
             return;
         }
 
-        float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
-
         if (properties.stars().allDaysVisible()){
-            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-            RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, starsAngle);
+            drawStar(starBuffer, poseStack, starLight, nightAngle, fog);
         } else if (starLight > 0.2F) {
-            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-            RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, starsAngle);
+            drawStar(starBuffer, poseStack, starLight, nightAngle, fog);
         }
+    }
+
+    public void drawStar(VertexBuffer vertexBuffer, PoseStack poseStack, float starLight, float nightTime, FogParameters fogParameters) {
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+
+        if(properties.stars().movingStars())
+            poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
+
+        matrix4fStack.mul(poseStack.last().pose());
+
+
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION);
+        RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
+        RenderSystem.enableBlend();
+        RenderSystem.setShaderFog(FogParameters.NO_FOG);
+        vertexBuffer.bind();
+        vertexBuffer.drawWithShader(matrix4fStack, RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+        VertexBuffer.unbind();
+        RenderSystem.setShaderFog(fogParameters);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+        matrix4fStack.popMatrix();
+
     }
 
 

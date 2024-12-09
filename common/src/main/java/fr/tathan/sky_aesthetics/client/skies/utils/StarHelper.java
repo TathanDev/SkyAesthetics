@@ -97,7 +97,7 @@ public class StarHelper {
                     float z = (float)( constellation.firstPoint().z);
 
                     // First Point
-                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder);
+                    createStar(constellation.firstPoint(), color, constellation.scale(), random, bufferBuilder);
 
                     for (Vec3 point : constellation.points()) {
 
@@ -161,15 +161,6 @@ public class StarHelper {
             bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
         }
 
-    }
-
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, float nightTime) {
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
-        vertexBuffer.bind();
-        vertexBuffer.drawWithShader(poseStack.last().pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-        VertexBuffer.unbind();
-        poseStack.popPose();
     }
 
     public static VertexBuffer createVanillaStars() {

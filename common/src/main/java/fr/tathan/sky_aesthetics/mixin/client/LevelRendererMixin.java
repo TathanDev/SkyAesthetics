@@ -1,17 +1,18 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.framegraph.FramePass;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
-import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogParameters;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.*;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -28,19 +29,35 @@ public abstract class LevelRendererMixin {
     @Shadow
     private ClientLevel level;
 
+    @Mutable
+    @Shadow
+    private LevelTargetBundle targets;
+
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
-    @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
+
+    @Inject(
+            method = "addSkyPass",
+            at = @At(
+                    value = "HEAD"
+            ), cancellable = true)
     private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, float f, FogParameters fogParameters, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
         if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
 
             SkyHelper.canRenderSky(level, (planetSky -> {
-                PoseStack poseStack = new PoseStack();
-                level.effects = planetSky;
-                planetSky.getRenderer().render(level, poseStack,  camera, f, fogParameters);
+                FramePass framePass = frameGraphBuilder.addPass("sky");
+                this.targets.main = framePass.readsAndWrites(this.targets.main);
+
+                framePass.executes(() -> {
+                    RenderSystem.setShaderFog(fogParameters);
+                    RenderStateShard.MAIN_TARGET.setupRenderState();
+                    PoseStack poseStack = new PoseStack();
+                    level.effects = planetSky;
+                    planetSky.getRenderer().render(level, poseStack, camera, f, this.level.getTimeOfDay(f), fogParameters, Tesselator.getInstance());
+                });
                 ci.cancel();
             }));
 

@@ -4,3 +4,10 @@ accessible field net/minecraft/client/renderer/DimensionSpecialEffects sunriseCo
 mutable field net/minecraft/client/renderer/DimensionSpecialEffects sunriseCol [F
 accessible field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
 mutable field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
+
+accessible field net/minecraft/client/renderer/RenderStateShard MAIN_TARGET Lnet/minecraft/client/renderer/RenderStateShard$OutputStateShard;
+accessible method net/minecraft/client/renderer/RenderStateShard setupRenderState ()V
+accessible class net/minecraft/client/renderer/RenderStateShard$OutputStateShard
+
+accessible method net/minecraft/client/renderer/SkyRenderer renderSun (FLcom/mojang/blaze3d/vertex/Tesselator;Lcom/mojang/blaze3d/vertex/PoseStack;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderMoon (IFLcom/mojang/blaze3d/vertex/Tesselator;Lcom/mojang/blaze3d/vertex/PoseStack;)V

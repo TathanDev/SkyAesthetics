@@ -9,12 +9,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.awt.*;
+
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
 
 
     @Inject(method = "getCloudColor", at = @At("HEAD"), cancellable = true)
-    public void modifyCloudColor(float partialTick, CallbackInfoReturnable<Vec3> cir) {
+    public void modifyCloudColor(float partialTick, CallbackInfoReturnable<Integer> cir) {
 
         ClientLevel level = (ClientLevel) (Object) this;
 
@@ -22,7 +24,7 @@ public class ClientLevelMixin {
             SkyRenderer renderer = planetSky.getRenderer();
             Vec3 cloudColor = renderer.getCloudColor(level.getRainLevel(partialTick), level.getThunderLevel(partialTick));
             if(cloudColor != null) {
-                cir.setReturnValue(cloudColor);
+                cir.setReturnValue(new Color((float) cloudColor.x / 255f, (float) cloudColor.y / 255f,  (float) cloudColor.z / 255f).getRGB());
             }
         }));
     }

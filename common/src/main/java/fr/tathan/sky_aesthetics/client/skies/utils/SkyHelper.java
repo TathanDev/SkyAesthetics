@@ -47,10 +47,15 @@ public class SkyHelper {
     }
 
     public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
-        if (blend) {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        }
+
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, dayAngle);
+        RenderSystem.setShaderTexture(0, texture);
+
+        if(blend) RenderSystem.enableBlend();
 
         poseStack.pushPose();
 
@@ -71,63 +76,67 @@ public class SkyHelper {
         RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
         RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderTexture(0, texture);
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY);
         bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY);
         bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY);
         bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY);
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        poseStack.popPose();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if (blend) {
+        if(blend) {
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
         }
+
+        RenderSystem.depthMask(true);
     }
 
-    public static void drawCelestialBody(SkyObject object, Tesselator tesselator, PoseStack poseStack, float dayAngle) {
-        if (object.blend()) {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        }
-
-        poseStack.pushPose();
-
-        poseStack.mulPose(Axis.YP.rotationDegrees((float) object.rotation().y));
-        if(Objects.equals(object.rotationType(), "DAY")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
-        } else if(Objects.equals(object.rotationType(), "NIGHT")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle + 180));
-        } else {
-            poseStack.mulPose(Axis.XP.rotationDegrees((float) object.rotation().x));
-        }
-        poseStack.mulPose(Axis.ZP.rotationDegrees((float) object.rotation().z));
-
-        Matrix4f matrix4f = poseStack.last().pose();
+    public static void renderCelestialBody(SkyObject object, Tesselator tesselator, PoseStack poseStack, float dayAngle) {
 
         float ratio = 1;
         if (object.height() > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / object.height();
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, object.texture());
+//        poseStack.pushPose();
+//
+//        poseStack.mulPose(Axis.YP.rotationDegrees((float) object.rotation().y));
+//        if(Objects.equals(object.rotationType(), "DAY")) {
+//            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
+//        } else if(Objects.equals(object.rotationType(), "NIGHT")) {
+//            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle + 180));
+//        } else {
+//            poseStack.mulPose(Axis.XP.rotationDegrees((float) object.rotation().x));
+//        }
+//        poseStack.mulPose(Axis.ZP.rotationDegrees((float) object.rotation().z));
+
+
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        Matrix4f matrix4f = poseStack.last().pose();
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, dayAngle);
+        RenderSystem.setShaderTexture(0, object.texture());
+
+
         bufferBuilder.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(0f, 0f);
         bufferBuilder.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(1f, 0f);
         bufferBuilder.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(1f, 1f);
         bufferBuilder.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(0f, 1f);
+
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        poseStack.popPose();
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 
-        if (object.blend()) {
+        if(object.blend()) {
             RenderSystem.disableBlend();
+            RenderSystem.defaultBlendFunc();
         }
+
+        RenderSystem.depthMask(true);
+
     }
 
-    public static void renderSky() {
-
-    }
 
     public static void renderEndSky(PoseStack poseStack) {
         RenderSystem.enableBlend();

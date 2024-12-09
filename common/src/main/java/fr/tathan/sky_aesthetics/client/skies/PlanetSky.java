@@ -18,13 +18,22 @@ public class PlanetSky extends DimensionSpecialEffects {
     public PlanetSky(SkyProperties properties) {
         super(properties.cloudSettings().cloudHeight(), true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
-        this.renderer = new SkyRenderer(properties);
+        this.renderer = new SkyRenderer(properties, this);
     }
+
+
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
 
         return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
+    }
+
+    //Like the overworld
+    @Override
+    public boolean isSunriseOrSunset(float f) {
+        float g = Mth.cos(f * ((float)Math.PI * 2F));
+        return g >= -0.4F && g <= 0.4F;
     }
 
     public int getDefaultSunriseOrSunsetColor(float f) {

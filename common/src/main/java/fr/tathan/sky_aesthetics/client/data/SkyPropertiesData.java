@@ -6,6 +6,7 @@ import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
+import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
