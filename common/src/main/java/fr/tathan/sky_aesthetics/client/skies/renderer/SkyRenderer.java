@@ -134,7 +134,7 @@ public class SkyRenderer {
 
         if(properties.stars().vanilla()) {
             if(starLight > 0.0f) {
-                drawStar(this.starBuffer, poseStack, starLight, 0, fog);
+                this.skyRenderer.renderStars(fog, starLight, poseStack);
             }
             return;
         }
