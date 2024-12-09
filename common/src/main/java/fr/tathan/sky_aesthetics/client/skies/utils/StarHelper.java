@@ -3,7 +3,6 @@ package fr.tathan.sky_aesthetics.client.skies.utils;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
@@ -84,8 +83,6 @@ public class StarHelper {
         }
         /** Constellation **/
         if (constellations.isPresent()) {
-            SkyAesthetics.LOG.error("Is present");
-
             for (String constellationId : constellations.get()) {
 
                 Constellation constellation = ConstellationsData.CONSTELLATIONS.get(constellationId);

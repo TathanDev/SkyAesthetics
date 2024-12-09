@@ -82,7 +82,7 @@ public class SkyRenderer {
             this.skyRenderer.renderSunriseAndSunset(poseStack, tesselator, sunAngle, sunsetColor);
         }
 
-        this.skyRenderer.renderSunMoonAndStars(poseStack, tesselator, (gameTime), level.getMoonPhase(), rainLevel, level.getStarBrightness(partialTick) * rainLevel, fog);
+        SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack, tesselator, (gameTime), level.getMoonPhase(), rainLevel, level.getStarBrightness(partialTick) * rainLevel, fog);
 
         renderStars(level, partialTick, poseStack, nightAngle, fog);
 
@@ -94,7 +94,7 @@ public class SkyRenderer {
 //        // Sun
 //        if (customVanillaObject.sun()) {
 //            this.skyRenderer.renderSun(rainLevel, tesselator, poseStack);
-//            //SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+            SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
 //        }
 //
 //        // Moon

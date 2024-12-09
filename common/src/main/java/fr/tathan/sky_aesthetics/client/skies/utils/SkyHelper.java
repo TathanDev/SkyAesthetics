@@ -12,6 +12,7 @@ import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -184,6 +185,80 @@ public class SkyHelper {
                 }
             }
         }
+    }
+
+    /** Yea I just copied minecraft code. But what ?? I literally modding Minecraft !*/
+
+
+    public static void renderSunMoonAndStars(CustomVanillaObject object, PoseStack poseStack, Tesselator tesselator, float f, int i, float g, float h, FogParameters fogParameters) {
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Axis.XP.rotationDegrees(f * 360.0F));
+
+        if(object.sun()) renderSun(object, g, tesselator, poseStack);
+        if(object.moon()) renderMoon(object, i, g, tesselator, poseStack);
+
+        poseStack.popPose();
+    }
+
+
+    public static void renderSun(CustomVanillaObject object, float f, Tesselator tesselator, PoseStack poseStack) {
+        float g = object.sunSize();
+        float h = object.sunHeight();
+
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        Matrix4f matrix4f = poseStack.last().pose();
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f);
+        RenderSystem.setShaderTexture(0, object.sunTexture());
+        RenderSystem.enableBlend();
+        bufferBuilder.addVertex(matrix4f, -g, h, -g).setUv(0.0F, 0.0F);
+        bufferBuilder.addVertex(matrix4f, g, h, -g).setUv(1.0F, 0.0F);
+        bufferBuilder.addVertex(matrix4f, g, h, g).setUv(1.0F, 1.0F);
+        bufferBuilder.addVertex(matrix4f, -g, h, g).setUv(0.0F, 1.0F);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+    }
+
+    public static void renderMoon(CustomVanillaObject object, int i, float f, Tesselator tesselator, PoseStack poseStack) {
+
+        int j = i % 4;
+        int k = i / 4 % 2;
+        float h = (float)(j) / 4.0F;
+        float l = (float)(k) / 2.0F;
+        float m = (float)(j + 1) / 4.0F;
+        float n = (float)(k + 1) / 2.0F;
+
+        if(!object.moonPhase()) {
+            h = 1.0F;
+            l = 1.0F;
+            m = 0.0F;
+            n = 0.0F;
+        }
+
+
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        RenderSystem.depthMask(false);
+        RenderSystem.overlayBlendFunc();
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, f);
+        RenderSystem.setShaderTexture(0, object.moonTexture());
+        RenderSystem.enableBlend();
+        Matrix4f matrix4f = poseStack.last().pose();
+        bufferBuilder.addVertex(matrix4f, -object.moonSize(), -object.moonHeight(), object.moonSize()).setUv(m, n);
+        bufferBuilder.addVertex(matrix4f, object.moonSize(), -object.moonHeight(), object.moonSize()).setUv(h, n);
+        bufferBuilder.addVertex(matrix4f, object.moonSize(), -object.moonHeight(), -object.moonSize()).setUv(h, l);
+        bufferBuilder.addVertex(matrix4f, -object.moonSize(), -object.moonHeight(), -object.moonSize()).setUv(m, l);
+        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
     }
 
 }
