@@ -79,7 +79,7 @@ public class ShootingStar {
 
 
         RenderSystem.depthMask(false);
-        RenderSystem.overlayBlendFunc();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();

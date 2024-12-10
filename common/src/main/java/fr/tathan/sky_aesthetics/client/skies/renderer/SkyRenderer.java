@@ -47,11 +47,11 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator) {
+    public void render(ClientLevel level, PoseStack poseStack, Camera camera, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator,MultiBufferSource.BufferSource bufferSource) {
         if(!isSkyRendered()) return;
 
         if (Objects.equals(properties.skyType(), "END")) {
-            this.skyRenderer.renderEndSky(poseStack);
+            this.skyRenderer.renderEndSky();
             return;
         }
 
@@ -71,15 +71,15 @@ public class SkyRenderer {
         if(properties.skyColor().customColor()) {
             skyColorVector = properties.skyColor().color();
         }
-        this.skyRenderer.renderSkyDisc(ARGB.from8BitChannel((int) skyColorVector.x), ARGB.from8BitChannel((int) skyColorVector.y), ARGB.from8BitChannel((int) skyColorVector.z));
+        this.skyRenderer.renderSkyDisc((float) skyColorVector.x / 255f, (float) skyColorVector.y / 255f, (float) skyColorVector.z / 255f);
 
         int sunsetColor = planetSky.getSunriseOrSunsetColor(gameTime);
 
         if (planetSky.isSunriseOrSunset(gameTime)) {
-            this.skyRenderer.renderSunriseAndSunset(poseStack, tesselator, sunAngle, sunsetColor);
+            this.skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, sunAngle, sunsetColor);
         }
 
-        SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack, tesselator, (gameTime), level.getMoonPhase(), rainLevel, level.getStarBrightness(partialTick) * rainLevel, fog);
+        SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
 
         renderStars(level, partialTick, poseStack, nightAngle, fog);
 
@@ -157,7 +157,7 @@ public class SkyRenderer {
 
 
         RenderSystem.depthMask(false);
-        RenderSystem.overlayBlendFunc();
+        RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
         RenderSystem.enableBlend();

@@ -33,6 +33,10 @@ public abstract class LevelRendererMixin {
     @Shadow
     private LevelTargetBundle targets;
 
+    @Mutable
+    @Shadow
+    private RenderBuffers renderBuffers;
+
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
@@ -54,9 +58,12 @@ public abstract class LevelRendererMixin {
                 framePass.executes(() -> {
                     RenderSystem.setShaderFog(fogParameters);
                     RenderStateShard.MAIN_TARGET.setupRenderState();
+
+                    MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
+
                     PoseStack poseStack = new PoseStack();
                     level.effects = planetSky;
-                    planetSky.getRenderer().render(level, poseStack, camera, f, this.level.getTimeOfDay(f), fogParameters, Tesselator.getInstance());
+                    planetSky.getRenderer().render(level, poseStack, camera, f, this.level.getTimeOfDay(f), fogParameters, Tesselator.getInstance(), bufferSource);
                 });
                 ci.cancel();
             }));

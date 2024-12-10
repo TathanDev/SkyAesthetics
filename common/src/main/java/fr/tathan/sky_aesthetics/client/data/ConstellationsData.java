@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -20,7 +21,7 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener<JsonEle
     public static final Map<String, Constellation> CONSTELLATIONS = new HashMap<>();
 
     public ConstellationsData() {
-        super(ExtraCodecs.JSON, "constellation");
+        super(ExtraCodecs.JSON, FileToIdConverter.json("constellation"));
     }
 
     @Override
