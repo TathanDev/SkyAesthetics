@@ -33,6 +33,17 @@ subprojects {
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.saps.dev/releases" }
         maven { url "https://maven.parchmentmc.org" }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Modrinth"
+                    url = "https://api.modrinth.com/maven"
+                }
+            }
+            filter {
+                includeGroup "maven.modrinth"
+            }
+        }
 
     }
 
@@ -44,7 +55,7 @@ subprojects {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings loom.layered() {
             officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_mapping_version}@zip")
+            parchment("org.parchmentmc.data:parchment-1.21:${rootProject.parchment_mapping_version}@zip")
         }
 
         if(modLoader != "quilt") {

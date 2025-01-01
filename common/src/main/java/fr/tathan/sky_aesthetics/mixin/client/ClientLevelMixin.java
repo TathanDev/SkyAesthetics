@@ -1,7 +1,5 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.multiplayer.ClientLevel;

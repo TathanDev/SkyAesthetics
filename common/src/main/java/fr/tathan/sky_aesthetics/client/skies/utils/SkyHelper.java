@@ -9,6 +9,7 @@ import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -171,7 +172,7 @@ public class SkyHelper {
         for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
                 SkyRenderer renderer = sky.getRenderer();
-                if (renderer.isSkyRendered()) {
+                if (PlatformHelper.modCompat(level) && renderer.isSkyRendered()) {
                     action.accept(sky);
                 }
             }
