@@ -1,7 +1,6 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.sky_aesthetics.client.skies.record.FogSettings;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
@@ -11,18 +10,17 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = FogRenderer.class, priority = 900)
 public class FogRendererMixin {
 
 
-    private static ClientLevel level;
+    @Unique
+    private static ClientLevel sky_aesthetics$level;
 
     @Inject(
             method = "computeFogColor",
@@ -34,7 +32,7 @@ public class FogRendererMixin {
             cancellable = true)
     private static void setupCustomColor(Camera camera, float f, ClientLevel clientLevel, int i, float g, CallbackInfoReturnable<Vector4f> cir) {
 
-        FogRendererMixin.level = clientLevel;
+        FogRendererMixin.sky_aesthetics$level = clientLevel;
 
         SkyHelper.canRenderSky(clientLevel, (planetSky -> {
             planetSky.getProperties().fogSettings().flatMap(FogSettings::customFogColor).ifPresent(cir::setReturnValue);
@@ -51,8 +49,8 @@ public class FogRendererMixin {
         FogType fogType = camera.getFluidInCamera();
 
 
-        if (level != null && fogType == FogType.NONE) {
-            SkyHelper.canRenderSky(level, (planetSky -> {
+        if (sky_aesthetics$level != null && fogType == FogType.NONE) {
+            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> {
                 planetSky.getProperties().fogSettings().ifPresent(settings -> {
                     settings.fogDensity().ifPresent(density -> {
                         cir.setReturnValue(new FogParameters(density.x, density.y, FogShape.CYLINDER, vector4f.x, vector4f.y, vector4f.z, vector4f.w));

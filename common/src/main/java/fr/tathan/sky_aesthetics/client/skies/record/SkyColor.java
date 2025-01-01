@@ -4,7 +4,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.List;
