@@ -41,13 +41,12 @@ public class FogRendererMixin {
     private static void setupCustomColor(Camera activeRenderInfo, float partialTicks, ClientLevel level, int renderDistanceChunks, float bossColorModifier, CallbackInfo ci) {
 
         FogRendererMixin.level = level;
-
         SkyHelper.canRenderSky(level, (planetSky -> {
             planetSky.getProperties().fogSettings().ifPresent(settings -> {
                 settings.customFogColor().ifPresent(color -> {
-                    fogRed = color.x();
-                    fogGreen = color.y();
-                    fogBlue = color.z();
+                    fogRed = color.x() / 255.0F;
+                    fogGreen = color.y() / 255.0F;
+                    fogBlue = color.z() / 255.0F;
                 });
             });
         }));
