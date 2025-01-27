@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -28,14 +29,14 @@ import java.util.*;
 public class SkyRenderer {
 
     private final SkyProperties properties;
-    private final VertexBuffer starBuffer;
+    private VertexBuffer starBuffer;
     private final Map<UUID, ShootingStar> shootingStars;
 
     public SkyRenderer(SkyProperties properties) {
         this.properties = properties;
 
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations());
+            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations(), properties.stars_texture());
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -136,8 +137,8 @@ public class SkyRenderer {
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
 
-        if(properties.stars().vanilla()) {
-            if(starLight > 0.0f) {
+        if (properties.stars().vanilla()) {
+            if (starLight > 0.0f) {
                 RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
                 FogRenderer.setupNoFog();
                 this.starBuffer.bind();
@@ -148,19 +149,21 @@ public class SkyRenderer {
         }
 
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
+        Optional<String> starTexture = Optional.of(String.valueOf(ResourceLocation.withDefaultNamespace("sky_aesthetics:textures/star_texture.png")));
 
-        if (properties.stars().allDaysVisible()){
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+
+        this.starBuffer = StarHelper.createStars(1.0f, 1000, 255, 255, 255, Optional.empty(), starTexture);
+        if (properties.stars().allDaysVisible()) {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, starTexture);
         } else if (starLight > 0.2F) {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
             RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, starTexture);
         }
 
         runFogCallback(fogCallback);
-
     }
 
     public void runFogCallback(Runnable fogCallback) {

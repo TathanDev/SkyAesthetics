@@ -6,11 +6,11 @@ import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
-import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -25,17 +25,19 @@ import java.util.Random;
 
 public class StarHelper {
 
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations) {
+    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> star_texture) {
         Tesselator tesselator = Tesselator.getInstance();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
         Random random = new Random();
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
 
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
+
+        star_texture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
         /** Stars **/
         for (int i = 0; i < stars; i++) {
@@ -47,7 +49,7 @@ public class StarHelper {
             if (d4 < 1.0f && d4 > 0.01f) {
                 d4 = (float) (1.0f / Math.sqrt(d4));
 
-                //Position of star
+                // Position of star
                 d0 *= d4;
                 d1 *= d4;
                 d2 *= d4;
@@ -60,31 +62,39 @@ public class StarHelper {
                 float d10 = (float) Math.cos(d8);
                 float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
                 float d12 = (float) Math.sin(d11);
-                float d13 = (float) Math.cos(d11);
-                float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
-                float d15 = (float) Math.sin(d14);
-                float d16 = (float) Math.cos(d14);
+                    float d13 = (float) Math.cos(d11);
+                    float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
+                    float d15 = (float) Math.sin(d14);
+                    float d16 = (float) Math.cos(d14);
 
-                for (int j = 0; j < 4; ++j) {
-                    float d18 = ((j & 2) - 1) * d3;
-                    float d19 = ((j + 1 & 2) - 1) * d3;
-                    float d21 = d18 * d16 - d19 * d15;
-                    float d22 = d19 * d16 + d18 * d15;
-                    float d23 = d21 * d12 + 0f * d13;
-                    float d24 = 0f * d12 - d21 * d13;
-                    float d25 = d24 * d9
-                            - d22 * d10;
+                    for (int j = 0; j < 4; ++j) {
+                        float d18 = ((j & 2) - 1) * d3;
+                        float d19 = ((j + 1 & 2) - 1) * d3;
+                        float d21 = d18 * d16 - d19 * d15;
+                        float d22 = d19 * d16 + d18 * d15;
+                        float d23 = d21 * d12 + 0f * d13;
+                        float d24 = 0f * d12 - d21 * d13;
+                        float d25 = d24 * d9 - d22 * d10;
                     float d26 = d22 * d9 + d24 * d10;
 
                     int color1 = r == -1 ? i : r;
                     int color2 = g == -1 ? i : g;
                     int color3 = b == -1 ? i : b;
 
-                    bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color1, color2, color3, 0xAA);
+                    if (star_texture.isPresent()) {
+                        float u = (j % 2) * 1.0f;
+                        float v = (j / 2) * 1.0f;
+                        bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
+                                .setUv(u, v)
+                                .setColor(color1, color2, color3, 0xAA);
+                    } else {
+                        bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
+                                .setColor(color1, color2, color3, 0xAA);
+                    }
                 }
             }
         }
-        /** Constellation **/
+
         if (constellations.isPresent()) {
             SkyAesthetics.LOG.error("Is present");
 
@@ -115,12 +125,13 @@ public class StarHelper {
             }
         }
 
+
+
         vertexBuffer.bind();
         vertexBuffer.upload(bufferBuilder.buildOrThrow());
         VertexBuffer.unbind();
         return vertexBuffer;
     }
-
 
     public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder) {
         float d0 = (float) pos.x;
@@ -145,7 +156,7 @@ public class StarHelper {
         float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
         float d12 = (float) Math.sin(d11);
         float d13 = (float) Math.cos(d11);
-        float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
+        float d14 = (float) (random.nextDouble() * Math.PI);
         float d15 = (float) Math.sin(d14);
         float d16 = (float) Math.cos(d14);
 
@@ -165,15 +176,19 @@ public class StarHelper {
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime) {
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> stars_texture) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
+
+        stars_texture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
+
         vertexBuffer.bind();
-        vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
+        vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
         VertexBuffer.unbind();
         poseStack.popPose();
     }
+
 
     public static VertexBuffer createVanillaStars() {
         VertexBuffer starBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
