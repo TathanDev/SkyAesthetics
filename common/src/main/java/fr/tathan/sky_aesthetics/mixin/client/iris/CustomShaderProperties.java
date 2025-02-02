@@ -2,6 +2,7 @@ package fr.tathan.sky_aesthetics.mixin.client.iris;
 
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.irisshaders.iris.helpers.OptionalBoolean;
+import net.irisshaders.iris.shaderpack.properties.CloudSetting;
 import net.irisshaders.iris.shaderpack.properties.ShaderProperties;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
@@ -33,6 +34,29 @@ public class CustomShaderProperties {
             }));
         }
     }
+
+    @Inject(method = "getCloudSetting", at = @At("HEAD"), cancellable = true, remap = false)
+    public void removeCloudIfNeeded(CallbackInfoReturnable<CloudSetting> cir) {
+        if(sky_aesthetics$client.level != null) {
+            SkyHelper.canRenderSky(sky_aesthetics$client.level, (planetSky -> {
+                if(!planetSky.getProperties().cloudSettings().showCloud()) {
+                    cir.setReturnValue(CloudSetting.OFF);
+                }
+            }));
+        }
+    }
+
+    @Inject(method = "getDHCloudSetting", at = @At("HEAD"), cancellable = true, remap = false)
+    public void removeDHCloudIfNeeded(CallbackInfoReturnable<CloudSetting> cir) {
+        if(sky_aesthetics$client.level != null) {
+            SkyHelper.canRenderSky(sky_aesthetics$client.level, (planetSky -> {
+                if(!planetSky.getProperties().cloudSettings().showCloud()) {
+                    cir.setReturnValue(CloudSetting.OFF);
+                }
+            }));
+        }
+    }
+
 
     @Unique
     private OptionalBoolean sky_aesthetics$fromBoolean(boolean value) {

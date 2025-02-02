@@ -20,6 +20,14 @@ public class PlanetSky extends DimensionSpecialEffects {
     }
 
     @Override
+    public float getCloudHeight() {
+        if(this.properties.cloudSettings().showCloud()) {
+            return this.properties.cloudSettings().cloudHeight();
+        }
+        return 0;
+    }
+
+    @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
 
         return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;

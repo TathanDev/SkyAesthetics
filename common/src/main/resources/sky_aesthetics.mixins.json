@@ -10,7 +10,6 @@
     "client.LevelRendererMixin",
     "client.LunarMoonInfosAccessor",
     "client.iris.CommonUniformMixin",
-    "client.iris.CustomCloudHeightMixin",
     "client.iris.CustomShaderProperties",
     "client.iris.FogUniformMixin"
 

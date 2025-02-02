@@ -38,6 +38,10 @@ dependencies {
     modApi "maven.modrinth:iris:1.8.1+$supported_version-fabric"
     modRuntimeOnly "maven.modrinth:sodium:mc1.21.1-0.6.5-fabric"
 
+    runtimeOnly("org.anarres:jcpp:1.4.14")
+    runtimeOnly("org.antlr:antlr4-runtime:4.13.1")
+    runtimeOnly("io.github.douira:glsl-transformer:2.0.1")
+
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
