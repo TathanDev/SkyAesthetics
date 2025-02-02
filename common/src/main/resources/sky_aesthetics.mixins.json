@@ -8,9 +8,12 @@
     "client.FogRendererMixin",
     "client.LevelRendererAccessor",
     "client.LevelRendererMixin",
-    "client.LunarMoonInfosAccessor"
-  ],
-  "mixins": [
+    "client.LunarMoonInfosAccessor",
+    "client.iris.CommonUniformMixin",
+    "client.iris.CustomCloudHeightMixin",
+    "client.iris.CustomShaderProperties",
+    "client.iris.FogUniformMixin"
+
   ],
   "injectors": {
     "defaultRequire": 1
