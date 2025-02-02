@@ -28,7 +28,7 @@ import java.util.*;
 public class SkyRenderer {
 
     private final SkyProperties properties;
-    private VertexBuffer starBuffer;
+    private final VertexBuffer starBuffer;
     private final Map<UUID, ShootingStar> shootingStars;
 
     public SkyRenderer(SkyProperties properties) {
@@ -147,6 +147,8 @@ public class SkyRenderer {
             return;
         }
 
+        // star texture
+
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
 
         System.out.println(properties.stars().starsTexture().isPresent());
@@ -172,6 +174,8 @@ public class SkyRenderer {
 
         runFogCallback(fogCallback);
     }
+
+
 
     public void runFogCallback(Runnable fogCallback) {
 
