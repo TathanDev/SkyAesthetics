@@ -10,7 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.Optional;
 
-public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vec3 color, Optional<ShootingStars> shootingStars, Optional<ResourceLocation> stars_texture) {
+public record Star(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vec3 color, Optional<ShootingStars> shootingStars, Optional<ResourceLocation> starsTexture) {
 
     public static final Codec<Star> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(Star::vanilla),
@@ -20,7 +20,7 @@ public record Star(boolean vanilla, boolean movingStars, int count, boolean allD
             Codec.FLOAT.fieldOf("scale").forGetter(Star::scale),
             Vec3.CODEC.fieldOf("color").forGetter(Star::color),
             ShootingStars.CODEC.optionalFieldOf("shooting_stars").forGetter(Star::shootingStars),
-            ResourceLocation.CODEC.optionalFieldOf("stars_texture").forGetter(Star::stars_texture)
+            ResourceLocation.CODEC.optionalFieldOf("star_texture").forGetter(Star::starsTexture)
     ).apply(instance, Star::new));
 
     public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Vec3 color, Optional<Integer> rotation) {

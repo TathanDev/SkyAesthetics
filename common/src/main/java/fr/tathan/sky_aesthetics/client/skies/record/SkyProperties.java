@@ -27,8 +27,7 @@ public record SkyProperties(
         SkyColor skyColor,
         List<SkyObject> skyObjects,
         Optional<List<String>> constellations,
-        Optional<RenderCondition> renderCondition,
-        Optional<ResourceLocation> stars_texture) {
+        Optional<RenderCondition> renderCondition) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
@@ -38,7 +37,6 @@ public record SkyProperties(
             Codec.BOOL.fieldOf("rain").forGetter(SkyProperties::rain),
             CustomVanillaObject.CODEC.fieldOf("custom_vanilla_objects").forGetter(SkyProperties::customVanillaObject),
             Star.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
-            ResourceLocation.CODEC.optionalFieldOf("stars_texture").forGetter(SkyProperties::stars_texture),
             Vec3.CODEC.optionalFieldOf("sunrise_color").forGetter(SkyProperties::sunriseColor),
             Codec.FLOAT.optionalFieldOf("sunrise_alpha_modifier").forGetter(SkyProperties::sunriseModifier),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),

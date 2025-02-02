@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -36,7 +35,7 @@ public class SkyRenderer {
         this.properties = properties;
 
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations(), properties.stars_texture());
+            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations(), properties.stars().starsTexture());
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -118,7 +117,7 @@ public class SkyRenderer {
 
         Star.ShootingStars shootingStarConfig = star.shootingStars().get();
         Random random = new Random();
-        if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
+        if (random.nextInt(1001) >= shootingStarConfig.percentage() && false) {
             UUID starId = UUID.randomUUID();
             var shootingStar = new ShootingStar((float) random.nextInt( (int) shootingStarConfig.randomLifetime().x, (int) shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
             this.shootingStars.putIfAbsent(starId, shootingStar);
@@ -149,18 +148,26 @@ public class SkyRenderer {
         }
 
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
-        Optional<String> starTexture = Optional.of(String.valueOf(ResourceLocation.withDefaultNamespace("sky_aesthetics:textures/star_texture.png")));
 
+        System.out.println(properties.stars().starsTexture().isPresent());
 
-        this.starBuffer = StarHelper.createStars(1.0f, 1000, 255, 255, 255, Optional.empty(), starTexture);
         if (properties.stars().allDaysVisible()) {
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            if(properties.stars().starsTexture().isPresent()) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            } else {
+                RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            }
+
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, starTexture);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.properties.stars().starsTexture());
         } else if (starLight > 0.2F) {
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            if(properties.stars().starsTexture().isPresent()) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            } else {
+                RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            }
             RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, starTexture);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.properties.stars().starsTexture());
         }
 
         runFogCallback(fogCallback);

@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.BooleanUtils;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -25,19 +26,23 @@ import java.util.Random;
 
 public class StarHelper {
 
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> star_texture) {
+    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> starTexture) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 
         VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
         Random random = new Random();
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+        if(starTexture.isPresent()) {
+            bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        }
 
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
 
-        star_texture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
+        starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
         /** Stars **/
         for (int i = 0; i < stars; i++) {
@@ -62,26 +67,26 @@ public class StarHelper {
                 float d10 = (float) Math.cos(d8);
                 float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
                 float d12 = (float) Math.sin(d11);
-                    float d13 = (float) Math.cos(d11);
-                    float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
-                    float d15 = (float) Math.sin(d14);
-                    float d16 = (float) Math.cos(d14);
+                float d13 = (float) Math.cos(d11);
+                float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
+                float d15 = (float) Math.sin(d14);
+                float d16 = (float) Math.cos(d14);
 
-                    for (int j = 0; j < 4; ++j) {
-                        float d18 = ((j & 2) - 1) * d3;
-                        float d19 = ((j + 1 & 2) - 1) * d3;
-                        float d21 = d18 * d16 - d19 * d15;
-                        float d22 = d19 * d16 + d18 * d15;
-                        float d23 = d21 * d12 + 0f * d13;
-                        float d24 = 0f * d12 - d21 * d13;
-                        float d25 = d24 * d9 - d22 * d10;
+                for (int j = 0; j < 4; ++j) {
+                    float d18 = ((j & 2) - 1) * d3;
+                    float d19 = ((j + 1 & 2) - 1) * d3;
+                    float d21 = d18 * d16 - d19 * d15;
+                    float d22 = d19 * d16 + d18 * d15;
+                    float d23 = d21 * d12 + 0f * d13;
+                    float d24 = 0f * d12 - d21 * d13;
+                    float d25 = d24 * d9 - d22 * d10;
                     float d26 = d22 * d9 + d24 * d10;
 
                     int color1 = r == -1 ? i : r;
                     int color2 = g == -1 ? i : g;
                     int color3 = b == -1 ? i : b;
 
-                    if (star_texture.isPresent()) {
+                    if (starTexture.isPresent()) {
                         float u = (j % 2) * 1.0f;
                         float v = (j / 2) * 1.0f;
                         bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
@@ -96,8 +101,6 @@ public class StarHelper {
         }
 
         if (constellations.isPresent()) {
-            SkyAesthetics.LOG.error("Is present");
-
             for (String constellationId : constellations.get()) {
 
                 Constellation constellation = ConstellationsData.CONSTELLATIONS.get(constellationId);
@@ -109,13 +112,13 @@ public class StarHelper {
                     float z = (float)( constellation.firstPoint().z);
 
                     // First Point
-                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder);
+                    createStar(constellation.firstPoint(), color, (int) constellation.scale(), random, bufferBuilder, constellation.starTexture().orElse(null));
 
                     for (Vec3 point : constellation.points()) {
 
                         Vec3 pointPos = new Vec3(x + point.x, y + point.y, z + point.z);
 
-                        createStar(pointPos, color, constellation.scale(), random, bufferBuilder);
+                        createStar(pointPos, color, constellation.scale(), random, bufferBuilder, constellation.starTexture().orElse(null));
 
                     }
                 } else {
@@ -133,7 +136,7 @@ public class StarHelper {
         return vertexBuffer;
     }
 
-    public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder) {
+    public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder,@Nullable ResourceLocation starTexture) {
         float d0 = (float) pos.x;
         float d1 = (float) pos.y;
         float d2 = (float) pos.z;
@@ -171,20 +174,34 @@ public class StarHelper {
                     - d22 * d10;
             float d26 = d22 * d9 + d24 * d10;
 
-            bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
+            if (starTexture != null) {
+                float u = (j % 2) * 1.0f;
+                float v = (j / 2) * 1.0f;
+                bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
+                        .setUv(u, v)
+                        .setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
+            } else {
+                bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
+                        .setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
+            }
         }
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> stars_texture) {
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
 
-        stars_texture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
+        starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
         vertexBuffer.bind();
-        vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
+        if (starTexture.isPresent()) {
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
+        } else {
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
+        }
+
         VertexBuffer.unbind();
         poseStack.popPose();
     }
