@@ -48,10 +48,8 @@ subprojects {
         }
 
         if(modLoader != "quilt") {
-            if(modLoader != "common") {
-                modApi "me.shedaniel.cloth:cloth-config-$modLoader:15.0.140"
-            }
-            modApi "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+
+            modImplementation "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
         }
     }
 
