@@ -49,7 +49,9 @@ subprojects {
 
         if(modLoader != "quilt") {
 
-            modImplementation "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+            compileOnly "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+            localRuntime "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+
         }
     }
 
