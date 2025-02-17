@@ -21,14 +21,14 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
     public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
-        super(SkyAesthetics.GSON, "sky");
+        super(SkyAesthetics.GSON, "sky_aesthetics");
     }
 
     @Override
     protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler)  {
         SKY_PROPERTIES.clear();
         object.forEach((key, value) -> {
-            JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
+            JsonObject json = GsonHelper.convertToJsonObject(value, "sky properties");
             DataResult<SkyProperties> decoder = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json);
 
             if(decoder.isError()) {
