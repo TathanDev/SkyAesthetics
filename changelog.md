@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.4.1
+# Sky Aesthetics 1.5.0
 
-## Fix
-- Fix fabric launch crash
+## Changes
+- change the sky folder to sky_aesthetics (this is a breaking change) : this stop others mods to break
