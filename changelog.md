@@ -1,5 +1,4 @@
-# Sky Aesthetics 1.21.4 
+# Sky Aesthetics 1.5.0
 
-## Fixes
-
-- Fix Fog at Night
+## Changes
+- change the sky folder to sky_aesthetics (this is a breaking change) : this stop others mods to break
