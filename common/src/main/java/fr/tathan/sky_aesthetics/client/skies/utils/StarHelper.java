@@ -90,7 +90,7 @@ public class StarHelper {
 
                     if (starTexture.isPresent()) {
                         float u = (j % 2) * 1.0f;
-                        float v = (j / 2) * 1.0f;
+                        float v = ((float) j / 2);
                         bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
                                 .setUv(u, v)
                                 .setColor(color1, color2, color3, 0xAA);
@@ -178,7 +178,7 @@ public class StarHelper {
 
             if (starTexture != null) {
                 float u = (j % 2) * 1.0f;
-                float v = (j / 2) * 1.0f;
+                float v = ((float) j / 2);
                 bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
                         .setUv(u, v)
                         .setColor((int) color.x(), (int) color.y(), (int) color.z (), 0xAA);
@@ -195,6 +195,8 @@ public class StarHelper {
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
 
+
+        //star texture renderer
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
         float cycleSpeed = 0.5f;
