@@ -117,7 +117,7 @@ public class SkyRenderer {
 
         Star.ShootingStars shootingStarConfig = star.shootingStars().get();
         Random random = new Random();
-        if (random.nextInt(1001) >= shootingStarConfig.percentage() && false) {
+        if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
             UUID starId = UUID.randomUUID();
             var shootingStar = new ShootingStar((float) random.nextInt( (int) shootingStarConfig.randomLifetime().x, (int) shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
             this.shootingStars.putIfAbsent(starId, shootingStar);
@@ -179,7 +179,7 @@ public class SkyRenderer {
 
     public void runFogCallback(Runnable fogCallback) {
 
-        if(!properties.fogSettings().isPresent()) {
+        if(properties.fogSettings().isEmpty()) {
             fogCallback.run();
             return;
         }

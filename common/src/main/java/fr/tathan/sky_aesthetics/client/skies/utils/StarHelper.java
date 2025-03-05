@@ -68,7 +68,7 @@ public class StarHelper {
                 float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
                 float d12 = (float) Math.sin(d11);
                 float d13 = (float) Math.cos(d11);
-                float d14 = (float) (random.nextDouble() * Math.PI * 2.0D);
+                float d14 = (float) (random.nextDouble() * Math.PI);
                 float d15 = (float) Math.sin(d14);
                 float d16 = (float) Math.cos(d14);
 
@@ -85,6 +85,8 @@ public class StarHelper {
                     int color1 = r == -1 ? i : r;
                     int color2 = g == -1 ? i : g;
                     int color3 = b == -1 ? i : b;
+
+
 
                     if (starTexture.isPresent()) {
                         float u = (j % 2) * 1.0f;
@@ -159,7 +161,7 @@ public class StarHelper {
         float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
         float d12 = (float) Math.sin(d11);
         float d13 = (float) Math.cos(d11);
-        float d14 = (float) (random.nextDouble() * Math.PI);
+        float d14 = (float) (random.nextDouble() * Math.TAU);
         float d15 = (float) Math.sin(d14);
         float d16 = (float) Math.cos(d14);
 
@@ -195,6 +197,12 @@ public class StarHelper {
 
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
+        float cycleSpeed = 0.5f;
+        float alpha = (Mth.cos((float) (System.currentTimeMillis() * cycleSpeed / 1000.0)) + 1.0f) / 2.0f;
+        alpha = Mth.lerp(0.3f, 0.7f, alpha);
+
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+
         vertexBuffer.bind();
         if (starTexture.isPresent()) {
             vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
@@ -203,6 +211,7 @@ public class StarHelper {
         }
 
         VertexBuffer.unbind();
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         poseStack.popPose();
     }
 
