@@ -11,6 +11,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, JsonElement> object, @Nullable ResourceManager resourceManager, @Nullable ProfilerFiller profiler) {
         SKY_PROPERTIES.clear();
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
