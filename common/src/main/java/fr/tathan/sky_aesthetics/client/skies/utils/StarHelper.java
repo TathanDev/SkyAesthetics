@@ -68,7 +68,7 @@ public class StarHelper {
                 float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
                 float d12 = (float) Math.sin(d11);
                 float d13 = (float) Math.cos(d11);
-                float d14 = (float) (random.nextDouble() * Math.PI);
+                float d14 = (float) (random.nextDouble() * Math.TAU);
                 float d15 = (float) Math.sin(d14);
                 float d16 = (float) Math.cos(d14);
 
@@ -161,7 +161,7 @@ public class StarHelper {
         float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
         float d12 = (float) Math.sin(d11);
         float d13 = (float) Math.cos(d11);
-        float d14 = (float) (random.nextDouble() * Math.TAU);
+        float d14 = (float) (random.nextDouble() * Math.PI);
         float d15 = (float) Math.sin(d14);
         float d16 = (float) Math.cos(d14);
 
