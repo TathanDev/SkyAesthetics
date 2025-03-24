@@ -31,7 +31,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky properties");
             DataResult<SkyProperties> decoder = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json);
 
-            if(decoder.isError()) {
+            if(decoder.error().isPresent()) {
                 SkyAesthetics.LOG.error("Error parsing sky : {}", decoder.error().get().message());
                 return;
             }
