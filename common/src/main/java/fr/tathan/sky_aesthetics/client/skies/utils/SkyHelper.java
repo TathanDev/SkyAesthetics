@@ -30,7 +30,7 @@ public class SkyHelper {
 
     public static void drawMoonWithPhase(Tesselator tesselator, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
         if (moon.moonTexture().isEmpty()) return;
-        int moonPhase = 3;
+        int moonPhase = 3; // TODO: Get moon phase
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
         float startX = xCoord / 4.0F;
