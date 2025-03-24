@@ -170,9 +170,10 @@ public class SkyHelper {
 
 
     private static void renderSun(CustomVanillaObject object, MultiBufferSource bufferSource, PoseStack poseStack, int rainLevel) {
-        float g = object.sunSize();
-        float h = object.sunHeight();
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(object.sunTexture()));
+        if (!object.sun()) return;
+        float g = object.sunSize().get();
+        float h = object.sunHeight().get();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(object.sunTexture().get()));
         Matrix4f matrix4f = poseStack.last().pose();
         vertexConsumer.addVertex(matrix4f, -g, h, -g).setUv(0.0F, 0.0F).setColor(rainLevel);
         vertexConsumer.addVertex(matrix4f, g, h, -g).setUv(1.0F, 0.0F).setColor(rainLevel);
@@ -181,6 +182,8 @@ public class SkyHelper {
     }
 
     private static void renderMoon(CustomVanillaObject object, int phase, MultiBufferSource bufferSource, PoseStack poseStack,int rainLevel) {
+        if (!object.moon()) return;
+
         int j = phase % 4;
         int k = phase / 4 % 2;
         float h = (float)(j) / 4.0F;
@@ -193,13 +196,13 @@ public class SkyHelper {
             l = 1.0F;
             m = 0.0F;
             n = 0.0F;
-        }        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(object.moonTexture()));
+        }        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(object.moonTexture().get()));
         Matrix4f matrix4f = poseStack.last().pose();
 
-        vertexConsumer.addVertex(matrix4f, -object.moonSize(), -object.moonHeight(), object.moonSize()).setUv(m, n).setColor(rainLevel);
-        vertexConsumer.addVertex(matrix4f, object.moonSize(), -object.moonHeight(), object.moonSize()).setUv(h, n).setColor(rainLevel);
-        vertexConsumer.addVertex(matrix4f, object.moonSize(), -object.moonHeight(), -object.moonSize()).setUv(h, l).setColor(rainLevel);
-        vertexConsumer.addVertex(matrix4f, -object.moonSize(), -object.moonHeight(), -object.moonSize()).setUv(m, l).setColor(rainLevel);
+        vertexConsumer.addVertex(matrix4f, -object.moonSize().get(), -object.moonHeight().get(), object.moonSize().get()).setUv(m, n).setColor(rainLevel);
+        vertexConsumer.addVertex(matrix4f, object.moonSize().get(), -object.moonHeight().get(), object.moonSize().get()).setUv(h, n).setColor(rainLevel);
+        vertexConsumer.addVertex(matrix4f, object.moonSize().get(), -object.moonHeight().get(), -object.moonSize().get()).setUv(h, l).setColor(rainLevel);
+        vertexConsumer.addVertex(matrix4f, -object.moonSize().get(), -object.moonHeight().get(), -object.moonSize().get()).setUv(m, l).setColor(rainLevel);
     }
 
 

@@ -25,18 +25,6 @@ public class FogRendererMixin {
     @Unique
     private static ClientLevel sky_aesthetics$level;
 
-    @Mutable
-    @Shadow
-    private static float fogRed;
-
-    @Mutable
-    @Shadow
-    private static float fogGreen;
-
-    @Mutable
-    @Shadow
-    private static float fogBlue;
-
     @Inject(
             method = "computeFogColor",
             at = @At(
@@ -49,11 +37,9 @@ public class FogRendererMixin {
 
         FogRendererMixin.sky_aesthetics$level = clientLevel;
 
-        SkyHelper.canRenderSky(level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.customFogColor().ifPresent(color -> {
-            fogRed = color.x() / 255.0F;
-            fogGreen = color.y() / 255.0F;
-            fogBlue = color.z() / 255.0F;
-        }))));
+        SkyHelper.canRenderSky(clientLevel, (planetSky -> {
+            planetSky.getProperties().fogSettings().flatMap(FogSettings::customFogColor).ifPresent(cir::setReturnValue);
+        }));
     }
 
     @Inject(
@@ -63,15 +49,8 @@ public class FogRendererMixin {
             ),
             cancellable = true)
     private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, Vector4f vector4f, float f, boolean bl, float g, CallbackInfoReturnable<FogParameters> cir) {
-        FogType fogType = camera.getFluidInCamera();
-
-
-        if (sky_aesthetics$level != null && fogType == FogType.NONE) {
-            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.fogDensity().ifPresent(density -> {
-                RenderSystem.setShaderFogStart(density.x);
-                RenderSystem.setShaderFogEnd(density.y);
-
-            }))));
+        if (sky_aesthetics$level != null && camera.getFluidInCamera() == FogType.NONE) {
+            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> planetSky.getProperties().fogSettings().flatMap(FogSettings::fogDensity).ifPresent(density -> cir.setReturnValue(new FogParameters(density.x, density.y, FogShape.CYLINDER, vector4f.x, vector4f.y, vector4f.z, vector4f.w)))));
         }
     }
 

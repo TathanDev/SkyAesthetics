@@ -74,8 +74,6 @@ public class SkyRenderer {
             vec4 = properties.skyColor().color().get();
         }
 
-        FogRenderer.levelFogColor();
-
 
         this.skyRenderer.renderSkyDisc((float) skyColorVector.x / 255f, (float) skyColorVector.y / 255f, (float) skyColorVector.z / 255f);
 

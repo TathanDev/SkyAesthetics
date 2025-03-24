@@ -1,5 +1,6 @@
 package fr.tathan.sky_aesthetics.client.data;
 
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;

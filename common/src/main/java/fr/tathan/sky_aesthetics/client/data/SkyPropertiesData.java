@@ -7,7 +7,6 @@ import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
-import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -24,7 +23,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElem
     public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
-        super(SkyAesthetics.GSON, FileToIdConverter.json("sky_aesthetics"));
+        super(ExtraCodecs.JSON, FileToIdConverter.json("sky_aesthetics"));
     }
 
     @Override
