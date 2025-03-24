@@ -24,7 +24,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElem
     public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
-        super(ExtraCodecs.JSON, FileToIdConverter.json("sky_aesthetics"));
+        super(SkyAesthetics.GSON, FileToIdConverter.json("sky_aesthetics"));
     }
 
     @Override
@@ -34,7 +34,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElem
             JsonObject json = GsonHelper.convertToJsonObject(value, "sky_renderer");
             DataResult<SkyProperties> decoder = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json);
 
-            if(decoder.isError()) {
+            if(decoder.error().isPresent()) {
                 SkyAesthetics.LOG.error("Error parsing sky : {}", decoder.error().get().message());
                 return;
             }

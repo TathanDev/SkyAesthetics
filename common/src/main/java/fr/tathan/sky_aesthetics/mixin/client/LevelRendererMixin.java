@@ -81,28 +81,28 @@ public abstract class LevelRendererMixin {
     }
 
     /**
-    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-            if (sky.getProperties().world().equals(level.dimension())) {
-                SkyRenderer renderer = sky.getRenderer();
-                if(renderer.shouldRemoveSnowAndRain()) {
-                    ci.cancel();
-                }
-            }
-        }
-    }
+     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
+     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+     for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+     if (sky.getProperties().world().equals(level.dimension())) {
+     SkyRenderer renderer = sky.getRenderer();
+     if(renderer.shouldRemoveSnowAndRain()) {
+     ci.cancel();
+     }
+     }
+     }
+     }
 
-    @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
-    private void canRain(Camera camera, CallbackInfo ci) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-            if (sky.getProperties().world().equals(level.dimension())) {
-                SkyRenderer renderer = sky.getRenderer();
-                if(renderer.shouldRemoveSnowAndRain()) {
-                    ci.cancel();
-                }
-            }
-        }
-    }
-    */
+     @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
+     private void canRain(Camera camera, CallbackInfo ci) {
+     for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+     if (sky.getProperties().world().equals(level.dimension())) {
+     SkyRenderer renderer = sky.getRenderer();
+     if(renderer.shouldRemoveSnowAndRain()) {
+     ci.cancel();
+     }
+     }
+     }
+     }
+     */
 }

@@ -6,11 +6,11 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.Optional;
 
-public record CloudSettings(boolean showCloud, int cloudHeight, Optional<CustomCloudColor> cloudColor) {
+public record CloudSettings(boolean showCloud, Optional<Integer> cloudHeight, Optional<CustomCloudColor> cloudColor) {
 
     public static final Codec<CloudSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("cloud").forGetter(CloudSettings::showCloud),
-            Codec.INT.fieldOf("cloud_height").forGetter(CloudSettings::cloudHeight),
+            Codec.INT.optionalFieldOf("cloud_height").forGetter(CloudSettings::cloudHeight),
             CustomCloudColor.CODEC.optionalFieldOf("cloud_color").forGetter(CloudSettings::cloudColor)
     ).apply(instance, CloudSettings::new));
 

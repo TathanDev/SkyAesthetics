@@ -68,9 +68,15 @@ public class SkyRenderer {
 
         int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
         Vec3 skyColorVector = new Vec3(ARGB.red(m), ARGB.green(m), ARGB.blue(m));
-        if(properties.skyColor().customColor()) {
-            skyColorVector = properties.skyColor().color();
+
+        Vector4f vec4 = new Vector4f((float) skyColorVector.x,(float) skyColorVector.y,(float) skyColorVector.z, 1.0f);
+        if (properties.skyColor().customColor() && properties.skyColor().color().isPresent()) {
+            vec4 = properties.skyColor().color().get();
         }
+
+        FogRenderer.levelFogColor();
+
+
         this.skyRenderer.renderSkyDisc((float) skyColorVector.x / 255f, (float) skyColorVector.y / 255f, (float) skyColorVector.z / 255f);
 
         int sunsetColor = planetSky.getSunriseOrSunsetColor(gameTime);
