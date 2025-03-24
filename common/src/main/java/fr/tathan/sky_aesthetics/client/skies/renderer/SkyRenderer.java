@@ -57,8 +57,8 @@ public class SkyRenderer {
         Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
         Vector4f vec4 = new Vector4f((float) vec3.x,(float) vec3.y,(float) vec3.z, 1.0f);
 
-        if(properties.skyColor().customColor()) {
-            vec4 = properties.skyColor().color();
+        if (properties.skyColor().customColor() && properties.skyColor().color().isPresent()) {
+            vec4 = properties.skyColor().color().get();
         }
 
         FogRenderer.levelFogColor();
@@ -80,18 +80,18 @@ public class SkyRenderer {
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
 
         // Sun
-        if (customVanillaObject.sun()) {
-           SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
+        if (customVanillaObject.sun() && customVanillaObject.sunTexture().isPresent() && customVanillaObject.sunHeight().isPresent() && customVanillaObject.sunSize().isPresent()) {
+           SkyHelper.drawCelestialBody(customVanillaObject.sunTexture().get(), tesselator, poseStack, customVanillaObject.sunHeight().get(), customVanillaObject.sunSize().get(), dayAngle, true);
         }
 
         // Moon
         if (customVanillaObject.moon()) {
             if(PlatformHelper.isModLoaded("lunar")) {
-                SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize(), nightAngle);
+                SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize().get(), nightAngle);
             } else if (customVanillaObject.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
+                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize().get(), customVanillaObject, nightAngle);
             } else {
-                SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
+                SkyHelper.drawCelestialBody(customVanillaObject.moonTexture().get(), tesselator, poseStack, customVanillaObject.moonHeight().get(), customVanillaObject.moonSize().get(), nightAngle, 0, 1, 0, 1, false);
             }
         }
 
