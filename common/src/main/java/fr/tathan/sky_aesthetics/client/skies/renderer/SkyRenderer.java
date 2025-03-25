@@ -35,7 +35,7 @@ public class SkyRenderer {
         this.properties = properties;
 
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations());
+            starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations(), properties.stars().starsTexture());
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -142,8 +142,8 @@ public class SkyRenderer {
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
 
-        if(properties.stars().vanilla()) {
-            if(starLight > 0.0f) {
+        if (properties.stars().vanilla()) {
+            if (starLight > 0.0f) {
                 RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
                 FogRenderer.setupNoFog();
                 this.starBuffer.bind();
@@ -153,25 +153,39 @@ public class SkyRenderer {
             return;
         }
 
+        // star texture
+
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
 
-        if (properties.stars().allDaysVisible()){
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        System.out.println(properties.stars().starsTexture().isPresent());
+
+        if (properties.stars().allDaysVisible()) {
+            if(properties.stars().starsTexture().isPresent()) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            } else {
+                RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            }
+
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.properties.stars().starsTexture());
         } else if (starLight > 0.2F) {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            if(properties.stars().starsTexture().isPresent()) {
+                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            } else {
+                RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            }
             RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.properties.stars().starsTexture());
         }
 
         runFogCallback(fogCallback);
-
     }
+
+
 
     public void runFogCallback(Runnable fogCallback) {
 
-        if(!properties.fogSettings().isPresent()) {
+        if(properties.fogSettings().isEmpty()) {
             fogCallback.run();
             return;
         }
