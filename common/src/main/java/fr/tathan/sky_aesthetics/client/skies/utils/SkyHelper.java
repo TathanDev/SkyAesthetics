@@ -12,7 +12,6 @@ import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 
 public class SkyHelper {
@@ -32,14 +30,15 @@ public class SkyHelper {
     }
 
     public static void drawMoonWithPhase(Tesselator tesselator, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
-        int moonPhase = 3;
+        if (moon.moonTexture().isEmpty()) return;
+        int moonPhase = 3; // TODO: Get moon phase
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
         float startX = xCoord / 4.0F;
         float startY = yCoord / 2.0F;
         float endX = (xCoord + 1) / 4.0F;
         float endY = (yCoord + 1) / 2.0F;
-        drawCelestialBody(moon.moonTexture(), tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
+        drawCelestialBody(moon.moonTexture().get(), tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
     }
 
     public static void drawCelestialBody(SkyObject skyObject, Tesselator tesselator, PoseStack poseStack, float y, float dayAngle, boolean blend) {

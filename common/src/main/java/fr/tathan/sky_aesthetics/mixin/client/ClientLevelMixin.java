@@ -21,10 +21,9 @@ public class ClientLevelMixin {
         SkyHelper.canRenderSky(level, (planetSky -> {
             SkyRenderer renderer = planetSky.getRenderer();
             Vec3 cloudColor = renderer.getCloudColor(level.getRainLevel(partialTick), level.getThunderLevel(partialTick));
-            if(cloudColor != null) {
+            if (cloudColor != null) {
                 cir.setReturnValue(cloudColor);
             }
         }));
     }
-
 }

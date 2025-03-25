@@ -61,5 +61,3 @@ remapJar {
     archiveClassifier = null
 
 }
-
-

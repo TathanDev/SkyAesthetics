@@ -48,10 +48,9 @@ subprojects {
         }
 
         if(modLoader != "quilt") {
-            if(modLoader != "common") {
-                modApi "me.shedaniel.cloth:cloth-config-$modLoader:15.0.140"
-            }
-            modApi "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+
+            modCompileOnly "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+
         }
     }
 
@@ -107,7 +106,7 @@ subprojects {
 
             repositories {
                 maven {
-                    url = "https://maven.odysseyus.fr/releases/"
+                    url = "https://maven.exodusstudio.org/releases/"
                     credentials {
                         username = System.getenv("MAVEN_USER")
                         password = System.getenv("MAVEN_PASS")

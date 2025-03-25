@@ -49,7 +49,10 @@ public class SkyRenderer {
         runFogCallback(fogCallback);
 
         Tesselator tesselator = Tesselator.getInstance();
-        CustomVanillaObject customVanillaObject = properties.customVanillaObject();
+        CustomVanillaObject customVanillaObject = null;
+        if (properties.customVanillaObject().isPresent()) {
+            customVanillaObject = properties.customVanillaObject().get();
+        }
 
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
         float nightAngle = dayAngle + 180;
@@ -57,8 +60,8 @@ public class SkyRenderer {
         Vec3 vec3 = level.getSkyColor(camera.getPosition(), partialTick);
         Vector4f vec4 = new Vector4f((float) vec3.x,(float) vec3.y,(float) vec3.z, 1.0f);
 
-        if(properties.skyColor().customColor()) {
-            vec4 = properties.skyColor().color();
+        if (properties.skyColor().customColor() && properties.skyColor().color().isPresent()) {
+            vec4 = properties.skyColor().color().get();
         }
 
         FogRenderer.levelFogColor();
@@ -79,21 +82,24 @@ public class SkyRenderer {
 
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
 
-        // Sun
-        if (customVanillaObject.sun()) {
-           SkyHelper.drawCelestialBody(customVanillaObject.sunTexture(), tesselator, poseStack, customVanillaObject.sunHeight(), customVanillaObject.sunSize(), dayAngle, true);
-        }
+        if (customVanillaObject != null) {
+            // Sun
+            if (customVanillaObject.sun() && customVanillaObject.sunTexture().isPresent() && customVanillaObject.sunHeight().isPresent() && customVanillaObject.sunSize().isPresent()) {
+                SkyHelper.drawCelestialBody(customVanillaObject.sunTexture().get(), tesselator, poseStack, customVanillaObject.sunHeight().get(), customVanillaObject.sunSize().get(), dayAngle, true);
+            }
 
-        // Moon
-        if (customVanillaObject.moon()) {
-            if(PlatformHelper.isModLoaded("lunar")) {
-                SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize(), nightAngle);
-            } else if (customVanillaObject.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize(), customVanillaObject, nightAngle);
-            } else {
-                SkyHelper.drawCelestialBody(customVanillaObject.moonTexture(), tesselator, poseStack, customVanillaObject.moonHeight(), customVanillaObject.moonSize(), nightAngle, 0, 1, 0, 1, false);
+            // Moon
+            if (customVanillaObject.moon()) {
+                if(PlatformHelper.isModLoaded("lunar")) {
+                    SkyCompat.drawLunarSky(level, tesselator, poseStack, customVanillaObject.moonSize().get(), nightAngle);
+                } else if (customVanillaObject.moonPhase()) {
+                    SkyHelper.drawMoonWithPhase(tesselator, poseStack, customVanillaObject.moonSize().get(), customVanillaObject, nightAngle);
+                } else {
+                    SkyHelper.drawCelestialBody(customVanillaObject.moonTexture().get(), tesselator, poseStack, customVanillaObject.moonHeight().get(), customVanillaObject.moonSize().get(), nightAngle, 0, 1, 0, 1, false);
+                }
             }
         }
+
 
         // Other sky object
         for (SkyObject skyObject : properties.skyObjects()) {
@@ -192,7 +198,7 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloudSettings().showCloud();
+        return properties.cloudSettings().isPresent() && !properties.cloudSettings().get().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -217,8 +223,8 @@ public class SkyRenderer {
     }
 
     public Vec3 getCloudColor(float rainLevel, float stormLevel) {
-        if(this.properties.cloudSettings().cloudColor().isPresent()) {
-            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
+        if(this.properties.cloudSettings().isPresent() && this.properties.cloudSettings().get().cloudColor().isPresent()) {
+            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().get().cloudColor().get();
 
             if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
                 return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);
