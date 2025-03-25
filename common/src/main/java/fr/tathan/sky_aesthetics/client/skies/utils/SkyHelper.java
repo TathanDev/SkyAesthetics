@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
 import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
@@ -170,6 +171,9 @@ public class SkyHelper {
     public static void canRenderSky(ClientLevel level, Consumer<PlanetSky> action) {
         for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
+
+                if(sky.getProperties().id().isPresent() && SkyAesthetics.CONFIG.disabledSkies().contains(sky.getProperties().id().get().toString())) return;
+
                 SkyRenderer renderer = sky.getRenderer();
                 if (renderer.isSkyRendered()) {
                     action.accept(sky);

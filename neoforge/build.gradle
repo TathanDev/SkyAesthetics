@@ -2,15 +2,13 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
-loom {
-    accessWidenerPath.set(project(":common").loom.accessWidenerPath)
-
-}
-
-
 architectury {
     platformSetupLoomIde()
     neoForge()
+}
+
+loom {
+    accessWidenerPath.set(project(":common").loom.accessWidenerPath)
 }
 
 configurations {
@@ -18,6 +16,7 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentNeoForge.extendsFrom common
