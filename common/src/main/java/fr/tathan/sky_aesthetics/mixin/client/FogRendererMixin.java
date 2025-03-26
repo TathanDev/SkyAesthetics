@@ -1,7 +1,6 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.shaders.FogShape;
-import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.sky_aesthetics.client.skies.record.FogSettings;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
@@ -11,8 +10,6 @@ import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.level.material.FogType;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -37,9 +34,7 @@ public class FogRendererMixin {
 
         FogRendererMixin.sky_aesthetics$level = clientLevel;
 
-        SkyHelper.canRenderSky(clientLevel, (planetSky -> {
-            planetSky.getProperties().fogSettings().flatMap(FogSettings::customFogColor).ifPresent(cir::setReturnValue);
-        }));
+        SkyHelper.canRenderSky(clientLevel, (planetSky -> planetSky.getProperties().fogSettings().flatMap(FogSettings::customFogColor).ifPresent(cir::setReturnValue)));
     }
 
     @Inject(
