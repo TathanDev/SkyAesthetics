@@ -11,17 +11,15 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PlanetSky extends DimensionSpecialEffects {
+public class DimensionSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
     private final SkyProperties properties;
 
-    public PlanetSky(SkyProperties properties) {
+    public DimensionSky(SkyProperties properties) {
         super(properties.cloudSettings().isPresent() && properties.cloudSettings().get().showCloud() ? properties.cloudSettings().get().cloudHeight().get() : 192, true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
         this.renderer = new SkyRenderer(properties, this);
     }
-
-
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {

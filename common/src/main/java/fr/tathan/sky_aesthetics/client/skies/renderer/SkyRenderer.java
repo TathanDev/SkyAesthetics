@@ -1,11 +1,11 @@
 package fr.tathan.sky_aesthetics.client.skies.renderer;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
+import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -27,14 +27,14 @@ import java.util.*;
 public class SkyRenderer {
 
     private final SkyProperties properties;
-    private final VertexBuffer starBuffer;
+    private final GpuBuffer starBuffer;
     private final Map<UUID, ShootingStar> shootingStars;
     private final net.minecraft.client.renderer.SkyRenderer skyRenderer = new net.minecraft.client.renderer.SkyRenderer();
-    private final PlanetSky planetSky;
+    private final DimensionSky dimensionSky;
 
-    public SkyRenderer(SkyProperties properties, PlanetSky planetSky) {
+    public SkyRenderer(SkyProperties properties, DimensionSky dimensionSky) {
         this.properties = properties;
-        this.planetSky = planetSky;
+        this.dimensionSky = dimensionSky;
         if(!properties.stars().vanilla()) {
             starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().x, properties.stars().color().y, properties.stars().color().z, properties.constellations());
         } else {
@@ -63,9 +63,6 @@ public class SkyRenderer {
         boolean shouldRenderDarkDisc = Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F;
         float rainLevel = 1.0F - level.getRainLevel(partialTick);
 
-
-        RenderSystem.depthMask(false);
-
         int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
         Vec3 skyColorVector = new Vec3(ARGB.red(m), ARGB.green(m), ARGB.blue(m));
 
@@ -75,11 +72,11 @@ public class SkyRenderer {
         }
 
 
-        this.skyRenderer.renderSkyDisc((float) skyColorVector.x / 255f, (float) skyColorVector.y / 255f, (float) skyColorVector.z / 255f);
+        this.skyRenderer.renderSkyDisc(vec4.x / 255f, vec4.y / 255f, vec4.z / 255f);
 
-        int sunsetColor = planetSky.getSunriseOrSunsetColor(gameTime);
+        int sunsetColor = dimensionSky.getSunriseOrSunsetColor(gameTime);
 
-        if (planetSky.isSunriseOrSunset(gameTime)) {
+        if (dimensionSky.isSunriseOrSunset(gameTime)) {
             this.skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, sunAngle, sunsetColor);
         }
 
@@ -94,11 +91,11 @@ public class SkyRenderer {
 
         // Other sky object
         for (SkyObject skyObject : properties.skyObjects()) {
-            SkyHelper.renderCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
+            SkyHelper.renderCelestialBody(skyObject, tesselator, bufferSource, poseStack, dayAngle);
         }
 
         if (shouldRenderDarkDisc) {
-            this.skyRenderer.renderDarkDisc(poseStack);
+            this.skyRenderer.renderDarkDisc();
         }
 
     }
@@ -150,7 +147,7 @@ public class SkyRenderer {
         }
     }
 
-    public void drawStar(VertexBuffer vertexBuffer, PoseStack poseStack, float starLight, float nightTime, FogParameters fogParameters) {
+    public void drawStar(GpuBuffer vertexBuffer, PoseStack poseStack, float starLight, float nightTime, FogParameters fogParameters) {
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         matrix4fStack.pushMatrix();
 
@@ -160,7 +157,7 @@ public class SkyRenderer {
         matrix4fStack.mul(poseStack.last().pose());
 
 
-        RenderSystem.depthMask(false);
+        /*RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
@@ -174,13 +171,13 @@ public class SkyRenderer {
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
         RenderSystem.depthMask(true);
-        matrix4fStack.popMatrix();
-
+        matrix4fStack.popMatrix();*/
     }
 
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloudSettings().showCloud();
+        if (this.properties.cloudSettings().isEmpty()) return false;
+        return !properties.cloudSettings().get().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -211,8 +208,8 @@ public class SkyRenderer {
     }
 
     public Vec3 getCloudColor(float rainLevel, float stormLevel) {
-        if(this.properties.cloudSettings().cloudColor().isPresent()) {
-            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
+        if (this.properties.cloudSettings().isPresent() && this.properties.cloudSettings().get().cloudColor().isPresent()) {
+            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().get().cloudColor().get();
 
             if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
                 return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);

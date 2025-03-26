@@ -5,7 +5,7 @@ import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
+import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ import java.util.Map;
 
 public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElement>  {
 
-    public static final Map<ResourceLocation, PlanetSky> SKY_PROPERTIES = new HashMap<>();
+    public static final Map<ResourceLocation, DimensionSky> SKY_PROPERTIES = new HashMap<>();
 
     public SkyPropertiesData() {
         super(ExtraCodecs.JSON, FileToIdConverter.json("sky_aesthetics"));
@@ -38,7 +38,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElem
                 return;
             }
             SkyProperties skyProperties = decoder.getOrThrow();
-            PlanetSky planetSky = new PlanetSky(skyProperties);
+            DimensionSky planetSky = new DimensionSky(skyProperties);
 
             if(skyProperties.id().isPresent()) {
                 SKY_PROPERTIES.putIfAbsent(skyProperties.id().get(), planetSky);

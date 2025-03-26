@@ -1,15 +1,21 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
+import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
-import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.FogParameters;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4fStack;
 
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.Random;
 import java.util.UUID;
 
@@ -17,7 +23,7 @@ public class ShootingStar {
 
     private final float lifeTime;
     private final Star.ShootingStars starConfig;
-    private final VertexBuffer starBuffer;
+    private final GpuBuffer starBuffer;
     public final UUID starId;
     private float life;
     private final int rotation;
@@ -25,7 +31,6 @@ public class ShootingStar {
     private final float randomSpeedModifier;
 
     public ShootingStar(float lifeTime, Star.ShootingStars starConfig, UUID starId){
-
         this.lifeTime = lifeTime;
         this.starConfig = starConfig;
         this.starBuffer = createStar(starConfig.color());
@@ -44,29 +49,29 @@ public class ShootingStar {
         }
     }
 
-    private VertexBuffer createStar(Vec3 color) {
-        Tesselator tesselator = Tesselator.getInstance();
-        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+    private GpuBuffer createStar(Vec3 color) {
+        GpuBuffer buffer;
 
-        VertexBuffer vertexBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
+        Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        Random random = new Random();
+        RandomSource random = RandomSource.create();
 
 
         Vec3 randomPos = new Vec3(random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F, random.nextFloat() * 2.0F - 1.0F);
         StarHelper.createStar(randomPos, color, starConfig.scale(), random, bufferBuilder);
-        vertexBuffer.bind();
-        vertexBuffer.upload(bufferBuilder.buildOrThrow());
-        VertexBuffer.unbind();
 
-        return vertexBuffer;
+        try (MeshData meshData = bufferBuilder.buildOrThrow()) {
+            buffer = RenderSystem.getDevice().createBuffer(() -> "Stars vertex buffer", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.vertexBuffer());
+        }
+
+        return buffer;
     }
 
     public boolean render(PoseStack poseStack) {
         life += this.starConfig.speed();
         if (life >= lifeTime) {
             return true;
-        }
+        }/*
         poseStack.pushPose();
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
@@ -82,22 +87,24 @@ public class ShootingStar {
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.enableBlend();
         RenderSystem.setShaderFog(FogParameters.NO_FOG);
 
-
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(gpuTexture, OptionalInt.empty(), gpuTexture2, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelines.STARS);
+            renderPass.setVertexBuffer(0, this.starBuffer);
+            renderPass.setIndexBuffer(this.starBuffer, this.starIndices.type());
+            renderPass.drawIndexed(0, this.starIndexCount);
+        }
 
         this.starBuffer.bind();
         this.starBuffer.drawWithShader(matrix4fStack, RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-        VertexBuffer.unbind();
+
         poseStack.popPose();
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
-        matrix4fStack.popMatrix();
 
+        matrix4fStack.popMatrix();
+        */
         return false;
 
     }
