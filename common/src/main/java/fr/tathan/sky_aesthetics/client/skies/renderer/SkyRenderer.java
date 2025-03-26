@@ -55,7 +55,10 @@ public class SkyRenderer {
             return;
         }
 
-        CustomVanillaObject customVanillaObject = properties.customVanillaObject();
+        CustomVanillaObject customVanillaObject = null;
+        if (properties.customVanillaObject().isPresent()) {
+            customVanillaObject = properties.customVanillaObject().get();
+        }
 
         float dayAngle = gameTime * 360f;
         float nightAngle = dayAngle + 180;
@@ -83,13 +86,13 @@ public class SkyRenderer {
             this.skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, sunAngle, sunsetColor);
         }
 
-        SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
+        if (customVanillaObject != null) {
+            SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
+        }
 
         renderStars(level, partialTick, poseStack, nightAngle, fog);
 
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
-
-
 
 
         // Other sky object
