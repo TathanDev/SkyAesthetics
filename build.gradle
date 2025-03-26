@@ -49,7 +49,7 @@ subprojects {
         mappings loom.officialMojangMappings()
 
         if(modLoader != "common") {
-            //modApi "me.shedaniel.cloth:cloth-config-$modLoader:16.0.141"
+            modApi "me.shedaniel.cloth:cloth-config-$modLoader:18.0.145"
         }
     }
 
