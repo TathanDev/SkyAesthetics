@@ -106,7 +106,7 @@ subprojects {
 
             repositories {
                 maven {
-                    url = "https://maven.exodusstudio.org/snapshots/"
+                    url = "https://maven.odysseyus.fr/releases/"
                     credentials {
                         username = System.getenv("MAVEN_USER")
                         password = System.getenv("MAVEN_PASS")

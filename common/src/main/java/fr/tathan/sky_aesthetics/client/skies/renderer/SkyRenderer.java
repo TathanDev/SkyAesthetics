@@ -157,8 +157,6 @@ public class SkyRenderer {
 
         float starsAngle = !this.properties.stars().movingStars() ? -90f : nightAngle;
 
-        System.out.println(properties.stars().starsTexture().isPresent());
-
         if (properties.stars().allDaysVisible()) {
             if(properties.stars().starsTexture().isPresent()) {
                 RenderSystem.setShader(GameRenderer::getPositionTexColorShader);

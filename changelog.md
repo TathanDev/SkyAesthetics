@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.5.1
+# Sky Aesthetics 1.6.1
 
-## Changes
-- Many resource pack entries are now optional
+## Fixes
+- Fix spamming console
