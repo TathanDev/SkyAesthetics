@@ -13,11 +13,8 @@ import java.awt.*;
 
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
-
-
     @Inject(method = "getCloudColor", at = @At("HEAD"), cancellable = true)
     public void modifyCloudColor(float partialTick, CallbackInfoReturnable<Integer> cir) {
-
         ClientLevel level = (ClientLevel) (Object) this;
 
         SkyHelper.canRenderSky(level, (planetSky -> {

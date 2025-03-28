@@ -8,3 +8,5 @@ accessible method net/minecraft/client/renderer/RenderStateShard setupRenderStat
 accessible class net/minecraft/client/renderer/RenderStateShard$OutputStateShard
 
 accessible method net/minecraft/client/renderer/SkyRenderer renderStars (Lnet/minecraft/client/renderer/FogParameters;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+
+accessible method net/minecraft/client/renderer/LevelRenderer doesMobEffectBlockSky (Lnet/minecraft/client/Camera;)Z

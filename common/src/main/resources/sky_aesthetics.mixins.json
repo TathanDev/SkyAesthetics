@@ -9,8 +9,7 @@
     "client.LevelRendererMixin",
     "client.RemoveSnowAndRainMixin"
   ],
-  "mixins": [
-  ],
+  "mixins": [],
   "injectors": {
     "defaultRequire": 1
   }

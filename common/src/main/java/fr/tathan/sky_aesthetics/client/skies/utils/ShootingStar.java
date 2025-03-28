@@ -3,19 +3,12 @@ package fr.tathan.sky_aesthetics.client.skies.utils;
 import com.mojang.blaze3d.buffers.BufferType;
 import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
-import net.minecraft.client.renderer.FogParameters;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4fStack;
 
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
 import java.util.Random;
 import java.util.UUID;
 
