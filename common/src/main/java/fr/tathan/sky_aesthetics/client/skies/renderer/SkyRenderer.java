@@ -158,22 +158,12 @@ public class SkyRenderer {
 
         matrix4fStack.mul(poseStack.last().pose());
 
-
-        /*RenderSystem.depthMask(false);
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(CoreShaders.POSITION);
         RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-        RenderSystem.enableBlend();
         RenderSystem.setShaderFog(FogParameters.NO_FOG);
-        vertexBuffer.bind();
-        vertexBuffer.drawWithShader(matrix4fStack, RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
-        VertexBuffer.unbind();
         RenderSystem.setShaderFog(fogParameters);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
-        matrix4fStack.popMatrix();*/
+
+        matrix4fStack.popMatrix();
     }
 
 
