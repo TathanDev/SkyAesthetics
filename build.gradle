@@ -47,10 +47,6 @@ subprojects {
         }*/
 
         mappings loom.officialMojangMappings()
-
-        if(modLoader != "common") {
-            modApi "me.shedaniel.cloth:cloth-config-$modLoader:18.0.145"
-        }
     }
 
     java {
