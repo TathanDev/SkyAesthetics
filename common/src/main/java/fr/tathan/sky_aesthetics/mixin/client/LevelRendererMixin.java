@@ -69,7 +69,7 @@ public abstract class LevelRendererMixin {
     }
 
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, Matrix4f matrix4f, Matrix4f matrix4f2, CloudStatus cloudStatus, Vec3 vec3, float f, int i, float g, CallbackInfo ci) {
+    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, float f, int i, float g, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(planetSky.getRenderer().shouldRemoveCloud()) {
                 ci.cancel();
