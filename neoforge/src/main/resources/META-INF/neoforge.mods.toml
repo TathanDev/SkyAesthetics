@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
+loaderVersion = "[7,)"
 issueTrackerURL = "https://github.com/TathanDev/SkyAesthetics/issues"
 license = "CC0-1.0"
 
