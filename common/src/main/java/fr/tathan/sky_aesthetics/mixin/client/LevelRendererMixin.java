@@ -26,18 +26,12 @@ public class LevelRendererMixin {
     private ClientLevel level;
 
     @Final
-    @Mutable
     @Shadow
     private LevelTargetBundle targets;
 
-    @Final
-    @Mutable
-    @Shadow
-    private RenderBuffers renderBuffers;
-
 
     @Inject(method = "addSkyPass", at = @At(value = "HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, float f, FogParameters fogParameters, CallbackInfo ci) {
+    private void renderCustomSkybox(FrameGraphBuilder frameGraphBuilder, Camera camera, float f, FogParameters fogParameters, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
         LevelRenderer levelRenderer = (LevelRenderer) (Object) this;
 
@@ -53,11 +47,9 @@ public class LevelRendererMixin {
                     RenderSystem.setShaderFog(fogParameters);
                     RenderStateShard.MAIN_TARGET.setupRenderState();
 
-                    MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
-
                     PoseStack poseStack = new PoseStack();
                     level.effects = planetSky;
-                    planetSky.getRenderer().render(level, poseStack, f, this.level.getTimeOfDay(f), fogParameters, Tesselator.getInstance(), bufferSource);
+                    planetSky.getRenderer().render(level, poseStack, f, this.level.getTimeOfDay(f), fogParameters, Tesselator.getInstance());
                 });
                 ci.cancel();
             }));
@@ -73,29 +65,29 @@ public class LevelRendererMixin {
         }));
     }*/
 
-    /**
-     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
-     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-     for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-     if (sky.getProperties().world().equals(level.dimension())) {
-     SkyRenderer renderer = sky.getRenderer();
-     if(renderer.shouldRemoveSnowAndRain()) {
-     ci.cancel();
-     }
-     }
-     }
-     }
+    /*
+    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
+    private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+            if (sky.getProperties().world().equals(level.dimension())) {
+                SkyRenderer renderer = sky.getRenderer();
+                if(renderer.shouldRemoveSnowAndRain()) {
+                   ci.cancel();
+                }
+            }
+        }
+    }
 
-     @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
-     private void canRain(Camera camera, CallbackInfo ci) {
-     for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
-     if (sky.getProperties().world().equals(level.dimension())) {
-     SkyRenderer renderer = sky.getRenderer();
-     if(renderer.shouldRemoveSnowAndRain()) {
-     ci.cancel();
-     }
-     }
-     }
-     }
-     */
+    @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
+    private void canRain(Camera camera, CallbackInfo ci) {
+        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+            if (sky.getProperties().world().equals(level.dimension())) {
+                SkyRenderer renderer = sky.getRenderer();
+                if(renderer.shouldRemoveSnowAndRain()) {
+                    ci.cancel();
+                }
+            }
+        }
+    }
+    */
 }

@@ -11,6 +11,7 @@ import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -44,6 +45,64 @@ public class SkyRenderer {
     }
 
 
+    public void render(ClientLevel level, PoseStack poseStack, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator) {
+        SkyAesthetics.LOG.error("Render sky");
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+
+        if(!isSkyRendered()) return;
+
+        if (Objects.equals(properties.skyType(), "END")) {
+            this.skyRenderer.renderEndSky();
+            return;
+        }
+
+        CustomVanillaObject customVanillaObject = null;
+        if (properties.customVanillaObject().isPresent()) {
+            customVanillaObject = properties.customVanillaObject().get();
+        }
+
+        float dayAngle = gameTime * 360f;
+        float nightAngle = dayAngle + 180;
+        float sunAngle = level.getSunAngle(partialTick);
+        boolean shouldRenderDarkDisc = Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F;
+        float rainLevel = 1.0F - level.getRainLevel(partialTick);
+
+        int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
+        Vec3 skyColorVector = new Vec3(ARGB.red(m), ARGB.green(m), ARGB.blue(m));
+
+        Vector4f vec4 = new Vector4f((float) skyColorVector.x,(float) skyColorVector.y,(float) skyColorVector.z, 1.0f);
+        if (properties.skyColor().customColor() && properties.skyColor().color().isPresent()) {
+            vec4 = properties.skyColor().color().get();
+        }
+
+        this.skyRenderer.renderSkyDisc(vec4.x / 255f, vec4.y / 255f, vec4.z / 255f);
+
+        int sunsetColor = dimensionSky.getSunriseOrSunsetColor(gameTime);
+
+        if (dimensionSky.isSunriseOrSunset(gameTime)) {
+            this.skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, sunAngle, sunsetColor);
+        }
+
+        if (customVanillaObject != null) {
+            SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
+        }
+
+        renderStars(level, partialTick, poseStack, nightAngle, fog);
+
+        properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
+
+
+        // Other sky object
+        for (SkyObject skyObject : properties.skyObjects()) {
+            SkyHelper.renderCelestialBody(skyObject, tesselator, bufferSource, poseStack,  dayAngle);
+        }
+
+        if (shouldRenderDarkDisc) {
+            this.skyRenderer.renderDarkDisc();
+        }
+    }
+/*
     public void render(ClientLevel level, PoseStack poseStack, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator,MultiBufferSource.BufferSource bufferSource) {
         SkyAesthetics.LOG.error("Rendering the sky!");
 
@@ -100,7 +159,7 @@ public class SkyRenderer {
             this.skyRenderer.renderDarkDisc();
         }
 
-    }
+    }*/
 
     private void handleShootingStars(ClientLevel level, PoseStack poseStack, Star star, float partialTick) {
         if(!level.isClientSide) return;

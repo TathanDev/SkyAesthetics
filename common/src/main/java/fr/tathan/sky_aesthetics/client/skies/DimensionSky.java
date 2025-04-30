@@ -23,7 +23,6 @@ public class DimensionSky extends DimensionSpecialEffects {
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-
         return fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F);
     }
 

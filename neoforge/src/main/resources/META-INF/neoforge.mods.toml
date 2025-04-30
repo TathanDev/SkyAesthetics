@@ -7,7 +7,7 @@ license = "CC0-1.0"
 modId = "sky_aesthetics"
 version = "${version}"
 displayName = "Sky Aesthetics"
-authors = "The Stellaris Team"
+authors = "Tathan, St0x0ef"
 description = '''
 Change the skybox of Minecraft like you want !
 '''
