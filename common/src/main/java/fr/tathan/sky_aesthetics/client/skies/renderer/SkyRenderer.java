@@ -180,7 +180,11 @@ public class SkyRenderer {
 
 
     public Boolean shouldRemoveCloud() {
-        return !properties.cloudSettings().showCloud();
+        if (properties.cloudSettings().isPresent()) {
+            CloudSettings cloudSettings = properties.cloudSettings().get();
+            return !cloudSettings.showCloud();
+        }
+        return false;
     }
 
     public Boolean shouldRemoveSnowAndRain() {
@@ -211,15 +215,17 @@ public class SkyRenderer {
     }
 
     public Vec3 getCloudColor(float rainLevel, float stormLevel) {
-        if(this.properties.cloudSettings().cloudColor().isPresent()) {
-            CloudSettings.CustomCloudColor color = this.properties.cloudSettings().cloudColor().get();
+        if(this.properties.cloudSettings().isPresent()) {
 
-            if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
-                return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);
-            } else if(rainLevel > 0.0f && !color.alwaysBaseColor()) {
-                return new Vec3(color.rainColor().x, color.rainColor().y, color.rainColor().z);
-            } else {
-                return new Vec3(color.baseColor().x, color.baseColor().y, color.baseColor().z);
+            if(this.properties.cloudSettings().get().cloudColor().isPresent()) {
+                CloudSettings.CustomCloudColor color = this.properties.cloudSettings().get().cloudColor().get();
+                if(stormLevel > 0.0f && !color.alwaysBaseColor()) {
+                    return new Vec3(color.stormColor().x, color.stormColor().y, color.stormColor().z);
+                } else if(rainLevel > 0.0f && !color.alwaysBaseColor()) {
+                    return new Vec3(color.rainColor().x, color.rainColor().y, color.rainColor().z);
+                } else {
+                    return new Vec3(color.baseColor().x, color.baseColor().y, color.baseColor().z);
+                }
             }
         }
         return null;
