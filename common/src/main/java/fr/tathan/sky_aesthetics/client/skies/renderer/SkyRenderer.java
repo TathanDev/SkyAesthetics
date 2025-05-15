@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
+import fr.tathan.sky_aesthetics.client.skies.utils.ModelUtils;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
@@ -17,10 +18,13 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.*;
@@ -82,6 +86,9 @@ public class SkyRenderer {
 
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
 
+
+        ModelUtils.drawCelestialCube(new SkyObject(ResourceLocation.parse("minecraft:textures/block/bamboo_block.png"), false, 10,  new Vec3(0, 0, 0), Optional.of(new Vector3f(-10, 20, 20)) , 40, "DAY"), poseStack, dayAngle);
+
         if (customVanillaObject != null) {
             // Sun
             if (customVanillaObject.sun() && customVanillaObject.sunTexture().isPresent() && customVanillaObject.sunHeight().isPresent() && customVanillaObject.sunSize().isPresent()) {
@@ -101,7 +108,6 @@ public class SkyRenderer {
         }
 
 
-        // Other sky object
         for (SkyObject skyObject : properties.skyObjects()) {
             SkyHelper.drawCelestialBody(skyObject, tesselator, poseStack,  dayAngle);
         }
