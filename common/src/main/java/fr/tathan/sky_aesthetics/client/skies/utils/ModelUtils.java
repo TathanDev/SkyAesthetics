@@ -62,50 +62,41 @@ public class ModelUtils {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, object.texture());
 
-// Enable backface culling
         RenderSystem.enableCull();
-        // Define which face to cull (GL_BACK is the default, but explicit is good)
 
-        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+        final float tileHeight = 32f;
+        final float imageWidth = 128f;
+        // Normalized tile dimensions
+        final float vTileSize = tileHeight / imageWidth;
+
+
+        BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
 
         float size = object.size() * ratio;
         float height = object.height() * ratio; // Use adjusted height
 
-        // Define the vertices of the cube
-        // Front face (Vertices in counter-clockwise order when viewed from the front)
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 + size, size).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, size).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(0f, 1f);
-
-        // Back face (Vertices in clockwise order when viewed from the front of THIS face)
-        // We define them in an order that makes them "back facing" relative to the viewer when
-        // the cube is oriented normally, so culling removes them.
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 + size, -size).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, 1f);
-
-        // Top face (Vertices in counter-clockwise order when viewed from the top)
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(0f, 1f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 + size, size).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 + size, -size).setUv(1f, 0f);
+        RenderSystem.setShaderTexture(0, object.texture());
 
 
-        // Bottom face (Vertices in clockwise order when viewed from the bottom)
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, size).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(0f, 1f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(vTileSize * 2f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 + size, -size).setUv(vTileSize * 3f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize * 3f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(vTileSize * 2f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
 
 
-        // Left face (Vertices in clockwise order when viewed from the left)
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, 1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(1f, 0f);
+        // Bottom face (Clockwise, Normal: 0, -1, 0) - Using Tile 3
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, size).setUv(vTileSize, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(0f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
 
+
+        // Left face (Clockwise, Normal: -1, 0, 0) - Using Tile 4 (First tile in the second row)
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, vTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(vTileSize, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(vTileSize, vTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
 
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 
@@ -116,16 +107,8 @@ public class ModelUtils {
         if (object.blend()) {
             RenderSystem.disableBlend();
         }
+        RenderSystem.enableCull();
+
     }
 
-    private static void vertex(
-            VertexConsumer vertexBuilder,
-            Matrix4f matrix4f,
-            float x,
-            float y,
-            float z,
-            float u,
-            float v) {
-        vertexBuilder.addVertex(matrix4f, x, y, z).setUv(u, v);
-    }
 }
