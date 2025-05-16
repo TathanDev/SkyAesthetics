@@ -67,8 +67,10 @@ public class ModelUtils {
 
         final float tileHeight = 32f;
         final float imageWidth = 128f;
-        // Normalized tile dimensions
+        final float imageHeight = 32f;
+
         final float vTileSize = tileHeight / imageWidth;
+        final float uTileSize = tileHeight / imageHeight;
 
 
         BufferBuilder bufferBuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
@@ -81,22 +83,22 @@ public class ModelUtils {
 
         bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(vTileSize * 2f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
         bufferBuilder.addVertex(matrix4f, size, height - 1 + size, -size).setUv(vTileSize * 3f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize * 3f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(vTileSize * 2f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize * 3f, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(vTileSize * 2f, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, 0f, -1f);
 
 
         // Bottom face (Clockwise, Normal: 0, -1, 0) - Using Tile 3
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
-        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
+        bufferBuilder.addVertex(matrix4f, size, height - 1 - size, -size).setUv(vTileSize, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
         bufferBuilder.addVertex(matrix4f, size, height - 1 - size, size).setUv(vTileSize, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
         bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(0f, 0f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(0f, -1f, 0f);
 
 
         // Left face (Clockwise, Normal: -1, 0, 0) - Using Tile 4 (First tile in the second row)
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, vTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(vTileSize, vTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
-        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(vTileSize, vTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, -size).setUv(0f, uTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, -size).setUv(0f, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 - size, size).setUv(vTileSize, uTileSize).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
+        bufferBuilder.addVertex(matrix4f, -size, height - 1 + size, size).setUv(vTileSize, uTileSize * 2f).setColor(1.0f, 1.0f, 1.0f, 1.0f).setNormal(-1f, 0f, 0f);
 
         BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
 
