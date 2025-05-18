@@ -87,7 +87,7 @@ public class SkyRenderer {
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, projectionMatrix, properties.stars(), partialTick)));
 
 
-        ModelUtils.drawCelestialCube(new SkyObject(ResourceLocation.parse("sky_aesthetics:textures/mars.png"), false, 10,  new Vec3(0, 0, 0), Optional.of(new Vector3f(-10, 20, 20)) , 100, "DAY"), poseStack, dayAngle);
+        ModelUtils.drawCelestialCube(new SkyObject(ResourceLocation.parse("sky_aesthetics:textures/mars3.png"), false, 10,  new Vec3(0, 0, 0), Optional.of(new Vector3f(-10, 20, 20)) , 100, "DAY"), poseStack, dayAngle);
 
         if (customVanillaObject != null) {
             // Sun
