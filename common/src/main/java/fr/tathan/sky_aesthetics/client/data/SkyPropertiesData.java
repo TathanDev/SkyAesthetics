@@ -35,6 +35,7 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener<JsonElem
 
             if(decoder.error().isPresent()) {
                 SkyAesthetics.LOG.error("Error parsing sky : {}", decoder.error().get().message());
+
                 return;
             }
             SkyProperties skyProperties = decoder.getOrThrow();

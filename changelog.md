@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.6.1
+# Sky Aesthetics 1.6.2
 
 ## Fix
-- Update neoforge
+- If star count is 0, the resource pack can now be applied

@@ -35,7 +35,9 @@ public class SkyRenderer {
     public SkyRenderer(SkyProperties properties, PlanetSky planetSky) {
         this.properties = properties;
         this.planetSky = planetSky;
-        if(!properties.stars().vanilla()) {
+        if(properties.stars().count() == 0) {
+            starBuffer = null;
+        } else if(!properties.stars().vanilla()) {
             starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().x, properties.stars().color().y, properties.stars().color().z, properties.constellations());
         } else {
             starBuffer = StarHelper.createVanillaStars();
@@ -132,6 +134,8 @@ public class SkyRenderer {
     }
 
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, float nightAngle, FogParameters fog) {
+
+        if(starBuffer == null) return;
 
         float rainLevel = 1.0F - level.getRainLevel(partialTick);
         float starLight = level.getStarBrightness(partialTick) * rainLevel;
