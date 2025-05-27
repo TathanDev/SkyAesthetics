@@ -1,6 +1,7 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -31,6 +32,9 @@ public abstract class LevelRendererMixin {
         if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
 
             SkyHelper.canRenderSky(level, (planetSky -> {
+
+                if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender)) return;
+
                 PoseStack poseStack = new PoseStack();
                 poseStack.mulPose(frustumMatrix);
 

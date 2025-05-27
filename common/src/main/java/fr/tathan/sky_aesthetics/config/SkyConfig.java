@@ -12,5 +12,12 @@ public class SkyConfig {
             "bad_mod:bad_dimension"
     };
 
+    public String[] modDisablingMainSkyRender = new String[]{
+            "astrocraft",
+    };
+
+    public String[] modDisablingCloudRender = new String[]{
+            "distanthorizons",
+    };
 
 }

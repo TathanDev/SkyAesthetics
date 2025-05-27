@@ -10,6 +10,7 @@ import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -188,4 +189,15 @@ public class SkyHelper {
         }
         return false;
     }
+
+    public static boolean isAModCancelRendering(String[] modIds) {
+        for(String modId : modIds) {
+            if (PlatformHelper.isModLoaded(modId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
 }
