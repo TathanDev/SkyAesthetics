@@ -20,4 +20,9 @@ public record SkyConfig(List<String> disabledSkies) {
                 .orElseThrow(() -> new IllegalStateException("Failed to encode to JSON"));
     }
 
+    public String[] modDisablingWeather = new String[]{
+            "bad_weather_mod",
+    };
+
+
 }
