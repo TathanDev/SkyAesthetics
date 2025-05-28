@@ -20,4 +20,9 @@ public class SkyConfig {
             "distanthorizons",
     };
 
+    public String[] modDisablingWeather = new String[]{
+            "bad_weather_mod",
+    };
+
+
 }
