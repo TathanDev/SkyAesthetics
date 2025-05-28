@@ -10,6 +10,7 @@ import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
+import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class SkyHelper {
@@ -172,13 +174,27 @@ public class SkyHelper {
         for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
 
-                if(sky.getProperties().id().isPresent() && SkyAesthetics.CONFIG.disabledSkies().contains(sky.getProperties().id().get().toString())) return false;
+                // Check if the sky is disabled in the config
+                if(sky.getProperties().id().isPresent() && Arrays.stream(SkyAesthetics.CONFIG.disabledSkies).anyMatch((s)-> s.equals(sky.getProperties().id().get().toString()))) return false;
+
+                // Check if the sky's dimension is disabled in the properties
+                if(Arrays.stream(SkyAesthetics.CONFIG.disabledDimensions).anyMatch((s)-> s.equals(sky.getProperties().world().location().toString()))) return false;
+
 
                 SkyRenderer renderer = sky.getRenderer();
                 if (renderer.isSkyRendered()) {
                     action.accept(sky);
                     return true;
                 }
+            }
+        }
+        return false;
+    }
+
+    public static boolean isAModCancelRendering(String[] modIds) {
+        for(String modId : modIds) {
+            if (PlatformHelper.isModLoaded(modId)) {
+                return true;
             }
         }
         return false;
