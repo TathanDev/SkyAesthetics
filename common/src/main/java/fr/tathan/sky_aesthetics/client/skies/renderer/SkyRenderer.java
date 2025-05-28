@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.record.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -197,7 +196,7 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveCloud() {
-        return !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingCloudRender) || properties.cloudSettings().isPresent() && !properties.cloudSettings().get().showCloud();
+        return properties.cloudSettings().isPresent() && !properties.cloudSettings().get().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {

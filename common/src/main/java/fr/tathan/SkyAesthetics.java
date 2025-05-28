@@ -5,7 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
-import fr.tathan.sky_aesthetics.config.ConfigManager;
+import fr.tathan.sky_aesthetics.config.ConfigLoader;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -25,7 +25,7 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        CONFIG = ConfigManager.loadOrGenerateDefaults();
+        CONFIG = ConfigLoader.loadOrGenerateConfig();
     }
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
