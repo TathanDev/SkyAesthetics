@@ -132,10 +132,7 @@ public class SkyHelper {
         }
     }
 
-    /** Yea I just copied minecraft code. But what ?? I literally modding Minecraft !*/
-
-
-    public static void renderSunMoonAndStars(CustomVanillaObject object, PoseStack poseStack,  float f, int moonPhase, MultiBufferSource.BufferSource bufferSource, float rainLevel) {
+    public static void renderSunAndMoon(CustomVanillaObject object, PoseStack poseStack, float f, int moonPhase, MultiBufferSource.BufferSource bufferSource, float rainLevel) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
         poseStack.mulPose(Axis.XP.rotationDegrees(f * 360.0F));

@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.*;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
+import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Mth;
@@ -19,33 +20,37 @@ import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 
 public class StarHelper {
     public static int starIndexCount;
 
-    public static GpuBuffer createStars(float scale, int amountFancy, float r, float g, float b, Optional<List<String>> constellations) {
+    public static GpuBuffer createStars(Star star, Optional<List<String>> constellations) {
         RandomSource randomSource = RandomSource.create();
 
         GpuBuffer buffer;
 
-        try (ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 1500 * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+        GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
+        int starCount = star.count() / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
 
-            GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
-            int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
+
+        try (ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(DefaultVertexFormat.POSITION_COLOR.getVertexSize() * starCount * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
 
             /* Stars */
-            for (int i = 0; i < stars; i++) {
+            for (int i = 0; i < starCount; i++) {
                 float d0 = randomSource.nextFloat() * 2.0F - 1.0F;
                 float d1 = randomSource.nextFloat() * 2.0F - 1.0F;
                 float d2 = randomSource.nextFloat() * 2.0F - 1.0F;
-                float d3 = scale + randomSource.nextFloat() * 0.1F;
+
+                float d3 = star.scale();
+
                 float d4 = d0 * d0 + d1 * d1 + d2 * d2;
                 if (d4 < 1.0f && d4 > 0.01f) {
                     d4 = (float) (1.0f / Math.sqrt(d4));
 
-                    //Position of star
+                    // Position of star
                     d0 *= d4;
                     d1 *= d4;
                     d2 *= d4;
@@ -59,7 +64,7 @@ public class StarHelper {
                     float d11 = (float) Math.atan2(Math.sqrt(d0 * d0 + d2 * d2), d1);
                     float d12 = (float) Math.sin(d11);
                     float d13 = (float) Math.cos(d11);
-                    float d14 = (float) (randomSource.nextDouble() * Math.PI * 2.0D);
+                    float d14 = (float) (randomSource.nextDouble() * Math.TAU);
                     float d15 = (float) Math.sin(d14);
                     float d16 = (float) Math.cos(d14);
 
@@ -70,21 +75,28 @@ public class StarHelper {
                         float d22 = d19 * d16 + d18 * d15;
                         float d23 = d21 * d12 + 0f * d13;
                         float d24 = 0f * d12 - d21 * d13;
-                        float d25 = d24 * d9
-                                - d22 * d10;
+                        float d25 = d24 * d9 - d22 * d10;
                         float d26 = d22 * d9 + d24 * d10;
 
-                        float color1 = r == -1 ? i : r;
-                        float color2 = g == -1 ? i : g;
-                        float color3 = b == -1 ? i : b;
+                        int color1, color2, color3;
+                        if (star.color().x() == -1) {
+                            color1 = 255;
+                            color2 = 255;
+                            color3 = 255;
+                        } else {
+                            color1 = (int) star.color().x();
+                            color2 = (int) star.color().y();
+                            color3 = (int) star.color().z();
+                        }
 
-                        bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26).setColor(color1, color2, color3, 0xAA);
+                        bufferBuilder.addVertex(d5 + d25, d6 + d23, d7 + d26)
+                                .setColor(color1, color2, color3, 0xAA);
                     }
                 }
             }
 
             /* Constellation */
-            if (constellations.isPresent()) {
+            /*if (constellations.isPresent()) {
                 for (String constellationId : constellations.get()) {
 
                     Constellation constellation = ConstellationsData.CONSTELLATIONS.get(constellationId);
@@ -109,7 +121,7 @@ public class StarHelper {
                         SkyAesthetics.LOG.error("{} is null", constellationId);
                     }
                 }
-            }
+            }*/
 
 
             try (MeshData meshData = bufferBuilder.buildOrThrow()) {

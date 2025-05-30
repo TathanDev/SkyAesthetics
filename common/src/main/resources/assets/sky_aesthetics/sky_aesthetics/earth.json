@@ -24,7 +24,7 @@
   "stars": {
     "vanilla": false,
     "moving_stars": true,
-    "count": 30000,
+    "count": 3000,
     "all_days_visible": false,
     "scale": 0.05,
     "color": [190, 160, -1],
