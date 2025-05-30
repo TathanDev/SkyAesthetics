@@ -14,18 +14,21 @@ Change the skybox of Minecraft like you want !
 logoFile = "logo.png"
 
 [[dependencies.sky_aesthetics]]
-modId = "neoforge"
-type = "required"
-versionRange = "[21.5,)"
-ordering = "NONE"
-side = "BOTH"
-
-[[dependencies.sky_aesthetics]]
 modId = "minecraft"
 type = "required"
 versionRange = "[1.21.5,)"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.sky_aesthetics]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.5,)"
+ordering = "NONE"
+side = "BOTH"
+
 [[mixins]]
 config = "sky_aesthetics.mixins.json"
+[[mixins]]
+config = "sky_aesthetics-neoforge.mixins.json"
+

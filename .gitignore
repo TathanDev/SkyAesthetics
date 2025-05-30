@@ -44,3 +44,4 @@ common/build
 
 .idea
 .gradle
+/build/reports/problems/problems-report.html

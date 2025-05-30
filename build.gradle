@@ -41,12 +41,10 @@ subprojects {
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
 
-        /*mappings loom.layered() {
+        mappings loom.layered() {
             officialMojangMappings()
             parchment("org.parchmentmc.data:parchment-${rootProject.parchment_mapping_version}@zip")
-        }*/
-
-        mappings loom.officialMojangMappings()
+        }
     }
 
     java {

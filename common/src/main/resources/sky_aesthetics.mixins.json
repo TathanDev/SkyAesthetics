@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.LevelRendererMixin",
     "client.ClientLevelMixin",
     "client.FogRendererMixin",
+    "client.LevelRendererMixin",
     "client.RemoveSnowAndRainMixin"
   ],
   "injectors": {

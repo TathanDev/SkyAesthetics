@@ -12,7 +12,6 @@ public final class SkyAestheticsNeoForge {
 
     public SkyAestheticsNeoForge() {
         SkyAesthetics.init();
-
     }
 
     @EventBusSubscriber(modid = SkyAesthetics.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)

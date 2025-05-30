@@ -8,7 +8,7 @@
     "TATHAN", "St0x0ef"
   ],
   "contact": {
-    "homepage": "https://discord.gg/Rc7Mxcy2m3",
+    "homepage": "https://discord.gg/Xb2nPmN",
     "sources": "https://github.com/TathanDev/SkyAesthetics"
   },
   "license": "CC0-1.0",
@@ -23,7 +23,8 @@
     ]
   },
   "mixins": [
-    "sky_aesthetics.mixins.json"
+    "sky_aesthetics.mixins.json",
+    "sky_aesthetics-fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.10",

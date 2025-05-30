@@ -54,7 +54,7 @@ public class DimensionSky extends DimensionSpecialEffects {
                 alpha *= alpha;
 
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
-                sunriseCol.set(ARGB.colorFromFloat(sunriseColor.x / 255f, sunriseColor.y / 255f, sunriseColor.z / 255f, alpha));
+                sunriseCol.set(ARGB.colorFromFloat(alpha, sunriseColor.x / 255f, sunriseColor.y / 255f, sunriseColor.z / 255f));
 
             }
         });

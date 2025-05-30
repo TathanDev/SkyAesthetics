@@ -1,9 +1,13 @@
 package fr.tathan.sky_aesthetics.client.skies.renderer;
 
 import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
@@ -20,6 +24,7 @@ import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Vector4f;
 
@@ -32,10 +37,12 @@ public class SkyRenderer {
     private final Map<UUID, ShootingStar> shootingStars;
     private final net.minecraft.client.renderer.SkyRenderer skyRenderer = new net.minecraft.client.renderer.SkyRenderer();
     private final DimensionSky dimensionSky;
+    private final RenderSystem.AutoStorageIndexBuffer starIndices;
 
     public SkyRenderer(SkyProperties properties, DimensionSky dimensionSky) {
         this.properties = properties;
         this.dimensionSky = dimensionSky;
+        this.starIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
         if(!properties.stars().vanilla()) {
             starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), properties.stars().color().x, properties.stars().color().y, properties.stars().color().z, properties.constellations());
         } else {
@@ -46,8 +53,6 @@ public class SkyRenderer {
 
 
     public void render(ClientLevel level, PoseStack poseStack, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator) {
-        SkyAesthetics.LOG.error("Render sky");
-
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
         if(!isSkyRendered()) return;
@@ -63,7 +68,6 @@ public class SkyRenderer {
         }
 
         float dayAngle = gameTime * 360f;
-        float nightAngle = dayAngle + 180;
         float sunAngle = level.getSunAngle(partialTick);
         boolean shouldRenderDarkDisc = Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F;
         float rainLevel = 1.0F - level.getRainLevel(partialTick);
@@ -78,9 +82,8 @@ public class SkyRenderer {
 
         this.skyRenderer.renderSkyDisc(vec4.x / 255f, vec4.y / 255f, vec4.z / 255f);
 
-        int sunsetColor = dimensionSky.getSunriseOrSunsetColor(gameTime);
-
         if (dimensionSky.isSunriseOrSunset(gameTime)) {
+            int sunsetColor = dimensionSky.getSunriseOrSunsetColor(gameTime);
             this.skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, sunAngle, sunsetColor);
         }
 
@@ -88,7 +91,7 @@ public class SkyRenderer {
             SkyHelper.renderSunMoonAndStars(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
         }
 
-        renderStars(level, partialTick, poseStack, nightAngle, fog);
+        renderStars(level, partialTick, poseStack, fog);
 
         properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
 
@@ -189,7 +192,7 @@ public class SkyRenderer {
         starsToRemove.forEach(this.shootingStars::remove);
     }
 
-    private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, float nightAngle, FogParameters fog) {
+    private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, FogParameters fog) {
 
         float rainLevel = 1.0F - level.getRainLevel(partialTick);
         float starLight = level.getStarBrightness(partialTick) * rainLevel;
@@ -202,26 +205,55 @@ public class SkyRenderer {
         }
 
         if (properties.stars().allDaysVisible()){
-            drawStar(starBuffer, poseStack, starLight, nightAngle, fog);
+            drawStar(level, fog, partialTick, poseStack);
         } else if (starLight > 0.2F) {
-            drawStar(starBuffer, poseStack, starLight, nightAngle, fog);
+            drawStar(level, fog, partialTick, poseStack);
         }
     }
 
-    public void drawStar(GpuBuffer vertexBuffer, PoseStack poseStack, float starLight, float nightTime, FogParameters fogParameters) {
+    private void drawStar(ClientLevel level, FogParameters fog, float partialTick, PoseStack poseStack) {
+        float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
+
+        if (properties.stars().vanilla()) {
+            renderVanillaStars(fog, starLight, poseStack);
+
+            /*if (starLight > 0.0f) {
+                RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
+                GpuTexture gpuTexture = Minecraft.getInstance().getMainRenderTarget().getColorTexture();
+                GpuTexture gpuTexture2 = Minecraft.getInstance().getMainRenderTarget().getDepthTexture();
+                GpuBuffer gpuBuffer = this.starIndices.getBuffer(StarHelper.starIndexCount);
+                RenderPipeline renderPipeline = RenderPipelines.STARS;
+
+                try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(gpuTexture, OptionalInt.empty(), gpuTexture2, OptionalDouble.empty())) {
+                    renderPass.setPipeline(renderPipeline);
+                    renderPass.setVertexBuffer(0, this.starBuffer);
+                    renderPass.setIndexBuffer(gpuBuffer, this.starIndices.type());
+                    renderPass.drawIndexed(0, StarHelper.starIndexCount);
+                }
+            }*/
+        }
+    }
+
+    public final void renderVanillaStars(FogParameters fog, float starBrightness, PoseStack poseStack) {
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         matrix4fStack.pushMatrix();
-
-        if(properties.stars().movingStars())
-            poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
-
         matrix4fStack.mul(poseStack.last().pose());
-
-        RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
+        RenderSystem.setShaderColor(starBrightness, starBrightness, starBrightness, starBrightness);
         RenderSystem.setShaderFog(FogParameters.NO_FOG);
-        RenderSystem.setShaderFog(fogParameters);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderPipeline renderPipeline = RenderPipelines.STARS;
+        GpuTexture gpuTexture = Minecraft.getInstance().getMainRenderTarget().getColorTexture();
+        GpuTexture gpuTexture2 = Minecraft.getInstance().getMainRenderTarget().getDepthTexture();
+        GpuBuffer gpuBuffer = this.starIndices.getBuffer(StarHelper.starIndexCount);
 
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(gpuTexture, OptionalInt.empty(), gpuTexture2, OptionalDouble.empty())) {
+            renderPass.setPipeline(renderPipeline);
+            renderPass.setVertexBuffer(0, this.starBuffer);
+            renderPass.setIndexBuffer(gpuBuffer, this.starIndices.type());
+            renderPass.drawIndexed(0, StarHelper.starIndexCount);
+        }
+
+        RenderSystem.setShaderFog(fog);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         matrix4fStack.popMatrix();
     }
 

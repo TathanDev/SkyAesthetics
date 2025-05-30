@@ -61,6 +61,5 @@ shadowJar {
 remapJar {
     input.set shadowJar.archiveFile
     atAccessWideners.add("sky_aesthetics.accesswidener")
-
 }
 

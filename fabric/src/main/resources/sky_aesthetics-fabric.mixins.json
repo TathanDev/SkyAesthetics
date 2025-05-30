@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "fr.tathan.sky_aesthetics.fabric.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "minVersion": "0.8",
+  "client": [
+    "SkyRenderingMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

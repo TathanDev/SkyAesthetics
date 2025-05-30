@@ -1,5 +1,6 @@
 {
   "world": "minecraft:overworld",
+  "id": "stellaris:earth_sky",
   "rain": true,
   "fog_settings": {
     "fog": true
@@ -17,9 +18,9 @@
     "moon_phase": true,
     "moon_texture": "textures/environment/moon_phases.png",
     "moon_height": 75,
-    "moon_size": 750
+    "moon_size": 75
   },
-  "sunrise_color": [255, 169, 91],
+  "sunrise_color": [238, 93, 108],
   "stars": {
     "vanilla": false,
     "moving_stars": true,
