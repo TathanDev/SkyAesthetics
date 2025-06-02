@@ -34,8 +34,7 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
     modApi "com.terraformersmc:modmenu:${modmenu_version}"
 
-    modRuntimeOnly "maven.modrinth:astrocraft:vwpsBb3h"
-    modRuntimeOnly "maven.modrinth:cloth-config:HpMb5wGb"
+    modRuntimeOnly "maven.modrinth:cloth-config:qA00xo1O"
 
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
