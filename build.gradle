@@ -61,7 +61,7 @@ subprojects {
     publishMods {
         file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
         changelog = file("../changelog.md").getText('UTF-8')
-        type = STABLE
+        type = BETA
         modLoaders.add(modLoader)
         displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version} ${minecraft_version}"
 
@@ -97,10 +97,10 @@ subprojects {
 
             repositories {
                 maven {
-                    url = "https://maven.odysseyus.fr/releases/"
+                    url = "https://maven.exodusstudio.org/releases/"
                     credentials {
-                        username = System.getenv("MAVEN_USER")
-                        password = System.getenv("MAVEN_PASS")
+                        username = System.getenv("EXODUS_MAVEN_USERNAME") // DO NOT CHANGE
+                        password = System.getenv("EXODUS_MAVEN_KEY") // DO NOT CHANGE
                     }
                 }
             }
