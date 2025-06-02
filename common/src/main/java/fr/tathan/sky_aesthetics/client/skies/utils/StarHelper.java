@@ -25,6 +25,50 @@ import java.util.Random;
 public class StarHelper {
     public static int starIndexCount;
 
+    public static GpuBuffer buildCustomStars(Star starProperties) {
+        RandomSource randomSource = RandomSource.create(10842L);
+        int starCount = starProperties.count();
+        float starSize = starProperties.scale();
+
+        GpuBuffer starBuffer;
+        try (ByteBufferBuilder byteBufferBuilder = new ByteBufferBuilder(DefaultVertexFormat.POSITION.getVertexSize() * starCount * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+
+            for (int i = 0; i < starCount; ++i) {
+                float x = randomSource.nextFloat() * 2.0F - 1.0F;
+                float y = randomSource.nextFloat() * 2.0F - 1.0F;
+                float z = randomSource.nextFloat() * 2.0F - 1.0F;
+
+                float lengthSquared = Mth.lengthSquared(x, y, z);
+                if (lengthSquared <= 0.010000001F || lengthSquared >= 1.0F) {
+                    continue;
+                }
+
+                Vector3f position = (new Vector3f(x, y, z)).normalize(100.0F);
+
+                float rotation = (float)(randomSource.nextDouble() * Math.PI * 2.0F);
+                Matrix3f rotMatrix = (new Matrix3f())
+                        .rotateTowards((new Vector3f(position)).negate(), new Vector3f(0.0F, 1.0F, 0.0F))
+                        .rotateZ(-rotation);
+
+                bufferBuilder.addVertex((new Vector3f(starSize, -starSize, 0.0F)).mul(rotMatrix).add(position));
+                bufferBuilder.addVertex((new Vector3f(starSize, starSize, 0.0F)).mul(rotMatrix).add(position));
+                bufferBuilder.addVertex((new Vector3f(-starSize, starSize, 0.0F)).mul(rotMatrix).add(position));
+                bufferBuilder.addVertex((new Vector3f(-starSize, -starSize, 0.0F)).mul(rotMatrix).add(position));
+            }
+
+            try (MeshData meshData = bufferBuilder.buildOrThrow()) {
+                starIndexCount = meshData.drawState().indexCount();
+                starBuffer = RenderSystem.getDevice().createBuffer(() -> "StarsBuffer",
+                        BufferType.VERTICES,
+                        BufferUsage.STATIC_WRITE,
+                        meshData.vertexBuffer());
+            }
+        }
+
+        return starBuffer;
+    }
+
     public static GpuBuffer createStars(Star star, Optional<List<String>> constellations) {
         RandomSource randomSource = RandomSource.create();
 

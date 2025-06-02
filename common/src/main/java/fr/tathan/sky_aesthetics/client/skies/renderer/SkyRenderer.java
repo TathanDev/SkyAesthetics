@@ -44,7 +44,7 @@ public class SkyRenderer {
         this.dimensionSky = dimensionSky;
         this.starIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
         if(!properties.stars().vanilla()) {
-            starBuffer = StarHelper.createStars(properties.stars(), properties.constellations());
+            starBuffer = StarHelper.buildCustomStars(properties.stars()/*, properties.constellations()*/);
         } else {
             starBuffer = StarHelper.createVanillaStars();
         }
@@ -93,7 +93,7 @@ public class SkyRenderer {
 
         renderStars(level, partialTick, poseStack, fog);
 
-        properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
+        //properties.stars().shootingStars().ifPresent((shootingStar -> handleShootingStars(level, poseStack, properties.stars(), partialTick)));
 
 
         // Other sky object
@@ -251,31 +251,32 @@ public class SkyRenderer {
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
 
-        matrix4fStack.scale(1.0f, 1.0f, 1.0f);
-
-        float r, g, b;
-        if (star.color().x() == -1) {
-            r = 1.0f;
-            g = 1.0f;
-            b = 1.0f;
+        if (star.color().x() >= 0 && star.color().y() >= 0 && star.color().z() >= 0) {
+            float r = Math.abs(star.color().x()) / 255.0f * starBrightness;
+            float g = Math.abs(star.color().y()) / 255.0f * starBrightness;
+            float b = Math.abs(star.color().z()) / 255.0f * starBrightness;
+            RenderSystem.setShaderColor(r, g, b, starBrightness);
         } else {
-            r = star.color().x() / 255.0f;
-            g = star.color().y() / 255.0f;
-            b = star.color().z() / 255.0f;
+            RenderSystem.setShaderColor(starBrightness, starBrightness, starBrightness, starBrightness);
         }
 
-        RenderSystem.setShaderColor(r * starBrightness, g * starBrightness, b * starBrightness, starBrightness);
-
         RenderSystem.setShaderFog(FogParameters.NO_FOG);
-        RenderPipeline renderPipeline = RenderPipelines.STARS;
-        GpuTexture gpuTexture = Minecraft.getInstance().getMainRenderTarget().getColorTexture();
-        GpuTexture gpuTexture2 = Minecraft.getInstance().getMainRenderTarget().getDepthTexture();
-        GpuBuffer gpuBuffer = this.starIndices.getBuffer(StarHelper.starIndexCount);
 
-        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(gpuTexture, OptionalInt.empty(), gpuTexture2, OptionalDouble.empty())) {
+        RenderPipeline renderPipeline = RenderPipelines.STARS;
+        GpuTexture colorTexture = Minecraft.getInstance().getMainRenderTarget().getColorTexture();
+        GpuTexture depthTexture = Minecraft.getInstance().getMainRenderTarget().getDepthTexture();
+        GpuBuffer indexBuffer = this.starIndices.getBuffer(StarHelper.starIndexCount);
+
+        if (star.movingStars()) {
+            float time = (float) (Minecraft.getInstance().level.getGameTime() % 24000) / 12000.0f;
+            matrix4fStack.rotateZ(time * 0.05f);
+        }
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(
+                colorTexture, OptionalInt.empty(), depthTexture, OptionalDouble.empty())) {
             renderPass.setPipeline(renderPipeline);
             renderPass.setVertexBuffer(0, this.starBuffer);
-            renderPass.setIndexBuffer(gpuBuffer, this.starIndices.type());
+            renderPass.setIndexBuffer(indexBuffer, this.starIndices.type());
             renderPass.drawIndexed(0, StarHelper.starIndexCount);
         }
 
