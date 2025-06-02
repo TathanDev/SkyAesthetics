@@ -25,7 +25,7 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        CONFIG = ConfigLoader.loadOrGenerateConfig();
+        CONFIG = ConfigLoader.loadOrGenerateDefaults();
     }
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {

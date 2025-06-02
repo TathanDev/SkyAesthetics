@@ -31,6 +31,18 @@ subprojects {
         maven { url "https://maven.shedaniel.me/" }
         maven { url "https://maven.saps.dev/releases" }
         maven { url "https://maven.parchmentmc.org" }
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = "Modrinth"
+                    url = "https://api.modrinth.com/maven"
+                }
+            }
+            filter {
+                includeGroup "maven.modrinth"
+            }
+        }
+
 
     }
 
