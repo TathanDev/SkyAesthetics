@@ -29,15 +29,15 @@ import java.util.*;
 public class SkyRenderer {
 
     private final SkyProperties properties;
-    private final VertexBuffer starBuffer;
+    private VertexBuffer starBuffer = null;
     private final Map<UUID, ShootingStar> shootingStars;
 
     public SkyRenderer(SkyProperties properties) {
         this.properties = properties;
 
-        if(!properties.stars().vanilla()) {
+        if(properties.stars().count() > 100) {
             starBuffer = StarHelper.createStars(properties.stars().scale(), properties.stars().count(), (int) properties.stars().color().x(), (int) properties.stars().color().y(), (int) properties.stars().color().z(), properties.constellations(), properties.stars().starsTexture());
-        } else {
+        } else if (properties.stars().vanilla() ){
             starBuffer = StarHelper.createVanillaStars();
         }
         this.shootingStars = new HashMap<>();
@@ -142,6 +142,8 @@ public class SkyRenderer {
 
     private void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, Runnable fogCallback, float nightAngle) {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
+
+        if(starBuffer == null) return;
 
         if (properties.stars().vanilla()) {
             if (starLight > 0.0f) {
