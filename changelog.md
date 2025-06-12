@@ -1,4 +1,9 @@
-# Sky Aesthetics 1.6.1
+# Sky Aesthetics 1.7.0
 
-## Fixes
-- Fix spamming console
+## Feature
+- New config : cancel rendering part of the skybox via config
+- Disable sky via dimension
+
+## Compat
+- Astrocraft
+- Distant Horizons
