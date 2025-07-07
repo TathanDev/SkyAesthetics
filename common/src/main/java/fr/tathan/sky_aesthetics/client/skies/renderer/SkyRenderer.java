@@ -203,7 +203,7 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveSnowAndRain() {
-        return !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || !properties.rain() ;
+        return !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || !properties.rain();
     }
 
     public boolean isSkyRendered() {

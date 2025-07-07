@@ -6,7 +6,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
-import fr.tathan.sky_aesthetics.client.skies.PlanetSky;
+import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.record.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.skies.record.SkyObject;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
@@ -17,7 +17,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -170,8 +169,8 @@ public class SkyHelper {
         };
     }
 
-    public static boolean canRenderSky(ClientLevel level, Consumer<PlanetSky> action) {
-        for (PlanetSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+    public static boolean canRenderSky(ClientLevel level, Consumer<DimensionSky> action) {
+        for (DimensionSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
             if (sky.getProperties().world().equals(level.dimension())) {
 
                 // Check if the sky is disabled in the config

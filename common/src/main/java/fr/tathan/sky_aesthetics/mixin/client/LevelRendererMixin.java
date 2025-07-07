@@ -30,9 +30,7 @@ public abstract class LevelRendererMixin {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
         if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
-
             SkyHelper.canRenderSky(level, (planetSky -> {
-
                 if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender)) return;
 
                 PoseStack poseStack = new PoseStack();

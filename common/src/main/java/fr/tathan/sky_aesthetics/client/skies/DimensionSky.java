@@ -9,11 +9,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class PlanetSky extends DimensionSpecialEffects {
+public class DimensionSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
     private final SkyProperties properties;
 
-    public PlanetSky(SkyProperties properties) {
+    public DimensionSky(SkyProperties properties) {
         super(properties.cloudSettings().isPresent() && properties.cloudSettings().get().showCloud() ? properties.cloudSettings().get().cloudHeight().get() : 192, true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
         this.renderer = new SkyRenderer(properties);
@@ -21,7 +21,6 @@ public class PlanetSky extends DimensionSpecialEffects {
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-
         return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
