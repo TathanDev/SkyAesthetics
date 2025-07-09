@@ -46,7 +46,7 @@ public abstract class LevelRendererMixin {
     @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            if(planetSky.getRenderer().shouldRemoveCloud()) {
+            if(!planetSky.getRenderer().renderClouds()) {
                 ci.cancel();
             }
         }));
@@ -55,7 +55,7 @@ public abstract class LevelRendererMixin {
     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            if(planetSky.getRenderer().shouldRemoveSnowAndRain()) {
+            if(!planetSky.getRenderer().weather) {
                 ci.cancel();
             }
         }));
@@ -64,7 +64,7 @@ public abstract class LevelRendererMixin {
     @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
     private void canRain(Camera camera, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            if(planetSky.getRenderer().shouldRemoveSnowAndRain()) {
+            if(!planetSky.getRenderer().weather) {
                 ci.cancel();
             }
         }));

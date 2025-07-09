@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.client.skies.record;
+package fr.tathan.sky_aesthetics.client.skies.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

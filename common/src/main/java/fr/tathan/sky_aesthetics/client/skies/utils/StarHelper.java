@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
-import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
+import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;

@@ -6,7 +6,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
-import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
+import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -38,17 +38,11 @@ public class SkyPropertiesData extends SimpleJsonResourceReloadListener  {
             }
             SkyProperties skyProperties = decoder.getOrThrow();
 
-            DimensionSky dimensionSky = new DimensionSky(skyProperties);
+            DimensionSky dimensionSky = new DimensionSky(skyProperties.world(), skyProperties.id(), skyProperties.toDimensionRenderer());
 
-            if(skyProperties.id().isPresent()) {
-                SKY_PROPERTIES.putIfAbsent(skyProperties.id().get(), dimensionSky);
-                SkyAesthetics.LOG.info(skyProperties.id().get() + " | registered");
+            SKY_PROPERTIES.putIfAbsent(skyProperties.id(), dimensionSky);
+            SkyAesthetics.LOG.info("{} | registered", skyProperties.id());
 
-            } else {
-                SKY_PROPERTIES.putIfAbsent(skyProperties.world().location(), dimensionSky);
-                SkyAesthetics.LOG.info(skyProperties.world().location() + " | registered");
-
-            }
         });
 
     }

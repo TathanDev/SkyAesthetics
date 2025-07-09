@@ -3,7 +3,7 @@ package fr.tathan.sky_aesthetics.client.skies.utils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import fr.tathan.sky_aesthetics.client.skies.record.Star;
+import fr.tathan.sky_aesthetics.client.skies.settings.StarSettings;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.world.phys.Vec3;
@@ -15,7 +15,7 @@ import java.util.UUID;
 public class ShootingStar {
 
     private final float lifeTime;
-    private final Star.ShootingStars starConfig;
+    private final StarSettings.ShootingStars starConfig;
     private final VertexBuffer starBuffer;
     public final UUID starId;
     private float life;
@@ -23,7 +23,7 @@ public class ShootingStar {
 
     private final float randomSpeedModifier;
 
-    public ShootingStar(float lifeTime, Star.ShootingStars starConfig, UUID starId){
+    public ShootingStar(float lifeTime, StarSettings.ShootingStars starConfig, UUID starId){
 
         this.lifeTime = lifeTime;
         this.starConfig = starConfig;

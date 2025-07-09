@@ -1,0 +1,37 @@
+{
+  "cloud_settings": {
+    "cloud": true,
+    "cloud_height": 192
+  },
+  "fog_settings": {
+    "fog": true
+  },
+  "id": "sky_aesthetics:test",
+  "moon": {
+    "height": 75.0,
+    "moon_phase": true,
+    "size": 75.0,
+    "texture": "minecraft:textures/environment/moon_phases.png"
+  },
+  "sky_color": {},
+  "sky_objects": [],
+  "stars": {
+    "all_days_visible": false,
+    "color": [
+      1,
+      1,
+      1
+    ],
+    "count": 30000,
+    "moving_stars": true,
+    "scale": 0.05,
+    "vanilla": false
+  },
+  "sun": {
+    "height": 450.0,
+    "size": 200.0,
+    "texture": "minecraft:textures/environment/sun.png"
+  },
+  "weather": true,
+  "world": "minecraft:overworld"
+}

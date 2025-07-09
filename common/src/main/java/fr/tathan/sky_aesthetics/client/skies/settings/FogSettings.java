@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.client.skies.record;
+package fr.tathan.sky_aesthetics.client.skies.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,4 +19,14 @@ public record FogSettings(Boolean fog, Optional<Vector3f> customFogColor, Option
             VEC2F.optionalFieldOf("fog_density").forGetter(FogSettings::fogDensity)
     ).apply(instance, FogSettings::new));
 
+
+    public static FogSettings createDefaultSettings() {
+        return new FogSettings(true, Optional.empty(), Optional.empty());
+    }
+
+    public void runFogCallback(Runnable fogCallback) {
+        if(this.fog) {
+            fogCallback.run();
+        }
+    }
 }

@@ -4,7 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
+import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
