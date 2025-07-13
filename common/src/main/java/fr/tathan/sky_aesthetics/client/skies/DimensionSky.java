@@ -52,7 +52,7 @@ public class DimensionSky extends DimensionSpecialEffects {
             }
         }
         if (this.sunriseCol == null) {
-            return super.getSunriseColor(timeOfDay, partialTicks);
+            this.sunriseCol = new float[4];
         }
         this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
         return this.sunriseCol;

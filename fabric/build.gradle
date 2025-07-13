@@ -33,6 +33,8 @@ dependencies {
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+    modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+
     modApi "com.terraformersmc:modmenu:${modmenu_version}"
 
     //modRuntimeOnly "maven.modrinth:astrocraft:vwpsBb3h"

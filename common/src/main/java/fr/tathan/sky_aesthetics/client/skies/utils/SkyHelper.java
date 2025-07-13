@@ -6,9 +6,8 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
-import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
-import fr.tathan.sky_aesthetics.client.skies.settings.SkyObject;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
@@ -120,7 +119,7 @@ public class SkyHelper {
 
 
     public static boolean canRenderSky(ClientLevel level, Consumer<DimensionSky> action) {
-        for (DimensionSky sky : SkyPropertiesData.SKY_PROPERTIES.values()) {
+        for (DimensionSky sky : SkiesRegistry.SKY_PROPERTIES.values()) {
             if (sky.getDimension().equals(level.dimension())) {
 
                 // Check if the sky is disabled in the config

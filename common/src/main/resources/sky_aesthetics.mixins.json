@@ -7,7 +7,8 @@
     "client.FogRendererMixin",
     "client.LevelRendererAccessor",
     "client.LevelRendererMixin",
-    "client.LunarMoonInfosAccessor"
+    "client.LunarMoonInfosAccessor",
+    "client.PauseMenuMixin"
   ],
   "mixins": [
   ],

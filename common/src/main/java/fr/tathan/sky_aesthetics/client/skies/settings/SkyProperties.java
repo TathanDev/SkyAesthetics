@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
+import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
@@ -61,6 +62,26 @@ public record SkyProperties(
         this.renderCondition.ifPresent(builder::setRenderCondition);
 
         return builder.build();
+    }
+
+    public DimensionSky toDimensionSky() {
+        return new DimensionSky(this.world, this.id, this.toDimensionRenderer());
+    }
+
+    public static SkyProperties createDefault() {
+        return new SkyProperties(
+                ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("overworld")),
+                ResourceLocation.parse("default"),
+                Optional.of(CloudSettings.createDefaultSettings()),
+                Optional.of(FogSettings.createDefaultSettings()),
+                true,
+                Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
+                Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
+                StarSettings.createDefaultStars(),
+                Optional.of(SkyColorSettings.createDefaultSettings()),
+                List.of(),
+                Optional.empty()
+        );
     }
 
     public record RenderCondition(Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome) {

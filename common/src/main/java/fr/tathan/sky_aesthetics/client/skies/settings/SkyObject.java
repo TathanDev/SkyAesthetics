@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec3 rotation, Optional<Vector3f> objectRotation, int height, String rotationType) {
+public record SkyObject(ResourceLocation texture, boolean blend, float size, Vector3f rotation, Vector3f objectRotation, int height, String rotationType) {
 
     public static Codec<Vector3f> VEC3F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 3).map((listx) -> new Vector3f(listx.getFirst(), listx.get(1), listx.getLast())), (vector3f) -> List.of(vector3f.x, vector3f.y, vector3f.z));
 
@@ -26,8 +26,8 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
             ResourceLocation.CODEC.fieldOf("texture").forGetter(SkyObject::texture),
             Codec.BOOL.fieldOf("blend").forGetter(SkyObject::blend),
             Codec.FLOAT.fieldOf("size").forGetter(SkyObject::size),
-            Vec3.CODEC.fieldOf("rotation").forGetter(SkyObject::rotation),
-            VEC3F.optionalFieldOf("object_rotation").forGetter(SkyObject::objectRotation),
+            VEC3F.fieldOf("rotation").forGetter(SkyObject::rotation),
+            VEC3F.fieldOf("object_rotation").forGetter(SkyObject::objectRotation),
             Codec.INT.fieldOf("height").forGetter(SkyObject::height),
             Codec.STRING.fieldOf("rotation_type").forGetter(SkyObject::rotationType)
     ).apply(instance, SkyObject::new));
@@ -45,13 +45,11 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
     }
 
     public void setObjectRotation(PoseStack poseStack) {
-        this.objectRotation.ifPresent((rotation) -> {
-            poseStack.translate(0, 100, 0);
-            poseStack.mulPose(Axis.XP.rotationDegrees(rotation.x));
-            poseStack.mulPose(Axis.YP.rotationDegrees(rotation.y));
-            poseStack.mulPose(Axis.ZP.rotationDegrees(rotation.z));
-            poseStack.translate(0, -100, 0);
-        });
+        poseStack.translate(0, 100, 0);
+        poseStack.mulPose(Axis.XP.rotationDegrees((float) rotation.x));
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotation.y));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rotation.z));
+        poseStack.translate(0, -100, 0);
     }
 
     public void drawSkyObject(Tesselator tesselator, PoseStack poseStack, float dayAngle) {

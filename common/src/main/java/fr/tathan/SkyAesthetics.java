@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
-import fr.tathan.sky_aesthetics.client.data.SkyPropertiesData;
+import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.config.ConfigLoader;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +22,7 @@ public final class SkyAesthetics {
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
+            .setLenient()
             .create();
 
     public static void init() {
@@ -30,6 +31,6 @@ public final class SkyAesthetics {
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
         registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "constellation"), new ConstellationsData());
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_aesthetics"), new SkyPropertiesData());
+        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_aesthetics"), new SkiesRegistry());
     }
 }
