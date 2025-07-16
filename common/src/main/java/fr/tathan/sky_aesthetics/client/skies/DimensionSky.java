@@ -1,6 +1,7 @@
 package fr.tathan.sky_aesthetics.client.skies;
 
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
+import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,12 +17,18 @@ public class DimensionSky extends DimensionSpecialEffects {
 
     private final ResourceKey<Level> dimension;
     private final ResourceLocation skyId;
+    private final SkyProperties skyProperties;
 
-    public DimensionSky(ResourceKey<Level> dimension, ResourceLocation skyId, DimensionRenderer renderer) {
+    public DimensionSky(SkyProperties skyProperties) {
+        this(skyProperties.world(), skyProperties.id(), skyProperties.toDimensionRenderer(), skyProperties);
+    }
+
+    public DimensionSky(ResourceKey<Level> dimension, ResourceLocation skyId, DimensionRenderer renderer, SkyProperties skyProperties) {
         super(192, true, SkyType.NORMAL, false, false);
         this.renderer = renderer;
         this.dimension = dimension;
         this.skyId = skyId;
+        this.skyProperties = skyProperties;
     }
 
     @Override
@@ -58,12 +65,21 @@ public class DimensionSky extends DimensionSpecialEffects {
         return this.sunriseCol;
     }
 
+    @Override
+    public float getCloudHeight() {
+        return this.getRenderer().cloudSettings.cloudHeight();
+    }
+
     public ResourceKey<Level> getDimension() {
         return dimension;
     }
 
     public ResourceLocation getSkyId() {
         return skyId;
+    }
+
+    public SkyProperties getSkyProperties() {
+        return skyProperties;
     }
 
     @Override

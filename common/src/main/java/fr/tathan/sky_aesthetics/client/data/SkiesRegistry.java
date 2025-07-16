@@ -44,7 +44,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
             }
 
             SkyProperties skyProperties = decoder.getOrThrow();
-            DimensionSky dimensionSky = new DimensionSky(skyProperties.world(), skyProperties.id(), skyProperties.toDimensionRenderer());
+            DimensionSky dimensionSky = new DimensionSky(skyProperties);
 
             registerSky(skyProperties.id(), dimensionSky);
             SkyAesthetics.LOG.info("{} | registered", skyProperties.id());

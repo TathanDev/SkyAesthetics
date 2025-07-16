@@ -65,7 +65,7 @@ public record SkyProperties(
     }
 
     public DimensionSky toDimensionSky() {
-        return new DimensionSky(this.world, this.id, this.toDimensionRenderer());
+        return new DimensionSky(this);
     }
 
     public static SkyProperties createDefault() {

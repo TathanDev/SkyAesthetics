@@ -19,15 +19,14 @@ import java.util.Optional;
 
 public class SkiesComponents {
 
-    public static FlowLayout createDefaultComponent(FlowLayout parent, SkyProperties properties) {
-
-        parent.child(createBasicSettings(properties).id("basic_settings"))
+    public static FlowLayout createDefaultComponent(SkyProperties properties) {
+        return (FlowLayout) Containers.verticalFlow(Sizing.content(), Sizing.content())
+                .child(createBasicSettings(properties).id("basic_settings"))
                 .child(createCloudSettings(properties.cloudSettings()).id("cloud_settings"))
                 .child(createFogSettings(properties.fogSettings()).id("fog_settings"))
                 .child(createColorSettings(properties.skyColor()).id("color_settings"))
                 .child(createSkyObjects(properties.skyObjects()).id("sky_objects"))
-                .child(createStarSettings(properties.stars()).id("star_settings"));
-        return parent;
+                .child(createStarSettings(properties.stars()).id("star_settings")).id("sky_components");
     }
 
     public static CollapsibleContainer createBasicSettings(SkyProperties properties) {
@@ -40,7 +39,7 @@ public class SkiesComponents {
     }
 
     public static CollapsibleContainer createCloudSettings(Optional<CloudSettings> settings) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Cloud Settings"), settings.isPresent());
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Cloud Settings (Optionnal)"), settings.isPresent());
 
         CloudSettings setting = settings.orElseGet(CloudSettings::createDefaultSettings);
 
@@ -50,7 +49,7 @@ public class SkiesComponents {
     }
 
     public static CollapsibleContainer createFogSettings(Optional<FogSettings> settings) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings"), settings.isPresent());
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings (Optionnal)"), settings.isPresent());
 
         FogSettings setting = settings.orElseGet(FogSettings::createDefaultSettings);
 
@@ -75,7 +74,7 @@ public class SkiesComponents {
     }
 
     public static CollapsibleContainer createColorSettings(Optional<SkyColorSettings> settings) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Color Settings"), settings.isPresent());
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Color Settings (Optionnal)"), settings.isPresent());
 
         SkyColorSettings setting = settings.orElseGet(SkyColorSettings::createDefaultSettings);
 
@@ -106,8 +105,10 @@ public class SkiesComponents {
     public static CollapsibleContainer createSkyObjects(List<SkyObject> skyObjects) {
         CollapsibleContainer container = (CollapsibleContainer) Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Objects"), true).id("sky_objects");
 
+        FlowLayout objectsLayout = (FlowLayout) Containers.verticalFlow(Sizing.content(), Sizing.content()).id("objects");
+
         for (SkyObject skyObject : skyObjects) {
-            container.child(createSkyObject(skyObject, container).id("object"));
+            objectsLayout.child(createSkyObject(skyObject, container).id("object"));
         }
 
         container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
@@ -121,10 +122,11 @@ public class SkiesComponents {
                                     100,
                                     "STATIC"
                             );
-                            container.child(createSkyObject(newObject, container).id("object"));
+                            objectsLayout.child(createSkyObject(newObject, container).id("object"));
                     })
                         )).id("add_button"));
 
+        container.child(objectsLayout);
 
         return container;
     }
@@ -134,7 +136,7 @@ public class SkiesComponents {
 
         container
                 .child(Components.checkbox(Component.literal("Blend")).checked(skyObject.blend()).id("blend").tooltip(Component.literal("Should the object be blended?")))
-                .child(Components.textBox(Sizing.fill(50)).text(skyObject.texture().toString()).id("texture").tooltip(Component.literal("The texture of the sky object")))
+                .child(Components.textBox(Sizing.fill(75)).text(skyObject.texture().toString()).id("texture").tooltip(Component.literal("The texture of the sky object")))
                 .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.size())).id("size").tooltip(Component.literal("The size of the sky object")))
                 .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.height())).id("height").tooltip(Component.literal("The height of the sky object in blocks")))
                 .child(Components.textBox(Sizing.fill(50)).text(skyObject.rotationType()).id("rotation_type"))
@@ -159,7 +161,7 @@ public class SkiesComponents {
 
 
     public static CollapsibleContainer createStarSettings(StarSettings setting) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Color Settings"), true);
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Star Settings"), true);
 
 
         container.child(Components.checkbox(Component.literal("Vanilla")).checked(setting.vanilla()).id("vanilla").tooltip(Component.literal("Should vanilla stars be rendered?")))
