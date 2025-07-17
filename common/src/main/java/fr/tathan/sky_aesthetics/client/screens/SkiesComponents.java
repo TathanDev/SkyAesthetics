@@ -3,6 +3,7 @@ package fr.tathan.sky_aesthetics.client.screens;
 import fr.tathan.sky_aesthetics.client.skies.settings.*;
 import io.wispforest.owo.ui.base.BaseParentComponent;
 import io.wispforest.owo.ui.component.Components;
+import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.CollapsibleContainer;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
@@ -26,14 +27,18 @@ public class SkiesComponents {
                 .child(createFogSettings(properties.fogSettings()).id("fog_settings"))
                 .child(createColorSettings(properties.skyColor()).id("color_settings"))
                 .child(createSkyObjects(properties.skyObjects()).id("sky_objects"))
-                .child(createStarSettings(properties.stars()).id("star_settings")).id("sky_components");
+                .child(createStarSettings(properties.stars()).id("star_settings"))
+                .child(createMoonSettings(properties.moon()).id("moon_settings"))
+                .child(createSunSettings(properties.sun()).id("sun_settings"))
+
+                .id("sky_components");
     }
 
     public static CollapsibleContainer createBasicSettings(SkyProperties properties) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Basic Settings"), true);
 
-        container.child(Components.textBox(Sizing.fill(75), properties.id().toString()).id("id")).tooltip(Component.literal("The ID of the sky"));
-        container.child(Components.textBox(Sizing.fill(75), properties.world().location().toString()).id("dimension").tooltip(Component.literal("The dimension of the sky")));
+        container.child(textBox(Sizing.fill(75), properties.id().toString()).id("id")).tooltip(Component.literal("The ID of the sky"));
+        container.child(textBox(Sizing.fill(75), properties.world().location().toString()).id("dimension").tooltip(Component.literal("The dimension of the sky")));
         container.child(Components.checkbox(Component.literal("weather")).checked(properties.weather()).id("weather")).tooltip(Component.literal("Should the weather be rendered?"));
         return container;
     }
@@ -55,16 +60,16 @@ public class SkiesComponents {
 
         Vector3i fogColor = setting.customFogColor().orElse(new Vector3i(0, 0, 0));
         container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(fogColor.x)).id("x"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(fogColor.y)).id("y"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(fogColor.z)).id("z"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(fogColor.x)).id("x"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(fogColor.y)).id("y"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(fogColor.z)).id("z"))
                         .tooltip(Component.literal("The RGB values for the fog color"))
                         .id("fog_color"));
 
         Vector2f fogDensity = setting.fogDensity().orElse(new Vector2f(0, 0));
         container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(fogDensity.x)).id("x"))
-                .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(fogDensity.y)).id("y"))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(fogDensity.x)).id("x"))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(fogDensity.y)).id("y"))
                 .tooltip(Component.literal("The min and max density of the fog"))
                 .id("fog_density"));
 
@@ -73,6 +78,33 @@ public class SkiesComponents {
         return container;
     }
 
+    public static CollapsibleContainer createMoonSettings(Optional<CustomVanillaObject.Moon> settings) {
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Moon Settings (Optionnal)"), settings.isPresent());
+
+        CustomVanillaObject.Moon setting = settings.orElseGet(CustomVanillaObject.Moon::createDefaultMoon);
+
+        container.child(Components.checkbox(Component.literal("Moon Phases")).checked(setting.moonPhase()).id("phases").tooltip(Component.literal("Should the moon have Moon Phases?")))
+                .child(textBox(Sizing.fill(75)).text(setting.moonTexture().toString()).id("texture").tooltip(Component.literal("The texture of the moon")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.moonHeight())).id("height").tooltip(Component.literal("The Moon Height")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.moonSize())).id("size").tooltip(Component.literal("The Moon Size")));
+
+        return container;
+    }
+
+    public static CollapsibleContainer createSunSettings(Optional<CustomVanillaObject.Sun> settings) {
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sun Settings (Optionnal)"), settings.isPresent());
+
+        CustomVanillaObject.Sun setting = settings.orElseGet(CustomVanillaObject.Sun::createDefaultSun);
+
+        container.child(textBox(Sizing.fill(75)).text(setting.sunTexture().toString()).id("texture").tooltip(Component.literal("The texture of the sun")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.sunHeight())).id("height").tooltip(Component.literal("The Sun Height")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.sunSize())).id("size").tooltip(Component.literal("The Sun Size")));
+
+        return container;
+    }
+
+
+
     public static CollapsibleContainer createColorSettings(Optional<SkyColorSettings> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Color Settings (Optionnal)"), settings.isPresent());
 
@@ -80,23 +112,23 @@ public class SkiesComponents {
 
         Vector3i fogColor = setting.sunsetColor().orElse(new Vector3i(0, 0, 0));
         container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogColor.x)).id("x"))
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogColor.y)).id("y"))
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogColor.z)).id("z"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogColor.x)).id("x"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogColor.y)).id("y"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogColor.z)).id("z"))
                 .tooltip(Component.literal("RGB values for sunset color"))
                 .id("sunset_color"));
 
         Vector4f fogDensity = setting.color().orElse(new Vector4f(0, 0,0, 0));
         container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.x)).id("x"))
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.y)).id("y"))
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.z)).id("z"))
-                .child(Components.textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.w)).id("w"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.x)).id("x"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.y)).id("y"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.z)).id("z"))
+                .child(textBox(Sizing.fill(20)).text(String.valueOf(fogDensity.w)).id("w"))
                 .tooltip(Component.literal("RGBA values for sky color"))
                 .id("sky_color"));
 
         int alphaModifier = setting.sunriseAlphaModifier().orElse(1);
-        container.child(Components.textBox(Sizing.fill(25)).text(String.valueOf(alphaModifier))
+        container.child(textBox(Sizing.fill(25)).text(String.valueOf(alphaModifier))
                 .tooltip(Component.literal("Sky color alpha modifier for sunrise"))
                 .id("alpha_modifier"));
         return container;
@@ -136,20 +168,20 @@ public class SkiesComponents {
 
         container
                 .child(Components.checkbox(Component.literal("Blend")).checked(skyObject.blend()).id("blend").tooltip(Component.literal("Should the object be blended?")))
-                .child(Components.textBox(Sizing.fill(75)).text(skyObject.texture().toString()).id("texture").tooltip(Component.literal("The texture of the sky object")))
-                .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.size())).id("size").tooltip(Component.literal("The size of the sky object")))
-                .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.height())).id("height").tooltip(Component.literal("The height of the sky object in blocks")))
-                .child(Components.textBox(Sizing.fill(50)).text(skyObject.rotationType()).id("rotation_type"))
+                .child(textBox(Sizing.fill(75)).text(skyObject.texture().toString()).id("texture").tooltip(Component.literal("The texture of the sky object")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.size())).id("size").tooltip(Component.literal("The size of the sky object")))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.height())).id("height").tooltip(Component.literal("The height of the sky object in blocks")))
+                .child(textBox(Sizing.fill(50)).text(skyObject.rotationType()).id("rotation_type"))
                 .child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().x)).id("x"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().y)).id("y"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().z)).id("z"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().x)).id("x"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().y)).id("y"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.rotation().z)).id("z"))
                         .tooltip(Component.literal("X, Y, Z position of the sky object"))
                         .id("rotation"))
                 .child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().x)).id("x"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().y)).id("y"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().z)).id("z"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().x)).id("x"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().y)).id("y"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().z)).id("z"))
                         .tooltip(Component.literal("X, Y, Z rotation of the sky object"))
                         .id("object_rotation"))
                 .child(Components.button(Component.literal("Remove"), button -> {
@@ -168,15 +200,27 @@ public class SkiesComponents {
                 .child(Components.checkbox(Component.literal("Moving Stars")).checked(setting.movingStars()).id("moving_stars").tooltip(Component.literal("Should the stars move?")))
                 .child(Components.discreteSlider(Sizing.fill(50), 0, 100000).value(setting.count()).id("count").tooltip(Component.literal("Star Count")))
                 .child(Components.checkbox(Component.literal("All Day Visible")).checked(setting.movingStars()).id("all_days_visible").tooltip(Component.literal("Should stars be visible all day?")))
-                .child(Components.textBox(Sizing.fill(25), String.valueOf(setting.scale())).id("scale").tooltip(Component.literal("Star Scale")))
+                .child(textBox(Sizing.fill(25), String.valueOf(setting.scale())).id("scale").tooltip(Component.literal("Star Scale")))
                 .child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(setting.color().x)).id("x"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(setting.color().y)).id("y"))
-                        .child(Components.textBox(Sizing.fill(25)).text(String.valueOf(setting.color().z)).id("z"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.color().x)).id("x"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.color().y)).id("y"))
+                        .child(textBox(Sizing.fill(25)).text(String.valueOf(setting.color().z)).id("z"))
                         .tooltip(Component.literal("RGB values for star color"))
                         .id("star_color"));
 
         return container;
+    }
+
+    public static TextBoxComponent textBox(Sizing horizontalSizing) {
+        TextBoxComponent component =  Components.textBox(horizontalSizing);
+        component.setMaxLength(600);
+        return component;
+    }
+
+    public static TextBoxComponent textBox(Sizing horizontalSizing, String text) {
+        var textBox = textBox(horizontalSizing);
+        textBox.text(text);
+        return textBox;
     }
 
 }

@@ -21,7 +21,7 @@ public class CustomVanillaObject{
         ).apply(instance, Sun::new));
 
         public static Sun createDefaultSun() {
-            return createSun(ResourceLocation.parse("textures/environment/sun.png"), 450, 200);
+            return createSun(ResourceLocation.parse("textures/environment/sun.png"), 450, 135);
         }
 
         public static Sun createSun(ResourceLocation texture, float height, float size) {

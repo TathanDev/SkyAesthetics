@@ -120,7 +120,7 @@ public class SkyHelper {
 
     public static boolean canRenderSky(ClientLevel level, Consumer<DimensionSky> action) {
 
-        if(SkiesRegistry.SKY_DEV != null && level.dimension().equals(SkiesRegistry.SKY_DEV.getDimension())) {
+        if((SkiesRegistry.SKY_DEV != null && SkiesRegistry.USE_SKY_DEV) && level.dimension().equals(SkiesRegistry.SKY_DEV.getDimension())) {
             // If the dev sky is set, we render it
             action.accept(SkiesRegistry.SKY_DEV);
             return true;

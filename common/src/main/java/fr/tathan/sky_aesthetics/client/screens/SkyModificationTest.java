@@ -16,15 +16,11 @@ import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.packs.PackSelectionScreen;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.metadata.PackMetadataGenerator;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
-import org.apache.commons.io.FileUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
@@ -35,7 +31,6 @@ import org.joml.Vector4f;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +59,7 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
                                 )
                         .child(
                                 Containers.verticalFlow(Sizing.fill(), Sizing.content())
-                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Save Sky Properties"), button -> {
+                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> {
                                             skyToText(skyComponents);
                                         }).id("save_button"))
                                         .child(createSkiesImportDropdown(rootComponent, skyComponents).id("import_dropdown"))
@@ -78,7 +73,7 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
     }
 
     public ButtonComponent createToggleDevSkyButton(FlowLayout skyComponents) {
-        net.minecraft.network.chat.Component loadButtonText = SkiesRegistry.SKY_DEV == null ?
+        net.minecraft.network.chat.Component loadButtonText = !SkiesRegistry.USE_SKY_DEV ?
                 net.minecraft.network.chat.Component.literal("Load Dev Sky") :
                 net.minecraft.network.chat.Component.literal("Disable Test Sky");
 
@@ -86,10 +81,11 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
 
             if(SkiesRegistry.SKY_DEV == null) {
                 setDevSkyComponent(skyComponents);
-            } else {
-                SkiesRegistry.setSkyDev(null);
             }
-            button.setMessage(SkiesRegistry.SKY_DEV == null ?
+
+            SkiesRegistry.USE_SKY_DEV = !SkiesRegistry.USE_SKY_DEV;
+
+            button.setMessage(!SkiesRegistry.USE_SKY_DEV ?
                     net.minecraft.network.chat.Component.literal("Load Dev Sky") :
                     net.minecraft.network.chat.Component.literal("Disable Test Sky"));
 
@@ -147,8 +143,6 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
             });
         }
 
-
-
         return dropdown;
 
     }
@@ -157,6 +151,9 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
     public static SkyProperties fromComponent(FlowLayout component) {
 
         CollapsibleContainer basicSettings = component.childById(CollapsibleContainer.class, "basic_settings");
+
+        if (!basicSettings.expanded()) basicSettings.toggleExpansion();
+
         String id = basicSettings.childById(TextBoxComponent.class, "id").getValue();
         String world = basicSettings.childById(TextBoxComponent.class, "dimension").getValue();
         boolean weather = basicSettings.childById(CheckboxComponent.class, "weather").selected();
@@ -169,8 +166,6 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
                         cloudSettings.childById(CheckboxComponent.class, "cloud").selected(),
                         (int) cloudSettings.childById(DiscreteSliderComponent.class, "cloud_height").discreteValue()
                 ));
-
-        cloud.ifPresent(settings -> SkyAesthetics.LOG.info("Sky Settings:\n {}", settings));
 
         CollapsibleContainer fogSettings = component.childById(CollapsibleContainer.class, "fog_settings");
 
@@ -189,6 +184,28 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
                         getVec3iFromComponent(skyColorSettings.childById(FlowLayout.class, "sunset_color")),
                         skyColorSettings.childById(TextBoxComponent.class, "alpha_modifier").getValue().equals("-1") ? Optional.empty() : Optional.of((int) convertValue(skyColorSettings.childById(TextBoxComponent.class, "alpha_modifier").getValue(), Integer.class))
                 ));
+
+
+
+        CollapsibleContainer moonSettings = component.childById(CollapsibleContainer.class, "moon_settings");
+        Optional<CustomVanillaObject.Moon> moon = !moonSettings.expanded() ? Optional.empty() :
+                Optional.of(new CustomVanillaObject.Moon(
+                        moonSettings.childById(CheckboxComponent.class, "phases").selected(),
+                        ResourceLocation.parse(moonSettings.childById(TextBoxComponent.class, "texture").getValue()),
+                        (float) convertValue(moonSettings.childById(TextBoxComponent.class, "height").getValue(), Float.class),
+                        (float) convertValue(moonSettings.childById(TextBoxComponent.class, "size").getValue(), Float.class)
+                ));
+
+
+        CollapsibleContainer sunSettings = component.childById(CollapsibleContainer.class, "sun_settings");
+
+        Optional<CustomVanillaObject.Sun> sun = !sunSettings.expanded() ? Optional.empty() :
+                Optional.of(new CustomVanillaObject.Sun(
+                        ResourceLocation.parse(sunSettings.childById(TextBoxComponent.class, "texture").getValue()),
+                        (float) convertValue(sunSettings.childById(TextBoxComponent.class, "height").getValue(), Float.class),
+                        (float) convertValue(sunSettings.childById(TextBoxComponent.class, "size").getValue(), Float.class)
+                ));
+
 
         CollapsibleContainer skyObjectsSettings = component.childById(CollapsibleContainer.class, "sky_objects");
 
@@ -259,8 +276,8 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
                 cloud,
                 fog,
                 weather,
-                Optional.empty(),
-                Optional.empty(),
+                sun,
+                moon,
                 stars,
                 skyColor,
                 objects,
@@ -361,6 +378,7 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
             SkyAesthetics.LOG.error("Failed to save sky properties to file", e);
         }
     }
+
 
     public static void writeFile(Path path, JsonElement element) {
         try {

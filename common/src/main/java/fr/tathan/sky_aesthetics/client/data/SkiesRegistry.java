@@ -26,6 +26,8 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
      * It is used to test the sky aesthetics without having to load a custom sky.
      */
     public static DimensionSky SKY_DEV = null;
+    public static Boolean USE_SKY_DEV = false;
+
 
     public SkiesRegistry() {
         super(SkyAesthetics.GSON, "sky_aesthetics");

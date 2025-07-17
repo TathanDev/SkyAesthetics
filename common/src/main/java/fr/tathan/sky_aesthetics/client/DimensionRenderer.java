@@ -117,7 +117,8 @@ public class DimensionRenderer {
     public static class Builder {
 
         public List<SkyObject> skyObjects = List.of();
-        // Default cloud settings: show clouds and set height to 172
+
+        // Default cloud settings: show clouds and set height to 192
         public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
 
         public CustomVanillaObject.Sun sun = null;

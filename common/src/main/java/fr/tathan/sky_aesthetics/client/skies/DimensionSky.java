@@ -54,13 +54,13 @@ public class DimensionSky extends DimensionSpecialEffects {
                 this.sunriseCol[0] = sunriseColor.x / 255f ;
                 this.sunriseCol[1] = sunriseColor.y / 255f ;
                 this.sunriseCol[2] = sunriseColor.z / 255f;
-                this.sunriseCol[3] = alpha * 1.5f;
+                this.sunriseCol[3] = alpha;
                 return this.sunriseCol;
             }
         }
-        if (this.sunriseCol == null) {
-            this.sunriseCol = new float[4];
-        }
+
+        if (this.sunriseCol == null) this.sunriseCol = new float[4];
+
         this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
         return this.sunriseCol;
     }
