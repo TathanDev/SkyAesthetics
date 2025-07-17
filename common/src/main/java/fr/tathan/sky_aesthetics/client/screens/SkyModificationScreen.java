@@ -16,6 +16,7 @@ import io.wispforest.owo.ui.container.ScrollContainer;
 import io.wispforest.owo.ui.core.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.Util;
+import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -36,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
+public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     @Override
     protected @NotNull OwoUIAdapter<FlowLayout> createAdapter() {
         return OwoUIAdapter.create(this, Containers::verticalFlow);
@@ -375,8 +376,18 @@ public class SkyModificationTest extends BaseOwoScreen<FlowLayout> {
             Util.getPlatform().openUri(resourcePackPath.toUri());
 
         } catch (Exception e) {
+            playToast(net.minecraft.network.chat.Component.translatable("sky_aesthetics.toast.error.title"),
+                    net.minecraft.network.chat.Component.translatable("sky_aesthetics.toast.error.description"));
             SkyAesthetics.LOG.error("Failed to save sky properties to file", e);
         }
+    }
+
+    public void playToast(net.minecraft.network.chat.Component title, net.minecraft.network.chat.Component description) {
+        this.minecraft.getToasts().addToast(new SystemToast(
+                SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
+                title,
+                description
+        ));
     }
 
 
