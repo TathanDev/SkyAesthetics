@@ -30,12 +30,12 @@ public class FogRendererMixin {
     private static float fogBlue;
 
     @Unique
-    private static ClientLevel level;
+    private static ClientLevel sky_aesthetics$level;
 
     @Inject(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;z()D", shift = At.Shift.AFTER))
     private static void setupCustomColor(Camera activeRenderInfo, float partialTicks, ClientLevel level, int renderDistanceChunks, float bossColorModifier, CallbackInfo ci) {
 
-        FogRendererMixin.level = level;
+        FogRendererMixin.sky_aesthetics$level = level;
         SkyHelper.canRenderSky(level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.customFogColor().ifPresent(color -> {
             fogRed = color.x() / 255.0F;
             fogGreen = color.y() / 255.0F;
@@ -47,8 +47,8 @@ public class FogRendererMixin {
     private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, float farPlaneDistance, boolean shouldCreateFog, float partialTick, CallbackInfo ci) {
         FogType fogType = camera.getFluidInCamera();
 
-        if (level != null && fogType == FogType.NONE) {
-            SkyHelper.canRenderSky(level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.fogDensity().ifPresent(density -> {
+        if (sky_aesthetics$level != null && fogType == FogType.NONE) {
+            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.fogDensity().ifPresent(density -> {
                 RenderSystem.setShaderFogStart(density.x);
                 RenderSystem.setShaderFogEnd(density.y);
 
