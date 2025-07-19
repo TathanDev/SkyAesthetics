@@ -1,9 +1,4 @@
-# Sky Aesthetics 1.7.0
+# Sky Aesthetics 1.7.1
 
-## Feature
-- New config : cancel rendering part of the skybox via config
-- Disable sky via dimension
-
-## Compat
-- Astrocraft
-- Distant Horizons
+## Fixed
+- fix rain and clouds

@@ -199,11 +199,11 @@ public class SkyRenderer {
     }
 
     public Boolean shouldRemoveCloud() {
-        return  !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingCloudRender) || properties.cloudSettings().isPresent() && !properties.cloudSettings().get().showCloud();
+        return SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingCloudRender) || properties.cloudSettings().isPresent() && !properties.cloudSettings().get().showCloud();
     }
 
     public Boolean shouldRemoveSnowAndRain() {
-        return !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || !properties.rain();
+        return SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || !properties.rain();
     }
 
     public boolean isSkyRendered() {
