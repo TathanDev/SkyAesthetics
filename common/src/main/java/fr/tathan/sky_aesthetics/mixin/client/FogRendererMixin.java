@@ -1,36 +1,59 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import com.mojang.blaze3d.shaders.FogShape;
-import fr.tathan.sky_aesthetics.client.skies.record.FogSettings;
+import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogParameters;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.level.material.FogType;
-import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = FogRenderer.class, priority = 900)
 public class FogRendererMixin {
+
+    @Mutable
+    @Shadow
+    private static float fogRed;
+
+    @Mutable
+    @Shadow
+    private static float fogGreen;
+
+    @Mutable
+    @Shadow
+    private static float fogBlue;
+
     @Unique
     private static ClientLevel sky_aesthetics$level;
 
-    @Inject(method = "computeFogColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;z()D", shift = At.Shift.AFTER), cancellable = true)
-    private static void setupCustomColor(Camera camera, float f, ClientLevel clientLevel, int i, float g, CallbackInfoReturnable<Vector4f> cir) {
-        FogRendererMixin.sky_aesthetics$level = clientLevel;
+    @Inject(method = "setupColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;z()D", shift = At.Shift.AFTER))
+    private static void setupCustomColor(Camera activeRenderInfo, float partialTicks, ClientLevel level, int renderDistanceChunks, float bossColorModifier, CallbackInfo ci) {
 
-        SkyHelper.canRenderSky(clientLevel, (planetSky -> planetSky.getProperties().fogSettings().flatMap(FogSettings::customFogColor).ifPresent(cir::setReturnValue)));
+        FogRendererMixin.sky_aesthetics$level = level;
+        SkyHelper.canRenderSky(level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.customFogColor().ifPresent(color -> {
+            fogRed = color.x() / 255.0F;
+            fogGreen = color.y() / 255.0F;
+            fogBlue = color.z() / 255.0F;
+        }))));
     }
 
-    @Inject(method = "setupFog", at = @At(value = "HEAD"), cancellable = true)
-    private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, Vector4f vector4f, float f, boolean bl, float g, CallbackInfoReturnable<FogParameters> cir) {
-        if (sky_aesthetics$level != null && camera.getFluidInCamera() == FogType.NONE) {
-            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> planetSky.getProperties().fogSettings().flatMap(FogSettings::fogDensity).ifPresent(density -> cir.setReturnValue(new FogParameters(density.x, density.y, FogShape.CYLINDER, vector4f.x, vector4f.y, vector4f.z, vector4f.w)))));
+    @Inject(method = "setupFog", at = @At(value = "TAIL"))
+    private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, float farPlaneDistance, boolean shouldCreateFog, float partialTick, CallbackInfo ci) {
+        FogType fogType = camera.getFluidInCamera();
+
+        if (sky_aesthetics$level != null && fogType == FogType.NONE) {
+            SkyHelper.canRenderSky(sky_aesthetics$level, (planetSky -> planetSky.getProperties().fogSettings().ifPresent(settings -> settings.fogDensity().ifPresent(density -> {
+                RenderSystem.setShaderFogStart(density.x);
+                RenderSystem.setShaderFogEnd(density.y);
+
+            }))));
         }
     }
+
 }

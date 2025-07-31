@@ -23,6 +23,4 @@ public class SkyConfig {
     public String[] modDisablingWeather = new String[]{
             "bad_weather_mod",
     };
-
-
 }

@@ -4,12 +4,10 @@ import fr.tathan.sky_aesthetics.client.skies.record.SkyProperties;
 import fr.tathan.sky_aesthetics.client.skies.renderer.SkyRenderer;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.concurrent.atomic.AtomicInteger;
+import org.jetbrains.annotations.Nullable;
 
 public class DimensionSky extends DimensionSpecialEffects {
     private final SkyRenderer renderer;
@@ -18,33 +16,16 @@ public class DimensionSky extends DimensionSpecialEffects {
     public DimensionSky(SkyProperties properties) {
         super(properties.cloudSettings().isPresent() && properties.cloudSettings().get().showCloud() ? properties.cloudSettings().get().cloudHeight().get() : 192, true, SkyType.valueOf(properties.skyType()), false, false);
         this.properties = properties;
-        this.renderer = new SkyRenderer(properties, this);
+        this.renderer = new SkyRenderer(properties);
     }
 
     @Override
     public @NotNull Vec3 getBrightnessDependentFogColor(Vec3 fogColor, float brightness) {
-        return fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F);
-    }
-
-    //Like the overworld
-    @Override
-    public boolean isSunriseOrSunset(float f) {
-        float g = Mth.cos(f * ((float)Math.PI * 2F));
-        return g >= -0.4F && g <= 0.4F;
-    }
-
-    public int getDefaultSunriseOrSunsetColor(float f) {
-        float g = Mth.cos(f * ((float)Math.PI * 2F));
-        float h = g / 0.4F * 0.5F + 0.5F;
-        float i = Mth.square(1.0F - (1.0F - Mth.sin(h * (float)Math.PI)) * 0.99F);
-        return ARGB.colorFromFloat(i, h * 0.3F + 0.7F, h * h * 0.7F + 0.2F, 0.2F);
+        return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
     @Override
-    public int getSunriseOrSunsetColor(float timeOfDay) {
-
-        AtomicInteger sunriseCol = new AtomicInteger(this.getDefaultSunriseOrSunsetColor(timeOfDay));
-
+    public @Nullable float[] getSunriseColor(float timeOfDay, float partialTicks) {
         this.properties.sunriseColor().ifPresent(sunriseColor -> {
             float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
@@ -54,12 +35,22 @@ public class DimensionSky extends DimensionSpecialEffects {
                 alpha *= alpha;
 
                 if (this.properties.sunriseModifier().isPresent()) alpha *= this.properties.sunriseModifier().get();
-                sunriseCol.set(ARGB.colorFromFloat(alpha, sunriseColor.x / 255f, sunriseColor.y / 255f, sunriseColor.z / 255f));
+                if(this.sunriseCol == null) this.sunriseCol = new float[4];
 
+                this.sunriseCol[0] = (int) sunriseColor.x / 255f ;
+                this.sunriseCol[1] = (int) sunriseColor.y / 255f ;
+                this.sunriseCol[2] = (int) sunriseColor.z / 255f;
+                this.sunriseCol[3] = alpha * 1.5f;
+
+            } else {
+                this.sunriseCol = null;
             }
         });
 
-        return sunriseCol.get();
+        if (this.sunriseCol == null) {
+            return super.getSunriseColor(timeOfDay, partialTicks);
+        }
+        return this.sunriseCol;
     }
 
     @Override
@@ -72,7 +63,7 @@ public class DimensionSky extends DimensionSpecialEffects {
         return switch (properties.skyType()) {
             case "END" -> SkyType.END;
             case "NONE" -> SkyType.NONE;
-            case null, default -> SkyType.OVERWORLD;
+            case null, default -> SkyType.NORMAL;
         };
     }
 
@@ -80,6 +71,7 @@ public class DimensionSky extends DimensionSpecialEffects {
     public boolean isFoggyAt(int x, int y) {
         return false;
     }
+
 
     public SkyRenderer getRenderer() {
         return renderer;
