@@ -5,9 +5,6 @@ import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
-import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
-import fr.tathan.sky_aesthetics.client.skies.record.Constellation;
 import fr.tathan.sky_aesthetics.client.skies.record.Star;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
@@ -20,7 +17,6 @@ import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 public class StarHelper {
     public static int starIndexCount;

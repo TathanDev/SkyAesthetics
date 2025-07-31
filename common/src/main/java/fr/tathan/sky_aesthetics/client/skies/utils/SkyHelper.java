@@ -1,7 +1,5 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
-import com.mojang.blaze3d.buffers.BufferType;
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -14,77 +12,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ARGB;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.function.Consumer;
 
 public class SkyHelper {
-    public static int indexCount;
-
-    public static void drawMoonWithPhase(Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float y, CustomVanillaObject moon, float dayAngle) {
-        if (moon.moonTexture().isEmpty()) return;
-        int moonPhase = 3; // TODO: Get moon phase
-        int xCoord = moonPhase % 4;
-        int yCoord = moonPhase / 4 % 2;
-        float startX = xCoord / 4.0F;
-        float startY = yCoord / 2.0F;
-        float endX = (xCoord + 1) / 4.0F;
-        float endY = (yCoord + 1) / 2.0F;
-        drawCelestialBody(moon.moonTexture().get(), tesselator, bufferSource, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
-    }
-
-    public static void drawCelestialBody(SkyObject skyObject, Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float y, float dayAngle, boolean blend) {
-        drawCelestialBody(skyObject.texture(), tesselator, bufferSource, poseStack, y, skyObject.size(), dayAngle, blend);
-    }
-
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, boolean blend) {
-        drawCelestialBody(texture, tesselator, bufferSource, poseStack, y, size, dayAngle, 0f, 1f, 1f, 0f, blend);
-    }
-
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
-        drawCelestialBody(texture, tesselator, bufferSource, poseStack, y, size, dayAngle, startX, endX, startY, endY, blend, new float[]{1f, 1f, 1f, 1f});
-
-    }
-
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-
-        poseStack.pushPose();
-
-        poseStack.mulPose(Axis.YP.rotationDegrees(-90f));
-        poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
-
-        Matrix4f matrix4f = poseStack.last().pose();
-
-        if(color == null) {
-            color = new float[]{1f, 1f, 1f, 1f};
-        }
-
-        float ratio = 1;
-        if (y > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
-            ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / y;
-        }
-
-        RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
-
-        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(texture));
-        vertexConsumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY);
-        vertexConsumer.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY);
-        vertexConsumer.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY);
-        vertexConsumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY);
-
-        try (MeshData meshData = bufferBuilder.buildOrThrow()) {
-            indexCount = meshData.drawState().indexCount();
-            RenderSystem.getDevice().createBuffer(() -> "Celestial body vertex buffer", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.vertexBuffer());
-        }
-
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-    }
-
-    public static void renderCelestialBody(SkyObject object, Tesselator tesselator, MultiBufferSource bufferSource, PoseStack poseStack, float dayAngle) {
+    public static void renderCelestialBody(SkyObject object, MultiBufferSource bufferSource, PoseStack poseStack, float dayAngle, float rainLevel) {
         float ratio = 1;
         if (object.height() > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / object.height();
@@ -93,23 +27,17 @@ public class SkyHelper {
         object.setObjectPosition(poseStack, dayAngle);
         object.setObjectRotation(poseStack);
 
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         Matrix4f matrix4f = poseStack.last().pose();
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, dayAngle);
 
+        int color = ARGB.white(rainLevel);
+
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.celestial(object.texture()));
 
-        vertexConsumer.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(0f, 0f);
-        vertexConsumer.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(1f, 0f);
-        vertexConsumer.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(1f, 1f);
-        vertexConsumer.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(0f, 1f);
-
-        try (MeshData meshData = bufferBuilder.buildOrThrow()) {
-            indexCount = meshData.drawState().indexCount();
-            RenderSystem.getDevice().createBuffer(() -> "Celestial body vertex buffer", BufferType.VERTICES, BufferUsage.STATIC_WRITE, meshData.vertexBuffer());
-        }
-
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        vertexConsumer.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(0f, 0f).setColor(color);
+        vertexConsumer.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, -object.size() * ratio).setUv(1f, 0f).setColor(color);
+        vertexConsumer.addVertex(matrix4f, object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(1f, 1f).setColor(color);
+        vertexConsumer.addVertex(matrix4f, -object.size() * ratio, object.height() * ratio - 1, object.size() * ratio).setUv(0f, 1f).setColor(color);
     }
 
 
@@ -158,7 +86,7 @@ public class SkyHelper {
         vertexConsumer.addVertex(matrix4f, -g, h, g).setUv(0.0F, 1.0F).setColor(rainLevel);
     }
 
-    private static void renderMoon(CustomVanillaObject object, int phase, MultiBufferSource bufferSource, PoseStack poseStack,int rainLevel) {
+    private static void renderMoon(CustomVanillaObject object, int phase, MultiBufferSource bufferSource, PoseStack poseStack, int rainLevel) {
         if (!object.moon() || object.moonSize().isEmpty() || object.moonHeight().isEmpty() || object.moonTexture().isEmpty()) return;
 
         int j = phase % 4;

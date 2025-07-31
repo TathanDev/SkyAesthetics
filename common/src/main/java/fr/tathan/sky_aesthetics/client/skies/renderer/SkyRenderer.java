@@ -21,11 +21,8 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.ColorRGBA;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4fStack;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.*;
@@ -52,7 +49,7 @@ public class SkyRenderer {
     }
 
 
-    public void render(ClientLevel level, PoseStack poseStack, float partialTick, float gameTime, FogParameters fog, Tesselator tesselator) {
+    public void render(ClientLevel level, PoseStack poseStack, float partialTick, float gameTime, FogParameters fog) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
         if(!isSkyRendered()) return;
@@ -88,7 +85,7 @@ public class SkyRenderer {
         }
 
         if (customVanillaObject != null) {
-            SkyHelper.renderSunAndMoon(customVanillaObject,  poseStack,  (gameTime), level.getMoonPhase(), bufferSource, rainLevel);
+            SkyHelper.renderSunAndMoon(customVanillaObject,  poseStack, gameTime, level.getMoonPhase(), bufferSource, rainLevel);
         }
 
         renderStars(level, partialTick, poseStack, fog);
@@ -98,7 +95,7 @@ public class SkyRenderer {
 
         // Other sky object
         for (SkyObject skyObject : properties.skyObjects()) {
-            SkyHelper.renderCelestialBody(skyObject, tesselator, bufferSource, poseStack,  dayAngle);
+            SkyHelper.renderCelestialBody(skyObject, bufferSource, poseStack,  dayAngle, rainLevel);
         }
 
         if (shouldRenderDarkDisc) {

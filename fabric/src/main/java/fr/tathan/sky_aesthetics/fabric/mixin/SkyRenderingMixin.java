@@ -5,7 +5,6 @@ import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -14,7 +13,6 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.world.level.material.FogType;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -53,7 +51,7 @@ public class SkyRenderingMixin {
 
                     PoseStack poseStack = new PoseStack();
                     level.effects = planetSky;
-                    planetSky.getRenderer().render(level, poseStack, partialTick, this.level.getTimeOfDay(partialTick), fog, Tesselator.getInstance());
+                    planetSky.getRenderer().render(level, poseStack, partialTick, this.level.getTimeOfDay(partialTick), fog);
                 });
                 ci.cancel();
             }));

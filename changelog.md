@@ -1,4 +1,4 @@
-# Sky Aesthetics 1.6.1
+# Sky Aesthetics 1.6.2
 
 ## Fixes
-- Fix spamming console
+- Fix crash during celestial body rendering
