@@ -2,3 +2,4 @@
 
 ## Fixes
 - Fix crash during celestial body rendering
+- Fix brightness dependent fog color 

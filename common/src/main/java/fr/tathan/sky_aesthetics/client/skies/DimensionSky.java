@@ -27,6 +27,13 @@ public class DimensionSky extends DimensionSpecialEffects {
         return getProperties().fogSettings().isPresent() ? fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F) : fogColor;
     }
 
+    //Like the overworld
+    @Override
+    public boolean isSunriseOrSunset(float f) {
+        float g = Mth.cos(f * ((float)Math.PI * 2F));
+        return g >= -0.4F && g <= 0.4F;
+    }
+
     public int getDefaultSunriseOrSunsetColor(float f) {
         float g = Mth.cos(f * ((float)Math.PI * 2F));
         float h = g / 0.4F * 0.5F + 0.5F;
