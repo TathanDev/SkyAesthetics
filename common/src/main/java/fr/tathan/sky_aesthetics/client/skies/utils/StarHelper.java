@@ -196,7 +196,6 @@ public class StarHelper {
         FogRenderer.setupNoFog();
 
 
-        //star texture renderer
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
         float cycleSpeed = 0.5f;

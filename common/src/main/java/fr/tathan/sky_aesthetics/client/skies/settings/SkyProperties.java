@@ -29,7 +29,8 @@ public record SkyProperties(
         StarSettings stars,
         Optional<SkyColorSettings> skyColor,
         List<SkyObject> skyObjects,
-        Optional<RenderCondition> renderCondition) {
+        Optional<RenderCondition> renderCondition,
+        Optional<SkyBoxSetting> skyBoxSetting) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
@@ -45,7 +46,8 @@ public record SkyProperties(
             StarSettings.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
             SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
-            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
+            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
+            SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting)
     ).apply(instance, SkyProperties::new));
 
 
@@ -60,6 +62,7 @@ public record SkyProperties(
         this.fogSettings.ifPresent(builder::setFogSettings);
         this.skyColor.ifPresent(builder::setSkyColor);
         this.renderCondition.ifPresent(builder::setRenderCondition);
+        this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
 
         return builder.build();
     }
@@ -80,6 +83,7 @@ public record SkyProperties(
                 StarSettings.createDefaultStars(),
                 Optional.of(SkyColorSettings.createDefaultSettings()),
                 List.of(),
+                Optional.empty(),
                 Optional.empty()
         );
     }

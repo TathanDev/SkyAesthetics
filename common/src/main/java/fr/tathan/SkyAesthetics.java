@@ -3,9 +3,12 @@ package fr.tathan;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
+import fr.tathan.exoconfig.common.Config;
+import fr.tathan.exoconfig.common.loader.ConfigLoader;
+import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
+import fr.tathan.exoconfig.platform.PlatformHelper;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
-import fr.tathan.sky_aesthetics.config.ConfigLoader;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -26,7 +29,9 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        CONFIG = ConfigLoader.loadOrGenerateDefaults();
+        CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
+
+        PlatformHelper.registerConfigScreen(MODID, CONFIG);
     }
 
     public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {

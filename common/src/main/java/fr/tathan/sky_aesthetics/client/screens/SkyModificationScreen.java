@@ -272,6 +272,18 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         Optional.empty()
                 );
 
+        CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
+
+
+        Optional<SkyBoxSetting> skyBox = !skyBoxSetting.expanded() ? Optional.empty() :
+                Optional.of(new SkyBoxSetting(
+                        (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
+                        ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
+                        getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new))
+                );
+
+
+
         return new SkyProperties(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(world)),
                 ResourceLocation.parse(id),
                 cloud,
@@ -282,7 +294,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                 stars,
                 skyColor,
                 objects,
-                Optional.empty()
+                Optional.empty(),
+                skyBox
         );
 
     }
@@ -293,6 +306,16 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
             case "day" -> "DAY";
             default -> "STATIC";
         };
+    }
+
+    public static Optional<Vector3f> getVec3fFromComponent(FlowLayout component) {
+        Vector3f color = new Vector3f(
+                (float) convertValue(component.childById(TextBoxComponent.class, "x").getValue(), Float.class),
+                (float) convertValue(component.childById(TextBoxComponent.class, "y").getValue(), Float.class),
+                (float) convertValue(component.childById(TextBoxComponent.class, "z").getValue(), Float.class)
+        );
+
+        return (color.x() == 0 && color.y() == 0 && color.z() == 0) ? Optional.empty() : Optional.of(color);
     }
 
     public static Optional<Vector3i> getVec3iFromComponent(FlowLayout component) {

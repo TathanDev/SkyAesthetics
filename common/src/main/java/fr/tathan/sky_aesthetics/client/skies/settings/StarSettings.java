@@ -77,24 +77,20 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
 
         float starsAngle = !this.movingStars() ? -90f : nightAngle;
 
-        if (this.allDaysVisible()) {
-            if(this.starsTexture().isPresent()) {
-                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            } else {
-                RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            }
-
-            RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture());
-        } else if (starLight > 0.2F) {
-            if(this.starsTexture().isPresent()) {
-                RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-            } else {
-                RenderSystem.setShader(GameRenderer::getPositionColorShader);
-            }
-            RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
-            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture());
+        if(this.starsTexture().isPresent()) {
+            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        } else {
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
         }
+
+
+        if (this.allDaysVisible()) {
+            RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
+        } else if (starLight > 0.2F) {
+            RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
+        }
+        StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture());
+
     }
 
     public void handleShootingStars(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, StarSettings star, float partialTick, HashMap<UUID, ShootingStar> shootingStars) {

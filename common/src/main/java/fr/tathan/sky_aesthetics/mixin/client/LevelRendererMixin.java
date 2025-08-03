@@ -31,7 +31,7 @@ public abstract class LevelRendererMixin {
 
         if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
             SkyHelper.canRenderSky(level, (planetSky -> {
-                if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender)) return;
+                if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender) || SkyAesthetics.CONFIG.disableCustomSkies) return;
 
                 PoseStack poseStack = new PoseStack();
                 poseStack.mulPose(frustumMatrix);
@@ -55,7 +55,7 @@ public abstract class LevelRendererMixin {
     @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather) {
+            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
                 ci.cancel();
             }
         }));
@@ -64,7 +64,7 @@ public abstract class LevelRendererMixin {
     @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
     private void canRain(Camera camera, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather) {
+            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
                 ci.cancel();
             }
         }));

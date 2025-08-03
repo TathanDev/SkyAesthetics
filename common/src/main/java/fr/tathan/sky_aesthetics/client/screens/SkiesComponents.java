@@ -30,7 +30,7 @@ public class SkiesComponents {
                 .child(createStarSettings(properties.stars()).id("star_settings"))
                 .child(createMoonSettings(properties.moon()).id("moon_settings"))
                 .child(createSunSettings(properties.sun()).id("sun_settings"))
-
+                .child(createSkyBoxSettings(properties.skyBoxSetting()).id("skybox_settings"))
                 .id("sky_components");
     }
 
@@ -77,6 +77,27 @@ public class SkiesComponents {
 
         return container;
     }
+
+    public static CollapsibleContainer createSkyBoxSettings(Optional<SkyBoxSetting> settings) {
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings (Optionnal)"), settings.isPresent());
+
+        SkyBoxSetting setting = settings.orElseGet(SkyBoxSetting::createDefaultSettings);
+
+        container.child(Components.discreteSlider(Sizing.fill(50), 10, 300).value(setting.gradation).id("gradation").tooltip(Component.literal("The detail of the sphere")));
+        container.child(textBox(Sizing.fill(75)).text(setting.texture.toString()).id("texture").tooltip(Component.literal("The texture of the sky box")));
+
+        Vector3f rotation = setting.rotation;
+        container.child(Containers.horizontalFlow(Sizing.content(), Sizing.content())
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(rotation.x)).id("x"))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(rotation.y)).id("y"))
+                .child(textBox(Sizing.fill(25)).text(String.valueOf(rotation.z)).id("z"))
+                .tooltip(Component.literal("The Sphere rotation"))
+                .id("rotation"));
+
+        return container;
+    }
+
+
 
     public static CollapsibleContainer createMoonSettings(Optional<CustomVanillaObject.Moon> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Moon Settings (Optionnal)"), settings.isPresent());

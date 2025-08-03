@@ -10,9 +10,4 @@ public class PlatformHelper {
     public static boolean isModLoaded(String modid) {
         throw new AssertionError();
     }
-
-    @ExpectPlatform
-    public static Path getConfigPath() {
-        throw new AssertionError();
-    }
 }
