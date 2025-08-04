@@ -31,6 +31,7 @@ public class SkiesComponents {
                 .child(createMoonSettings(properties.moon()).id("moon_settings"))
                 .child(createSunSettings(properties.sun()).id("sun_settings"))
                 .child(createSkyBoxSettings(properties.skyBoxSetting()).id("skybox_settings"))
+                .child(createLightSettings(properties.lightSettings()).id("light_settings"))
                 .id("sky_components");
     }
 
@@ -46,6 +47,9 @@ public class SkiesComponents {
     public static CollapsibleContainer createCloudSettings(Optional<CloudSettings> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Cloud Settings (Optionnal)"), settings.isPresent());
 
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
+
         CloudSettings setting = settings.orElseGet(CloudSettings::createDefaultSettings);
 
         container.child(Components.checkbox(Component.literal("cloud")).checked(setting.showCloud()).id("cloud").tooltip(Component.literal("Should clouds be rendered")));
@@ -55,6 +59,9 @@ public class SkiesComponents {
 
     public static CollapsibleContainer createFogSettings(Optional<FogSettings> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings (Optionnal)"), settings.isPresent());
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
 
         FogSettings setting = settings.orElseGet(FogSettings::createDefaultSettings);
 
@@ -81,6 +88,8 @@ public class SkiesComponents {
     public static CollapsibleContainer createSkyBoxSettings(Optional<SkyBoxSetting> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings (Optionnal)"), settings.isPresent());
 
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
         SkyBoxSetting setting = settings.orElseGet(SkyBoxSetting::createDefaultSettings);
 
         container.child(Components.discreteSlider(Sizing.fill(50), 10, 300).value(setting.gradation).id("gradation").tooltip(Component.literal("The detail of the sphere")));
@@ -102,6 +111,8 @@ public class SkiesComponents {
     public static CollapsibleContainer createMoonSettings(Optional<CustomVanillaObject.Moon> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Moon Settings (Optionnal)"), settings.isPresent());
 
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
         CustomVanillaObject.Moon setting = settings.orElseGet(CustomVanillaObject.Moon::createDefaultMoon);
 
         container.child(Components.checkbox(Component.literal("Moon Phases")).checked(setting.moonPhase()).id("phases").tooltip(Component.literal("Should the moon have Moon Phases?")))
@@ -114,6 +125,8 @@ public class SkiesComponents {
 
     public static CollapsibleContainer createSunSettings(Optional<CustomVanillaObject.Sun> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sun Settings (Optionnal)"), settings.isPresent());
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
 
         CustomVanillaObject.Sun setting = settings.orElseGet(CustomVanillaObject.Sun::createDefaultSun);
 
@@ -128,6 +141,8 @@ public class SkiesComponents {
 
     public static CollapsibleContainer createColorSettings(Optional<SkyColorSettings> settings) {
         CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Sky Color Settings (Optionnal)"), settings.isPresent());
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
 
         SkyColorSettings setting = settings.orElseGet(SkyColorSettings::createDefaultSettings);
 
@@ -231,6 +246,20 @@ public class SkiesComponents {
 
         return container;
     }
+
+    public static CollapsibleContainer createLightSettings(Optional<LightSettings> settings) {
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Light Settings (Optionnal)"), settings.isPresent());
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
+        LightSettings setting = settings.orElseGet(LightSettings::createDefaultSettings);
+
+        container.child(Components.checkbox(Component.literal("Force Bright Lightmap")).checked(setting.forceBrightLightmap()).id("forceBrightLightmap"));
+        container.child(Components.checkbox(Component.literal("Constant Ambient Light")).checked(setting.constantAmbientLight()).id("constantAmbientLight"));
+
+        return container;
+    }
+
 
     public static TextBoxComponent textBox(Sizing horizontalSizing) {
         TextBoxComponent component =  Components.textBox(horizontalSizing);

@@ -69,6 +69,7 @@ public class DimensionRenderer {
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
         float nightAngle = dayAngle + 180;
 
+        //Sky delimitation
         this.fogSettings.runFogCallback(fogCallback);
 
 
@@ -89,8 +90,6 @@ public class DimensionRenderer {
         this.starSettings.shootingStars().ifPresent((shootingStars) -> {
             this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
         });
-
-
 
         this.fogSettings.runFogCallback(fogCallback);
 

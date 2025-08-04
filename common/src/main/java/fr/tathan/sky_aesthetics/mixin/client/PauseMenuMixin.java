@@ -2,6 +2,7 @@ package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import fr.tathan.sky_aesthetics.client.screens.SkyModificationScreen;
+import fr.tathan.sky_aesthetics.helper.OwOCompat;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.GridLayout;
@@ -26,9 +27,8 @@ public abstract class PauseMenuMixin extends Screen  {
 
         if(PlatformHelper.isModLoaded("owo")) {
             rowHelper.addChild(new SpacerElement(200, 30), 2);
-
             rowHelper.addChild(Button.builder(Component.translatable("sky_aesthetics.pause_menu.sky_modification_screen"), button -> {
-                this.minecraft.setScreen(new SkyModificationScreen());
+                OwOCompat.openOwOSettings(minecraft);
             }).bounds(0, 30, 200, 20).build(), 2);
 
             gridLayout.arrangeElements();

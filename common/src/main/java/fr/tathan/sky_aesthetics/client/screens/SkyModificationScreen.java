@@ -274,7 +274,6 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
 
-
         Optional<SkyBoxSetting> skyBox = !skyBoxSetting.expanded() ? Optional.empty() :
                 Optional.of(new SkyBoxSetting(
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
@@ -282,6 +281,13 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new))
                 );
 
+        CollapsibleContainer lightSettings = component.childById(CollapsibleContainer.class, "light_settings");
+
+        Optional<LightSettings> light = !lightSettings.expanded() ? Optional.empty() :
+                Optional.of(new LightSettings(
+                        lightSettings.childById(CheckboxComponent.class, "forceBrightLightmap").selected(),
+                        lightSettings.childById(CheckboxComponent.class, "constantAmbientLight").selected()
+                ));
 
 
         return new SkyProperties(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(world)),
@@ -295,7 +301,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                 skyColor,
                 objects,
                 Optional.empty(),
-                skyBox
+                skyBox,
+                light
         );
 
     }

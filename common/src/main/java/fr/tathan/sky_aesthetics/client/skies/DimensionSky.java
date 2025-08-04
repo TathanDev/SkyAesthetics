@@ -9,7 +9,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3i;
 
 public class DimensionSky extends DimensionSpecialEffects {
@@ -70,6 +69,28 @@ public class DimensionSky extends DimensionSpecialEffects {
         return this.getRenderer().cloudSettings.cloudHeight();
     }
 
+    @Override
+    public boolean isFoggyAt(int x, int y) {
+        return false;
+    }
+
+    @Override
+    public boolean forceBrightLightmap() {
+        if(this.getSkyProperties().lightSettings().isPresent()) {
+            return this.getSkyProperties().lightSettings().get().forceBrightLightmap();
+        }
+        return super.forceBrightLightmap();
+    }
+
+    @Override
+    public boolean constantAmbientLight() {
+        if(this.getSkyProperties().lightSettings().isPresent()) {
+            return this.getSkyProperties().lightSettings().get().constantAmbientLight();
+        }
+        return super.constantAmbientLight();
+    }
+
+    /** Getter **/
     public ResourceKey<Level> getDimension() {
         return dimension;
     }
@@ -81,12 +102,6 @@ public class DimensionSky extends DimensionSpecialEffects {
     public SkyProperties getSkyProperties() {
         return skyProperties;
     }
-
-    @Override
-    public boolean isFoggyAt(int x, int y) {
-        return false;
-    }
-
 
     public DimensionRenderer getRenderer() {
         return renderer;
