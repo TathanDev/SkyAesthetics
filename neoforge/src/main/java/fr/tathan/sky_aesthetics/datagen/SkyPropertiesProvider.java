@@ -72,6 +72,7 @@ public class SkyPropertiesProvider implements DataProvider {
                         Optional.of(SkyColorSettings.createDefaultSettings()),
                         List.of(),
                         Optional.empty(),
+                        Optional.empty(),
                         Optional.empty()
                 )
         );

@@ -86,7 +86,7 @@ public class SkiesComponents {
     }
 
     public static CollapsibleContainer createSkyBoxSettings(Optional<SkyBoxSetting> settings) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Fog Settings (Optionnal)"), settings.isPresent());
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("SkyBox Settings (Optionnal)"), settings.isPresent());
 
         if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
 

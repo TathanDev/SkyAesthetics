@@ -22,14 +22,17 @@ public class SkyConfig {
 
     public boolean disableCustomWeather = false;
 
+    @ScreenInfos.Hidden
     public String[] modDisablingMainSkyRender = new String[]{
             "astrocraft",
     };
 
+    @ScreenInfos.Hidden
     public String[] modDisablingCloudRender = new String[]{
             "distanthorizons",
     };
 
+    @ScreenInfos.Hidden
     public String[] modDisablingWeather = new String[]{
             "bad_weather_mod",
     };

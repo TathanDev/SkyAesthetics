@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.9-SNAPSHOT' apply false
+    id 'dev.architectury.loom' version '1.10-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
     id 'me.modmuss50.mod-publish-plugin' version '0.6.3' apply false
@@ -22,6 +22,8 @@ subprojects {
     apply plugin: 'me.modmuss50.mod-publish-plugin'
 
     def modLoader = project.name
+    boolean isCommon = modLoader == "common"
+
 
     base {
         // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
@@ -69,8 +71,12 @@ subprojects {
         if(modLoader != "quilt") {
 
             modCompileOnly "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
+
             modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
 
+            if(!isCommon) {
+                include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
+            }
         }
     }
 
@@ -88,7 +94,7 @@ subprojects {
     publishMods {
         file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
         changelog = file("../changelog.md").getText('UTF-8')
-        type = STABLE
+        type = ALPHA
         modLoaders.add(modLoader)
         displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
 
@@ -126,10 +132,10 @@ subprojects {
 
             repositories {
                 maven {
-                    url = "https://maven.odysseyus.fr/releases/"
+                    url = "https://maven.exodusstudio.org/snapshots/"
                     credentials {
-                        username = System.getenv("MAVEN_USER")
-                        password = System.getenv("MAVEN_PASS")
+                        username = System.getenv("EXODUS_MAVEN_USERNAME")
+                        password = System.getenv("EXODUS_MAVEN_KEY")
                     }
                 }
             }

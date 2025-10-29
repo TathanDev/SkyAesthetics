@@ -37,8 +37,10 @@ public abstract class LevelRendererMixin {
                 poseStack.mulPose(frustumMatrix);
 
                 level.effects = planetSky;
-                planetSky.getRenderer().render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-                ci.cancel();
+                if(planetSky.getRenderer().canRenderSky()) {
+                    planetSky.getRenderer().render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
+                    ci.cancel();
+                }
             }));
         }
     }
@@ -47,7 +49,11 @@ public abstract class LevelRendererMixin {
     private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.getRenderer().renderClouds()) {
-                ci.cancel();
+                //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds
+                if(!(SkyAesthetics.CONFIG.disableCustomCloud || SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingCloudRender))) {
+                    ci.cancel();
+                }
+
             }
         }));
     }

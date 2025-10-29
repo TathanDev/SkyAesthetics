@@ -55,3 +55,8 @@ The mod is still in development, so bugs may happen. Please report them on the
 **I want to indicate that my mod/resourcepack is use Sky Aesthetics. How ?**
 
 You can use badges with the [Devin Badges Styles](https://intergrav.github.io/devins-badges-docs/) and you can find them here : [Badges](https://github.com/TathanDev/SkyAesthetics/tree/main/assets/badges)
+
+## Credit
+
+Thanks to [Space Sphere Maps](https://www.spacespheremaps.com/) for the venus texture. The texture is under the CC BY 4.0
+license.

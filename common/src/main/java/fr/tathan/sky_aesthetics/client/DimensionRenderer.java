@@ -59,11 +59,15 @@ public class DimensionRenderer {
         this.renderCondition = renderCondition;
     }
 
+    public boolean canRenderSky() {
+        if(this.renderCondition == null) {
+            return true; // No condition set, render by default
+        }
+        return this.renderCondition.isSkyRendered(this.getServerLevel());
+    }
+
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
 
-        if(this.renderCondition != null && !this.renderCondition.isSkyRendered(this.getServerLevel())) {
-            return; // Skip rendering if the condition is not met
-        }
 
         Tesselator tesselator = Tesselator.getInstance();
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
@@ -84,6 +88,7 @@ public class DimensionRenderer {
             this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera);
         }
 
+        this.fogSettings.runFogCallback(fogCallback);
 
         this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
 

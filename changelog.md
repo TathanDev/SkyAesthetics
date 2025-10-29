@@ -1,4 +1,8 @@
-# Sky Aesthetics 1.7.1
+# Sky Aesthetics 2.0-alpha Changelog
 
-## Fix
-- Fix crash if star count is too low
+## Feature
+- Rework JSON format for resource packs
+- Added skybox support
+- Added sky lights settings
+- Added sky modification screen
+  - Added auto-generation of resource pack

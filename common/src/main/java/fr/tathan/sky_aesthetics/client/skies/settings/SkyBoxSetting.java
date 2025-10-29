@@ -105,27 +105,29 @@ public class SkyBoxSetting {
         RenderSystem.setShaderTexture(0, this.texture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1);
 
-        Matrix4f modelMatrix = new Matrix4f().identity().scale(100.0f);
-        Quaternionf cameraRotation = camera.rotation();
-        modelMatrix.rotate(cameraRotation.conjugate());
+        Matrix4f viewMatrix = new Matrix4f();
+        camera.rotation().get(viewMatrix);
+        viewMatrix.invert(); // Invert to get proper view transformation
 
+        Matrix4f modelMatrix = new Matrix4f().identity().scale(600.0f);
         modelMatrix
                 .rotate(Axis.XP.rotationDegrees(this.rotation.x))
                 .rotate(Axis.YP.rotationDegrees(this.rotation.y))
                 .rotate(Axis.ZP.rotationDegrees(this.rotation.z));
 
-        this.sphere.bind();
-        this.sphere.drawWithShader(modelMatrix, projectionMatrix, GameRenderer.getPositionTexShader());
+        // Combine view and model matrices
+        Matrix4f mvMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
 
+        this.sphere.bind();
+        this.sphere.drawWithShader(mvMatrix, projectionMatrix, GameRenderer.getPositionTexShader());
         VertexBuffer.unbind();
 
         RenderSystem.enableDepthTest();
-
         poseStack.popPose();
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/texture.png"), new Vector3f(0, 0, 90));
+        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0));
     }
 
     static {
