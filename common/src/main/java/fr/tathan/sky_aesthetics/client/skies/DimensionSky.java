@@ -63,7 +63,10 @@ public class DimensionSky extends DimensionSpecialEffects {
         if (this.sunriseCol == null) this.sunriseCol = new float[4];
 
         this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
-        this.sunriseCol[3] *= alphaMod;
+
+
+        if(this.sunriseCol != null && this.sunriseCol.length >= 4) this.sunriseCol[3] *= alphaMod;;
+
         return this.sunriseCol;
     }
 
