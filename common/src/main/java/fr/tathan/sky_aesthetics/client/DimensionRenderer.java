@@ -16,6 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import org.joml.Matrix4f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -134,7 +135,7 @@ public class DimensionRenderer {
 
     public static class Builder {
 
-        public List<SkyObject> skyObjects = List.of();
+        public List<SkyObject> skyObjects = new ArrayList<>();
         // Default cloud settings: show clouds and set height to 192
         public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
         public CustomVanillaObject.Sun sun = null;
