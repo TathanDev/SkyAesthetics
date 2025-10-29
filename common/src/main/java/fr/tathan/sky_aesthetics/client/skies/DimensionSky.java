@@ -38,6 +38,8 @@ public class DimensionSky extends DimensionSpecialEffects {
     @Override
     public float @NotNull[] getSunriseColor(float timeOfDay, float partialTicks) {
 
+        int alphaMod = this.renderer.skyColor.sunriseAlphaModifier().isPresent() ? this.renderer.skyColor.sunriseAlphaModifier().get() : 0;
+
         if(this.renderer.skyColor.sunsetColor().isPresent()) {
             Vector3i sunriseColor = this.renderer.skyColor.sunsetColor().get();
             float dayTime = Mth.cos(timeOfDay * (float) (Math.PI * 2));
@@ -46,13 +48,13 @@ public class DimensionSky extends DimensionSpecialEffects {
                 float i = dayTime / 0.4f * 0.5f + 0.5f;
                 float alpha = 1 - (1 - Mth.sin(i * (float) Math.PI)) * 0.99F;
                 alpha *= alpha;
+                alpha *= alphaMod;
 
-                if (this.renderer.skyColor.sunriseAlphaModifier().isPresent()) alpha *= this.renderer.skyColor.sunriseAlphaModifier().get();
                 if(this.sunriseCol == null) this.sunriseCol = new float[4];
 
                 this.sunriseCol[0] = sunriseColor.x / 255f ;
                 this.sunriseCol[1] = sunriseColor.y / 255f ;
-                this.sunriseCol[2] = sunriseColor.z / 255f;
+                this.sunriseCol[2] = (sunriseColor.z / 255f);
                 this.sunriseCol[3] = alpha;
                 return this.sunriseCol;
             }
@@ -61,6 +63,7 @@ public class DimensionSky extends DimensionSpecialEffects {
         if (this.sunriseCol == null) this.sunriseCol = new float[4];
 
         this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
+        this.sunriseCol[3] *= alphaMod;
         return this.sunriseCol;
     }
 
