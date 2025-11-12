@@ -2,7 +2,6 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import net.minecraft.client.Minecraft;

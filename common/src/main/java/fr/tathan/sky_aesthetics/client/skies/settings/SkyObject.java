@@ -8,15 +8,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 public record SkyObject(ResourceLocation texture, boolean blend, float size, Vector3f rotation, Vector3f objectRotation, int height, String rotationType) {
 
@@ -75,7 +73,7 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
         }
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderTexture(0, this.texture());
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferBuilder.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f);

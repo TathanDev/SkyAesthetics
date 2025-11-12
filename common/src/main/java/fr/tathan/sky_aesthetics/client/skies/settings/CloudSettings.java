@@ -3,8 +3,6 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import java.util.Optional;
-
 public record CloudSettings(boolean showCloud, Integer cloudHeight) {
 
 

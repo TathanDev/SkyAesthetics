@@ -5,8 +5,6 @@ import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
-import fr.tathan.sky_aesthetics.helper.PlatformHelper;
-import fr.tathan.sky_aesthetics.helper.SkyCompat;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 
@@ -52,9 +50,7 @@ public class CustomVanillaObject{
         }
 
         public void render(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float nightAngle) {
-            if(PlatformHelper.isModLoaded("lunar")) {
-                SkyCompat.drawLunarSky(level, tesselator, poseStack, moonSize(), nightAngle);
-            } else if (this.moonPhase()) {
+            if (this.moonPhase()) {
                 SkyHelper.drawMoonWithPhase(tesselator, poseStack, moonSize(), moonTexture(), nightAngle);
             } else {
                 SkyHelper.drawCelestialBody(moonTexture(), tesselator, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);

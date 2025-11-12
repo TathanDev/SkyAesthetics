@@ -5,11 +5,13 @@ import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3i;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class DimensionSky extends DimensionSpecialEffects {
     private final DimensionRenderer renderer;
@@ -23,7 +25,7 @@ public class DimensionSky extends DimensionSpecialEffects {
     }
 
     public DimensionSky(ResourceKey<Level> dimension, ResourceLocation skyId, DimensionRenderer renderer, SkyProperties skyProperties) {
-        super(192, true, SkyType.NORMAL, false, false);
+        super(192, true, SkyType.OVERWORLD, false, false);
         this.renderer = renderer;
         this.dimension = dimension;
         this.skyId = skyId;
@@ -35,39 +37,33 @@ public class DimensionSky extends DimensionSpecialEffects {
         return fogColor.multiply(brightness * 0.94F + 0.06F, brightness * 0.94F + 0.06F, brightness * 0.91F + 0.09F);
     }
 
+    public int getDefaultSunriseOrSunsetColor(float f) {
+        float g = Mth.cos(f * ((float)Math.PI * 2F));
+        float h = g / 0.4F * 0.5F + 0.5F;
+        float i = Mth.square(1.0F - (1.0F - Mth.sin(h * (float)Math.PI)) * 0.99F);
+        return ARGB.colorFromFloat(i, h * 0.3F + 0.7F, h * h * 0.7F + 0.2F, 0.2F);
+    }
+
     @Override
-    public float @NotNull[] getSunriseColor(float timeOfDay, float partialTicks) {
+    public int getSunriseOrSunsetColor(float timeOfDay) {
 
-        int alphaMod = this.renderer.skyColor.sunriseAlphaModifier().isPresent() ? this.renderer.skyColor.sunriseAlphaModifier().get() : 0;
+        AtomicInteger sunriseCol = new AtomicInteger(this.getDefaultSunriseOrSunsetColor(timeOfDay));
 
-        if(this.renderer.skyColor.sunsetColor().isPresent()) {
-            Vector3i sunriseColor = this.renderer.skyColor.sunsetColor().get();
-            float dayTime = Mth.cos(timeOfDay * (float) (Math.PI * 2));
+        this.renderer.skyColor.sunsetColor().ifPresent(sunriseColor -> {
+            float g = Mth.cos(timeOfDay * (float) (Math.PI * 2));
 
-            if (dayTime >= -0.4f && dayTime <= 0.4f) {
-                float i = dayTime / 0.4f * 0.5f + 0.5f;
+            if (g >= -0.4f && g <= 0.4f) {
+                float i = g / 0.4f * 0.5f + 0.5f;
                 float alpha = 1 - (1 - Mth.sin(i * (float) Math.PI)) * 0.99F;
                 alpha *= alpha;
-                alpha *= alphaMod;
 
-                if(this.sunriseCol == null) this.sunriseCol = new float[4];
+                if (this.renderer.skyColor.sunriseAlphaModifier().isPresent()) alpha *= this.renderer.skyColor.sunriseAlphaModifier().get();
+                sunriseCol.set(ARGB.colorFromFloat(sunriseColor.x / 255f, sunriseColor.y / 255f, sunriseColor.z / 255f, alpha));
 
-                this.sunriseCol[0] = sunriseColor.x / 255f ;
-                this.sunriseCol[1] = sunriseColor.y / 255f ;
-                this.sunriseCol[2] = (sunriseColor.z / 255f);
-                this.sunriseCol[3] = alpha;
-                return this.sunriseCol;
             }
-        }
+        });
 
-        if (this.sunriseCol == null) this.sunriseCol = new float[4];
-
-        this.sunriseCol = super.getSunriseColor(timeOfDay, partialTicks);
-
-
-        if(this.sunriseCol != null && this.sunriseCol.length >= 4) this.sunriseCol[3] *= alphaMod;;
-
-        return this.sunriseCol;
+        return sunriseCol.get();
     }
 
     @Override

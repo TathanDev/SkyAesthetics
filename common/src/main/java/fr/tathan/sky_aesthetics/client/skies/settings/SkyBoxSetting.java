@@ -1,17 +1,17 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
+import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Camera;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 
@@ -37,7 +37,7 @@ public class SkyBoxSetting {
         int gradation = this.gradation;
 
         Tesselator tesselator = Tesselator.getInstance();
-        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+        VertexBuffer vertexBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
 
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX);
 
@@ -97,11 +97,11 @@ public class SkyBoxSetting {
     public void renderSkyBox(PoseStack poseStack, Matrix4f projectionMatrix, Camera camera) {
         poseStack.pushPose();
 
-        FogRenderer.setupNoFog();
+        FogRenderer.fogEnabled = false;
 
         RenderSystem.disableDepthTest();
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX);
         RenderSystem.setShaderTexture(0, this.texture);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1);
 
@@ -119,7 +119,7 @@ public class SkyBoxSetting {
         Matrix4f mvMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
 
         this.sphere.bind();
-        this.sphere.drawWithShader(mvMatrix, projectionMatrix, GameRenderer.getPositionTexShader());
+        this.sphere.drawWithShader(mvMatrix, projectionMatrix, RenderSystem.getShader());
         VertexBuffer.unbind();
 
         RenderSystem.enableDepthTest();

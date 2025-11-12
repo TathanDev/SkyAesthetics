@@ -10,16 +10,13 @@ import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.server.IntegratedServer;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public class DimensionRenderer {
@@ -68,8 +65,6 @@ public class DimensionRenderer {
     }
 
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
-
-
         Tesselator tesselator = Tesselator.getInstance();
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
         float nightAngle = dayAngle + 180;
@@ -77,15 +72,14 @@ public class DimensionRenderer {
         //Sky delimitation
         this.fogSettings.runFogCallback(fogCallback);
 
-
-        FogRenderer.levelFogColor();
+        //FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
 
         this.skyColor.setSkyColor(level, camera, partialTick);
 
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
 
-        if(this.skyBoxSetting != null) {
+        if (this.skyBoxSetting != null) {
             this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera);
         }
 
@@ -93,9 +87,7 @@ public class DimensionRenderer {
 
         this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
 
-        this.starSettings.shootingStars().ifPresent((shootingStars) -> {
-            this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
-        });
+        this.starSettings.shootingStars().ifPresent((shootingStars) -> this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars));
 
         this.fogSettings.runFogCallback(fogCallback);
 
@@ -111,16 +103,10 @@ public class DimensionRenderer {
             skyObject.drawSkyObject(tesselator, poseStack, dayAngle);
         }
 
-        this.testRender(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-
         this.fogSettings.runFogCallback(fogCallback);
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
-
-    }
-
-    public void testRender(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
     }
 
     public boolean renderClouds() {
@@ -205,7 +191,5 @@ public class DimensionRenderer {
         public DimensionRenderer build() {
             return new DimensionRenderer(skyObjects, cloudSettings, sun, moon, skyColor, fogSettings, star, skyBoxSetting, weather, renderCondition);
         }
-
     }
-
 }

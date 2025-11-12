@@ -3,8 +3,6 @@ package fr.tathan;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
-import fr.tathan.exoconfig.common.Config;
-import fr.tathan.exoconfig.common.loader.ConfigLoader;
 import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
 import fr.tathan.exoconfig.platform.PlatformHelper;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;

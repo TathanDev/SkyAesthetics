@@ -39,10 +39,8 @@ public record SkyColorSettings(Optional<Vector4f> color,
             Vector4f skyColor = this.color().get();
             RenderSystem.setShaderColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
         } else {
-            Vec3 defaultSkyColor = level.getSkyColor(camera.getPosition(), partialTick);
+            Vec3 defaultSkyColor = Vec3.fromRGB24(level.getSkyColor(camera.getPosition(), partialTick));
             RenderSystem.setShaderColor((float) defaultSkyColor.x, (float) defaultSkyColor.y, (float) defaultSkyColor.z, 1.0f);
         }
-
     }
-
 }

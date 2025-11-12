@@ -220,9 +220,7 @@ public class SkiesComponents {
                         .child(textBox(Sizing.fill(25)).text(String.valueOf(skyObject.objectRotation().z)).id("z"))
                         .tooltip(Component.literal("X, Y, Z rotation of the sky object"))
                         .id("object_rotation"))
-                .child(Components.button(Component.literal("Remove"), button -> {
-                    parent.removeChild(container);
-                }));
+                .child(Components.button(Component.literal("Remove"), button -> parent.removeChild(container)));
 
         return container;
     }

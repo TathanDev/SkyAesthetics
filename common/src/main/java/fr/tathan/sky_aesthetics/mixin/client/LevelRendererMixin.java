@@ -1,13 +1,17 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.framegraph.FramePass;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
+import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.client.renderer.*;
 import net.minecraft.world.level.material.FogType;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -22,31 +26,47 @@ public abstract class LevelRendererMixin {
     @Shadow
     private ClientLevel level;
 
+    @Mutable
+    @Shadow
+    private LevelTargetBundle targets;
+
+    @Mutable
+    @Shadow
+    private RenderBuffers renderBuffers;
+
+
+
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
-    @Inject(method = "renderSky", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean thickFog, Runnable fogCallback, CallbackInfo ci) {
+    @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, float partialTick, FogParameters fog, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
-        if (!thickFog && cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
+        if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
             SkyHelper.canRenderSky(level, (planetSky -> {
                 if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender) || SkyAesthetics.CONFIG.disableCustomSkies) return;
 
-                PoseStack poseStack = new PoseStack();
-                poseStack.mulPose(frustumMatrix);
+                FramePass framePass = frameGraphBuilder.addPass("sky");
+                this.targets.main = framePass.readsAndWrites(this.targets.main);
 
-                level.effects = planetSky;
-                if(planetSky.getRenderer().canRenderSky()) {
-                    planetSky.getRenderer().render(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-                    ci.cancel();
-                }
+                framePass.executes(() -> {
+                    RenderSystem.setShaderFog(fog);
+                    RenderStateShard.MAIN_TARGET.setupRenderState();
+
+                    MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
+
+                    PoseStack poseStack = new PoseStack();
+                    level.effects = planetSky;
+                    planetSky.getRenderer().render(level, poseStack, RenderSystem.getProjectionMatrix(), partialTick, camera, () -> RenderSystem.setShaderFog(fog));
+                });
+                ci.cancel();
             }));
         }
     }
 
-    @Inject(method = "renderClouds", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
+    @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
+    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CloudStatus cloudStatus, Vec3 cameraPosition, float ageInTicks, int height, float ticks, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.getRenderer().renderClouds()) {
                 //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds
@@ -58,7 +78,7 @@ public abstract class LevelRendererMixin {
         }));
     }
 
-    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
+    /*@Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
@@ -74,5 +94,5 @@ public abstract class LevelRendererMixin {
                 ci.cancel();
             }
         }));
-    }
+    }*/
 }

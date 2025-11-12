@@ -9,8 +9,8 @@ import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -67,9 +67,10 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
         if (this.vanilla()) {
             if (starLight > 0.0f) {
                 RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-                FogRenderer.setupNoFog();
+                RenderSystem.setShader(CoreShaders.POSITION);
+                FogRenderer.fogEnabled = false;
                 starBuffer.bind();
-                starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionShader());
+                starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
                 VertexBuffer.unbind();
             }
             return;
@@ -78,11 +79,10 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
         float starsAngle = !this.movingStars() ? -90f : nightAngle;
 
         if(this.starsTexture().isPresent()) {
-            RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+            RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
         } else {
-            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         }
-
 
         if (this.allDaysVisible()) {
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);

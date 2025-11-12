@@ -68,15 +68,10 @@ subprojects {
             parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_mapping_version}@zip")
         }
 
-        if(modLoader != "quilt") {
+        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
 
-            modCompileOnly "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
-
-            modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
-
-            if(!isCommon) {
-                include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
-            }
+        if(!isCommon) {
+            include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
         }
     }
 
@@ -103,7 +98,6 @@ subprojects {
             projectSlug = "sky-aesthetics" // Required for discord webhook
             accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
             minecraftVersions.add("${minecraft_version}")
-            minecraftVersions.add("${supported_version}")
             javaVersions.add(JavaVersion.VERSION_21)
         }
 
@@ -111,7 +105,6 @@ subprojects {
             projectId = "2zaNpyqY"
             accessToken = providers.environmentVariable("MODRINTH_TOKEN")
             minecraftVersions.add("${minecraft_version}")
-            minecraftVersions.add("${supported_version}")
         }
     }
 

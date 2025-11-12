@@ -5,9 +5,7 @@
   "minVersion": "0.8",
   "client": [
     "client.FogRendererMixin",
-    "client.LevelRendererAccessor",
     "client.LevelRendererMixin",
-    "client.LunarMoonInfosAccessor",
     "client.PauseMenuMixin"
   ],
   "mixins": [

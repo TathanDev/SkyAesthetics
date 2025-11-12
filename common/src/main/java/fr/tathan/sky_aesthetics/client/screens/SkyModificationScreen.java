@@ -60,9 +60,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                                 )
                         .child(
                                 Containers.verticalFlow(Sizing.fill(), Sizing.content())
-                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> {
-                                            skyToText(skyComponents);
-                                        }).id("save_button"))
+                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> skyToText(skyComponents)).id("save_button"))
                                         .child(createSkiesImportDropdown(rootComponent, skyComponents).id("import_dropdown"))
                                         .child(createToggleDevSkyButton(skyComponents).horizontalSizing(Sizing.content()).id("toggle_button").margins(Insets.top(10)))
                                         .child(createReloadButton(skyComponents).horizontalSizing(Sizing.content()).id("reload_button").margins(Insets.top(10)))
@@ -413,7 +411,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     public void playToast(net.minecraft.network.chat.Component title, net.minecraft.network.chat.Component description) {
-        this.minecraft.getToasts().addToast(new SystemToast(
+        this.minecraft.getToastManager().addToast(new SystemToast(
                 SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
                 title,
                 description
