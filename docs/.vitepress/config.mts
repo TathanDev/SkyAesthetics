@@ -5,6 +5,7 @@ export default defineConfig({
   title: "Sky Aesthetics Documentation",
   description: "Craft beautiful skies for Minecraft with Sky Aesthetics mod.",
     base: '/SkyAesthetics/',
+    assetsDir: 'public',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
