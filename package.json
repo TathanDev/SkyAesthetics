@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "docs:dev": "docs/node_modules/.bin/vitepress dev",
-    "docs:build": "docs/node_modules/.bin/vitepress build",
-    "docs:preview": "docs/node_modules/.bin/vitepress preview"
+    "docs:dev": "node_modules/.bin/vitepress dev",
+    "docs:build": "node_modules/.bin/vitepress build",
+    "docs:preview": "node_modules/.bin/vitepress preview"
   },
   "devDependencies": {
     "vitepress": "^2.0.0-alpha.13"
