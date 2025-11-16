@@ -4,6 +4,7 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: "Sky Aesthetics Documentation",
   description: "Craft beautiful skies for Minecraft with Sky Aesthetics mod.",
+    base: '/SkyAesthetics/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
