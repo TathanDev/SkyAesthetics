@@ -5,7 +5,9 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.tathan.SkyAesthetics;
 import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -109,7 +111,7 @@ public class SkyBoxSetting {
         camera.rotation().get(viewMatrix);
         viewMatrix.invert(); // Invert to get proper view transformation
 
-        Matrix4f modelMatrix = new Matrix4f().identity().scale(600.0f);
+        Matrix4f modelMatrix = new Matrix4f().identity().scale(Minecraft.getInstance().gameRenderer.getRenderDistance());
         modelMatrix
                 .rotate(Axis.XP.rotationDegrees(this.rotation.x))
                 .rotate(Axis.YP.rotationDegrees(this.rotation.y))

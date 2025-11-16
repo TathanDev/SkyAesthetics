@@ -1,4 +1,5 @@
-# Sky Aesthetics 2.0.2-alpha Changelog
+# Sky Aesthetics 2.0.5-BETA Changelog
 
 ## Fixes
-- Fix crash after sunset
+- Fix Sky Objects position.
+- Fix Sky Objects Screen

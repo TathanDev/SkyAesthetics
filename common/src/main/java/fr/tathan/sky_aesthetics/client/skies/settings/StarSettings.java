@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.Util;
@@ -51,10 +52,11 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
     }
 
     public VertexBuffer getStarsBuffer() {
+        if (this.vanilla() ){
+            return StarHelper.createVanillaStars();
+        }
         if(this.count() > 100) {
             return StarHelper.createStars(this.scale(), this.count(), this.color().x(), this.color().y(), this.color().z(), Optional.empty(), Optional.empty());
-        } else if (this.vanilla() ){
-            return StarHelper.createVanillaStars();
         }
         return null;
     }

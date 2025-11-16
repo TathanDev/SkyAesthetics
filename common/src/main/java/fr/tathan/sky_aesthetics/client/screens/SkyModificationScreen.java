@@ -212,12 +212,13 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         FlowLayout skyObjects = skyObjectsSettings.childById(FlowLayout.class, "objects");
 
-
         List<SkyObject> objects = new ArrayList<>(List.of());
 
         for (Component child : skyObjects.children()) {
 
-            if (child instanceof CollapsibleContainer container && (container.id() != null && container.id().equals("object"))) {
+            if (child instanceof CollapsibleContainer container) {
+
+                if (container.id() == null || !container.id().equals("object")) break;
 
                 if(!container.expanded()) container.toggleExpansion();
 
@@ -226,7 +227,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
                 ResourceLocation location = ResourceLocation.parse(layout.childById(TextBoxComponent.class, "texture").getValue());
                 boolean blend = layout.childById(CheckboxComponent.class, "blend").selected();
-                int size = (int) convertValue(layout.childById(TextBoxComponent.class, "size").getValue(), Integer.class);
+                float size = (float) convertValue(layout.childById(TextBoxComponent.class, "size").getValue(), Float.class);
                 int height = (int) convertValue(layout.childById(TextBoxComponent.class, "height").getValue(), Integer.class);
 
                 String rotationType = getRotationType(layout.childById(TextBoxComponent.class, "rotation_type").getValue());

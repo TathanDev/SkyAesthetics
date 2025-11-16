@@ -10,6 +10,7 @@ import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -228,6 +229,7 @@ public class StarHelper {
     }
 
 
+
     public static MeshData createVanillaStars(Tesselator tesselator) {
         RandomSource randomSource = RandomSource.create(10842L);
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
@@ -240,12 +242,12 @@ public class StarHelper {
             float m = Mth.lengthSquared(g, h, k);
             if (!(m <= 0.010000001F) && !(m >= 1.0F)) {
                 Vector3f vector3f = (new Vector3f(g, h, k)).normalize(100.0F);
-                float n = (float)(randomSource.nextDouble() * 3.1415927410125732 * 2.0);
+                float n = (float)(randomSource.nextDouble() * (double)(float)Math.PI * (double)2.0F);
                 Quaternionf quaternionf = (new Quaternionf()).rotateTo(new Vector3f(0.0F, 0.0F, -1.0F), vector3f).rotateZ(n);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf)));
             }
         }
 
