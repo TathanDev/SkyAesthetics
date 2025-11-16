@@ -4,7 +4,6 @@ This Settings allow you to add a fully custom sky box to the world.
 
 If no sun settings are specified, the world won't have a sun.
 
-<video width="500" muted controls loop :src="$withBase('/skybox.mp4')"></video>
 
 
 ```json
