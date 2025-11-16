@@ -20,7 +20,15 @@ Here are some terms you will often see in the documentation:
 - **Sky Object**: An object that can be added to the sky (like moons, planets, etc.)
 - **Skybox**: A image that cover all the minecraft sky.
 
-### File Structure
+### Creation Options
+You can create your sky configuration file by hand or use the sky creation screen.
+This screen is available in-game by pressing the button in the pause menu.
+
+::: warning
+The sky creation screen is only available when [OwO Lib](https://modrinth.com/mod/owo-lib) is installed.
+:::
+
+### Creating Your First Sky
 This is a basic structure of a resource pack using Sky Aesthetics.:
 ::: warning
 Here [namespace] should be replaced by your resource pack namespace. If my datapack is named `my_cool_pack`, the path to my sky configuration file will be `assets/my_cool_pack/sky_aesthetics/your_sky.json`.
@@ -35,10 +43,8 @@ Here [namespace] should be replaced by your resource pack namespace. If my datap
 └─ pack.mcmeta
 ```
 
-### Creation Options
-You can create your sky configuration file by hand or use the sky creation screen.
-This screen is available in-game by pressing the button in the pause menu.
+All the work you will do is in the `your_sky.json`.
+If you use custom textures, the resourcelocation (the "path") for theses will be `[namespace]:textures/my_texture.png`
 
-::: warning
-The sky creation screen is only available when [OwO Lib](https://modrinth.com/mod/owo-lib) is installed.
-:::
+Now, all you need to do is to fill the file with the [**required**](/sky) values and then add the wanted settings.
+

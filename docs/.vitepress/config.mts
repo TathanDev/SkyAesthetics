@@ -26,7 +26,9 @@ export default defineConfig({
         collapsed: false,
         items: [
           { text: 'What is Sky Aesthetics', link: '/introduction/what-is-it' },
-          { text: 'Getting Started', link: '/introduction/getting-started' }
+          { text: 'Getting Started', link: '/introduction/getting-started' },
+          { text: 'Compatibility', link: '/introduction/compatibility' }
+
         ]
       },
       {
@@ -45,7 +47,8 @@ export default defineConfig({
                       { text: 'Cloud Settings', link: '/sky/settings/clouds' },
                       { text: 'Stars Settings', link: '/sky/settings/stars' },
                       { text: 'Skybox Settings', link: '/sky/settings/skybox' },
-                      { text: 'Fog Settings', link: '/sky/settings/fog' }
+                      { text: 'Render Condition ', link: '/sky/settings/condition' },
+                      { text: 'Light Settings', link: '/sky/settings/light' }
                   ]
               }
             ]
