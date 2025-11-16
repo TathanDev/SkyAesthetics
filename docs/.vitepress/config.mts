@@ -1,11 +1,12 @@
 import { defineConfig } from 'vitepress'
 
+console.log("VitePress config loaded");
+
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "Sky Aesthetics Documentation",
   description: "Craft beautiful skies for Minecraft with Sky Aesthetics mod.",
-    base: '/SkyAesthetics/',
-    assetsDir: 'public',
+  base: '/SkyAesthetics/',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
