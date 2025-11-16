@@ -4,7 +4,7 @@ This Settings allow you to add a fully custom sky box to the world.
 
 If no sun settings are specified, the world won't have a sun.
 
-<video width="500" muted controls loop src="/video/skybox.mp4"></video>
+<video width="500" muted controls loop src="/skybox.mp4"></video>
 
 
 ```json
