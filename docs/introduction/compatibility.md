@@ -8,7 +8,7 @@ Here a list of known incompatibility/compatibility.
 | Mod             |           Problems           |                                   Status |
 |-----------------|:----------------------------:|-----------------------------------------:|
 | Lunar           | Custom moons weren't showing |        <Badge type="tip" text="Fixed" /> |
-| Astrocraft      |  Custom Sky wasn"t showing   |        <Badge type="tip" text="Fixed" /> |
+| Astrocraft      |  Custom Sky wasn't showing   |        <Badge type="tip" text="Fixed" /> |
 | Distant Horizon | DH override cloud rendering  |        <Badge type="tip" text="Fixed" /> |
 | Iris/Shader     |   A lot of problems happen   | <Badge type="danger" text="Not Fixed" /> |
 
