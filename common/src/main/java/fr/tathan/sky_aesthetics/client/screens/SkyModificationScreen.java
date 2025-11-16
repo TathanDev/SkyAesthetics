@@ -262,7 +262,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         CollapsibleContainer starSettings = component.childById(CollapsibleContainer.class, "star_settings");
 
-        StarSettings stars = new StarSettings(
+        Optional<StarSettings> stars = !starSettings.expanded() ? Optional.empty() :
+                Optional.of(new StarSettings(
                         starSettings.childById(CheckboxComponent.class, "vanilla").selected(),
                         starSettings.childById(CheckboxComponent.class, "moving_stars").selected(),
                         (int) starSettings.childById(DiscreteSliderComponent.class, "count").discreteValue(),
@@ -271,7 +272,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         getVec3iFromComponent(starSettings.childById(FlowLayout.class, "star_color")).get(),
                         Optional.empty(),
                         Optional.empty()
-                );
+                ));
 
         CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
 

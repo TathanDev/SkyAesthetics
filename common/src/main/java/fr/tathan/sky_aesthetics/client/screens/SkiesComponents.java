@@ -229,8 +229,12 @@ public class SkiesComponents {
     }
 
 
-    public static CollapsibleContainer createStarSettings(StarSettings setting) {
-        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Star Settings"), true);
+    public static CollapsibleContainer createStarSettings(Optional<StarSettings> settings) {
+        CollapsibleContainer container = Containers.collapsible(Sizing.content(), Sizing.content(), Component.literal("Star Settings (Optionnal)"), true);
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
+        StarSettings setting = settings.orElseGet(StarSettings::createDefaultStars);
 
 
         container.child(Components.checkbox(Component.literal("Vanilla")).checked(setting.vanilla()).id("vanilla").tooltip(Component.literal("Should vanilla stars be rendered?")))
