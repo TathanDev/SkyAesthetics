@@ -1,5 +1,8 @@
-# Sky Aesthetics 2.0.5-BETA Changelog
+# Sky Aesthetics 2.0.6-BETA Changelog
+
+## New Features
+- Documentation
 
 ## Fixes
-- Fix Sky Objects position.
-- Fix Sky Objects Screen
+- Makes star optional
+- Fix vanilla stars 

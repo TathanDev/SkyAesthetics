@@ -11,6 +11,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,7 @@ public class SkyPropertiesProvider implements DataProvider {
     }
 
     @Override
-    public CompletableFuture<?> run(CachedOutput output) {
+    public @NotNull CompletableFuture<?> run(@NotNull CachedOutput output) {
         List<CompletableFuture<?>> futures = new ArrayList<>();
         build((key, value) ->
                 futures.add(DataProvider.saveStable(
@@ -54,7 +55,7 @@ public class SkyPropertiesProvider implements DataProvider {
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return "Sky Provider";
     }
 
@@ -68,7 +69,7 @@ public class SkyPropertiesProvider implements DataProvider {
                         true,
                         Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
                         Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
-                        StarSettings.createDefaultStars(),
+                        Optional.of(StarSettings.createDefaultStars()),
                         Optional.of(SkyColorSettings.createDefaultSettings()),
                         List.of(),
                         Optional.empty(),
