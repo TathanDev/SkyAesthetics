@@ -360,12 +360,13 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     public static Object convertValue(String str, Class<?> type) {
+        str = str.isEmpty() ? "-1" : str;
         try {
             return switch (type.getSimpleName()) {
                 case "int", "Integer" -> Integer.parseInt(str);
                 case "long", "Long" -> Long.parseLong(str);
                 case "double", "Double" -> Double.parseDouble(str);
-                case "float", "Float" -> Float.parseFloat(str);
+                case "float", "Float" -> (float) Float.parseFloat(str);
                 default -> str;
             };
         } catch (Exception e) {
