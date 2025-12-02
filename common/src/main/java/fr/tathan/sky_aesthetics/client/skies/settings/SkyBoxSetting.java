@@ -16,6 +16,8 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+import java.util.Optional;
+
 
 public class SkyBoxSetting {
 
@@ -26,12 +28,14 @@ public class SkyBoxSetting {
     public final int gradation;
     public final ResourceLocation texture;
     public final Vector3f rotation;
+    public final Optional<Rotation> dynamicRotation;
 
-    public SkyBoxSetting(int gradation, ResourceLocation texture, Vector3f rotation) {
+    public SkyBoxSetting(int gradation, ResourceLocation texture, Vector3f rotation, Optional<Rotation> dynamicRotation) {
         this.gradation = gradation;
         this.texture = texture;
         this.rotation = rotation;
         this.sphere = this.createSphere();
+        this.dynamicRotation = dynamicRotation;
     }
 
     public VertexBuffer createSphere() {
@@ -129,14 +133,15 @@ public class SkyBoxSetting {
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0));
+        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0), Optional.empty());
     }
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("gradation").forGetter((b) -> b.gradation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter((b) -> b.texture),
-                SkyObject.VEC3F.fieldOf("rotation").forGetter((b) -> b.rotation)
+                SkyObject.VEC3F.fieldOf("rotation").forGetter((b) -> b.rotation),
+                Rotation.CODEC.optionalFieldOf("dynamicRotation").forGetter((b) -> b.dynamicRotation)
         ).apply(instance, SkyBoxSetting::new));
 
     }
