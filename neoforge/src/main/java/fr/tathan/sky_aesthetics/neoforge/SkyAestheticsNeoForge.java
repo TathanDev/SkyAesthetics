@@ -1,5 +1,6 @@
 package fr.tathan.sky_aesthetics.neoforge;
 
+import fr.tathan.exoconfig.platform.PlatformHelper;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -20,6 +21,8 @@ public final class SkyAestheticsNeoForge {
 
         @SubscribeEvent
         public static void onClientSetup(RegisterClientReloadListenersEvent event) {
+            PlatformHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
+
             SkyAesthetics.onAddReloadListenerEvent((id, listener) -> event.registerReloadListener(listener));
         }
     }

@@ -1,7 +1,6 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import fr.tathan.sky_aesthetics.client.screens.SkyModificationScreen;
 import fr.tathan.sky_aesthetics.helper.OwOCompat;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.client.gui.components.Button;
