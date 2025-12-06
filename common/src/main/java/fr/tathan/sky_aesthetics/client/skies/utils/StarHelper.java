@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -9,8 +8,9 @@ import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -29,9 +29,9 @@ public class StarHelper {
 
     public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> starTexture) {
         Tesselator tesselator = Tesselator.getInstance();
-        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 
-        VertexBuffer vertexBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
+        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
         Random random = new Random();
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -194,7 +194,7 @@ public class StarHelper {
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
-        FogRenderer.fogEnabled = false;
+        FogRenderer.setupNoFog();
 
 
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
@@ -207,11 +207,9 @@ public class StarHelper {
 
         vertexBuffer.bind();
         if (starTexture.isPresent()) {
-            RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
         } else {
-            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
         }
 
         VertexBuffer.unbind();
@@ -221,7 +219,7 @@ public class StarHelper {
 
 
     public static VertexBuffer createVanillaStars() {
-        VertexBuffer starBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
+        VertexBuffer starBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
         starBuffer.bind();
         starBuffer.upload(createVanillaStars(Tesselator.getInstance()));
@@ -229,6 +227,7 @@ public class StarHelper {
 
         return starBuffer;
     }
+
 
 
     public static MeshData createVanillaStars(Tesselator tesselator) {
@@ -243,12 +242,12 @@ public class StarHelper {
             float m = Mth.lengthSquared(g, h, k);
             if (!(m <= 0.010000001F) && !(m >= 1.0F)) {
                 Vector3f vector3f = (new Vector3f(g, h, k)).normalize(100.0F);
-                float n = (float)(randomSource.nextDouble() * 3.1415927410125732 * 2.0);
+                float n = (float)(randomSource.nextDouble() * (double)(float)Math.PI * (double)2.0F);
                 Quaternionf quaternionf = (new Quaternionf()).rotateTo(new Vector3f(0.0F, 0.0F, -1.0F), vector3f).rotateZ(n);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf))).setColor(255);
-                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf))).setColor(255);
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, -l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(l, l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, l, 0.0F)).rotate(quaternionf)));
+                bufferBuilder.addVertex(vector3f.add((new Vector3f(-l, -l, 0.0F)).rotate(quaternionf)));
             }
         }
 

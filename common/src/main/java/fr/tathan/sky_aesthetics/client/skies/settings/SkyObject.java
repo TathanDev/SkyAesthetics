@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.tathan.SkyAesthetics;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CoreShaders;
@@ -30,23 +31,34 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
             Codec.STRING.fieldOf("rotation_type").forGetter(SkyObject::rotationType)
     ).apply(instance, SkyObject::new));
 
+    /**
+     * Set the position of the object in the sky
+     * @param poseStack
+     * @param dayAngle
+     */
     public void setObjectPosition(PoseStack poseStack, float dayAngle) {
-        poseStack.mulPose(Axis.YP.rotationDegrees((float) this.rotation().y));
+
+        poseStack.mulPose(Axis.YP.rotationDegrees(this.rotation().y));
         if(Objects.equals(this.rotationType(), "DAY")) {
             poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
         } else if(Objects.equals(this.rotationType(), "NIGHT")) {
             poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle + 180));
         } else {
-            poseStack.mulPose(Axis.XP.rotationDegrees((float) this.rotation().x));
+            poseStack.mulPose(Axis.XP.rotationDegrees(this.rotation().x));
         }
-        poseStack.mulPose(Axis.ZP.rotationDegrees((float) this.rotation().z));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(this.rotation().z));
     }
 
+    /**
+     * Set the rotation of the object around its own center
+     * Rotate the object but don't change its position
+     * @param poseStack
+     */
     public void setObjectRotation(PoseStack poseStack) {
         poseStack.translate(0, 100, 0);
-        poseStack.mulPose(Axis.XP.rotationDegrees((float) rotation.x));
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotation.y));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(rotation.z));
+        poseStack.mulPose(Axis.XP.rotationDegrees(objectRotation.x));
+        poseStack.mulPose(Axis.YP.rotationDegrees(objectRotation.y));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(objectRotation.z));
         poseStack.translate(0, -100, 0);
     }
 

@@ -19,6 +19,8 @@ public final class SkyAestheticsNeoForge {
 
         @SubscribeEvent
         public static void onClientSetup(AddClientReloadListenersEvent event) {
+            PlatformHelperClient.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
+
             SkyAesthetics.onAddReloadListenerEvent(event::addListener);
         }
     }

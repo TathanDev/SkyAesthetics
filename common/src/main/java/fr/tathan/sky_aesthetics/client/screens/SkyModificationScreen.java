@@ -210,12 +210,13 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         FlowLayout skyObjects = skyObjectsSettings.childById(FlowLayout.class, "objects");
 
-
         List<SkyObject> objects = new ArrayList<>(List.of());
 
         for (Component child : skyObjects.children()) {
 
-            if (child instanceof CollapsibleContainer container && (container.id() != null && container.id().equals("object"))) {
+            if (child instanceof CollapsibleContainer container) {
+
+                if (container.id() == null || !container.id().equals("object")) break;
 
                 if(!container.expanded()) container.toggleExpansion();
 
@@ -224,7 +225,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
                 ResourceLocation location = ResourceLocation.parse(layout.childById(TextBoxComponent.class, "texture").getValue());
                 boolean blend = layout.childById(CheckboxComponent.class, "blend").selected();
-                int size = (int) convertValue(layout.childById(TextBoxComponent.class, "size").getValue(), Integer.class);
+                float size = (float) convertValue(layout.childById(TextBoxComponent.class, "size").getValue(), Float.class);
                 int height = (int) convertValue(layout.childById(TextBoxComponent.class, "height").getValue(), Integer.class);
 
                 String rotationType = getRotationType(layout.childById(TextBoxComponent.class, "rotation_type").getValue());
@@ -259,7 +260,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         CollapsibleContainer starSettings = component.childById(CollapsibleContainer.class, "star_settings");
 
-        StarSettings stars = new StarSettings(
+        Optional<StarSettings> stars = !starSettings.expanded() ? Optional.empty() :
+                Optional.of(new StarSettings(
                         starSettings.childById(CheckboxComponent.class, "vanilla").selected(),
                         starSettings.childById(CheckboxComponent.class, "moving_stars").selected(),
                         (int) starSettings.childById(DiscreteSliderComponent.class, "count").discreteValue(),
@@ -268,7 +270,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         getVec3iFromComponent(starSettings.childById(FlowLayout.class, "star_color")).get(),
                         Optional.empty(),
                         Optional.empty()
-                );
+                ));
 
         CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
 
@@ -276,7 +278,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                 Optional.of(new SkyBoxSetting(
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
                         ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
-                        getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new))
+                        getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new),
+                        Optional.empty())
                 );
 
         CollapsibleContainer lightSettings = component.childById(CollapsibleContainer.class, "light_settings");
@@ -355,12 +358,13 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     public static Object convertValue(String str, Class<?> type) {
+        str = str.isEmpty() ? "-1" : str;
         try {
             return switch (type.getSimpleName()) {
                 case "int", "Integer" -> Integer.parseInt(str);
                 case "long", "Long" -> Long.parseLong(str);
                 case "double", "Double" -> Double.parseDouble(str);
-                case "float", "Float" -> Float.parseFloat(str);
+                case "float", "Float" -> (float) Float.parseFloat(str);
                 default -> str;
             };
         } catch (Exception e) {

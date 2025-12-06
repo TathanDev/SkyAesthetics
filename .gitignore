@@ -44,3 +44,9 @@ common/build
 
 .idea
 .gradle
+
+docs/node_modules/*
+docs/.vitepress/cache
+docs/.vitepress/dist
+node_modules/
+.vitepress

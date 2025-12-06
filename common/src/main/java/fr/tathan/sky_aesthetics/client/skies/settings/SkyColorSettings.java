@@ -31,7 +31,7 @@ public record SkyColorSettings(Optional<Vector4f> color,
     ).apply(instance, SkyColorSettings::new));
 
     public static SkyColorSettings createDefaultSettings() {
-        return new SkyColorSettings(Optional.empty(), Optional.empty(), Optional.empty());
+        return new SkyColorSettings(Optional.empty(), Optional.empty(), Optional.of(1));
     }
 
     public void setSkyColor(ClientLevel level, Camera camera, float partialTick) {

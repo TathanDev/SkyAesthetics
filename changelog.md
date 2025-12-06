@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.0.2-alpha Changelog
+# Sky Aesthetics 2.0.7-BETA Changelog
 
-## Fixes
-- Fix crash after sunset
+## Changes
+- Update exo config to fix a crash on startup for dedicated servers.

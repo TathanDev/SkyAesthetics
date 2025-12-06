@@ -25,7 +25,7 @@ public record SkyProperties(
         Boolean weather,
         Optional<CustomVanillaObject.Sun> sun,
         Optional<CustomVanillaObject.Moon> moon,
-        StarSettings stars,
+        Optional<StarSettings> stars,
         Optional<SkyColorSettings> skyColor,
         List<SkyObject> skyObjects,
         Optional<RenderCondition> renderCondition,
@@ -45,7 +45,7 @@ public record SkyProperties(
             Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
             CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
             CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
-            StarSettings.CODEC.fieldOf("stars").forGetter(SkyProperties::stars),
+            StarSettings.CODEC.optionalFieldOf("stars").forGetter(SkyProperties::stars),
             SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
@@ -56,8 +56,9 @@ public record SkyProperties(
 
     public DimensionRenderer toDimensionRenderer() {
         DimensionRenderer.Builder builder = new DimensionRenderer.Builder()
-                .setWeather(this.weather).setStar(this.stars);
+                .setWeather(this.weather);
 
+        this.stars.ifPresent(builder::setStar);
         this.moon.ifPresent(builder::addMoon);
         this.sun.ifPresent(builder::addSun);
         this.skyObjects.forEach(builder::addSkyObject);
@@ -83,7 +84,7 @@ public record SkyProperties(
                 true,
                 Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
                 Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
-                StarSettings.createDefaultStars(),
+                Optional.of(StarSettings.createDefaultStars()),
                 Optional.of(SkyColorSettings.createDefaultSettings()),
                 List.of(),
                 Optional.empty(),
