@@ -72,10 +72,10 @@ subprojects {
 
             modCompileOnly "com.mrbysco.lunar:Lunar-$modLoader-1.21:0.2.0"
 
-            modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
+            modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:$exoconfig_version"
 
             if(!isCommon) {
-                include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:0.2.1"
+                include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:$exoconfig_version"
             }
         }
     }
