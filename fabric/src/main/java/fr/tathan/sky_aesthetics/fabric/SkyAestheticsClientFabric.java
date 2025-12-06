@@ -2,6 +2,7 @@ package fr.tathan.sky_aesthetics.fabric;
 
 import fr.tathan.SkyAesthetics;
 import fr.tathan.exoconfig.platform.PlatformHelper;
+import fr.tathan.exoconfig.platform.PlatformHelperClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -20,7 +21,7 @@ public final class SkyAestheticsClientFabric implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
 
-        PlatformHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
+        PlatformHelperClient.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
 
         onAddReloadListener();
     }
