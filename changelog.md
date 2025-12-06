@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.0.7-BETA Changelog
+# Sky Aesthetics 2.0.8-BETA Changelog
 
 ## Changes
-- Update exo config to fix a crash on startup for dedicated servers.
+- Update exo config to fix a crash when joining a world.
