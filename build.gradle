@@ -68,10 +68,10 @@ subprojects {
             parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_mapping_version}@zip")
         }
 
-        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:$exoconfig_version"
+        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.4:$exoconfig_version"
 
         if(!isCommon) {
-            include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21:$exoconfig_version"
+            include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.4:$exoconfig_version"
         }
     }
 

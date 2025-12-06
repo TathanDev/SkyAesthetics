@@ -1,5 +1,6 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
+import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -8,6 +9,7 @@ import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -29,9 +31,9 @@ public class StarHelper {
 
     public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> starTexture) {
         Tesselator tesselator = Tesselator.getInstance();
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
 
-        VertexBuffer vertexBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+        VertexBuffer vertexBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
 
         Random random = new Random();
         BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -194,8 +196,7 @@ public class StarHelper {
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
-        FogRenderer.setupNoFog();
-
+        FogRenderer.fogEnabled = false;
 
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
@@ -207,9 +208,11 @@ public class StarHelper {
 
         vertexBuffer.bind();
         if (starTexture.isPresent()) {
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionTexColorShader());
+            RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
         } else {
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionColorShader());
+            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
         }
 
         VertexBuffer.unbind();
@@ -219,8 +222,8 @@ public class StarHelper {
 
 
     public static VertexBuffer createVanillaStars() {
-        VertexBuffer starBuffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
 
+        VertexBuffer starBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
         starBuffer.bind();
         starBuffer.upload(createVanillaStars(Tesselator.getInstance()));
         VertexBuffer.unbind();
