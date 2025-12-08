@@ -23,7 +23,9 @@ public record Rotation(Axis axis, String rotationType) {
         if(Objects.equals(rotationType, "NIGHT")){
             dayAngle = -dayAngle;
         }
-        modelMatrix.rotate(axis.toQuaternion(dayAngle));
+        if(!Objects.equals(rotationType, "STATIC")) {
+            modelMatrix.rotate(axis.toQuaternion(dayAngle));
+        }
     }
 
     public enum Axis implements StringRepresentable {

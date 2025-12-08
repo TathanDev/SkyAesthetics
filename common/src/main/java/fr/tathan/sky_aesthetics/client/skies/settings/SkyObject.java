@@ -6,19 +6,26 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
+/**
+ *
+ * @param texture The Object texture
+ * @param blend Should the object blend
+ * @param size The size of the object
+ * @param rotation The position of the object in the sky
+ * @param objectRotation The rotation of the object
+ * @param height The Object's height
+ * @param rotationType The type of rotation DAY, NIGHT or STATIC
+ */
 public record SkyObject(ResourceLocation texture, boolean blend, float size, Vector3f rotation, Vector3f objectRotation, int height, String rotationType) {
 
     public static Codec<Vector3f> VEC3F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 3).map((listx) -> new Vector3f(listx.getFirst(), listx.get(1), listx.getLast())), (vector3f) -> List.of(vector3f.x, vector3f.y, vector3f.z));

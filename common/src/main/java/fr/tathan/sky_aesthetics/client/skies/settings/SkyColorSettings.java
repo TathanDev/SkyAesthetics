@@ -13,6 +13,12 @@ import org.joml.Vector4f;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The class containing information about sky colors
+ * @param color The RGBA color of the sky
+ * @param sunsetColor The RGB color of the sunset
+ * @param sunriseAlphaModifier The alpha modifier for the sunrise/sunset
+ */
 public record SkyColorSettings(Optional<Vector4f> color,
                                Optional<Vector3i> sunsetColor,
                                Optional<Integer> sunriseAlphaModifier

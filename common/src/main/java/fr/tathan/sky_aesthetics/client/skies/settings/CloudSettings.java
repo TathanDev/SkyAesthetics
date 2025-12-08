@@ -7,7 +7,6 @@ import java.util.Optional;
 
 public record CloudSettings(boolean showCloud, Integer cloudHeight) {
 
-
     public static CloudSettings createDefaultSettings() {
         return new CloudSettings(true, 192);
     }

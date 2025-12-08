@@ -17,6 +17,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The registry handling the loading of custom skies from data packs
+ */
 public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
 
     public static final Map<ResourceLocation, DimensionSky> SKY_PROPERTIES = new HashMap<>();
@@ -54,6 +57,12 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
         });
     }
 
+    /**
+     * Allow to register sky.
+     * Can be used to register skies from code/at runtime.
+     * @param id the id of the sky to register
+     * @param sky the sky to register
+     */
     public static void registerSky(ResourceLocation id, DimensionSky sky) {
         if(SKY_PROPERTIES.containsKey(id)) {
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);

@@ -20,6 +20,17 @@ import org.joml.Vector3i;
 
 import java.util.*;
 
+/**
+ * The class containing information about stars
+ * @param vanilla If the stars should be like vanilla one's
+ * @param movingStars if the stars should move
+ * @param count The count of stars
+ * @param allDaysVisible If stars should be visible all day
+ * @param scale The size of a star
+ * @param color The color of the stars
+ * @param shootingStars Shooting Star Settings
+ * @param starsTexture The texture of the star
+ */
 public record StarSettings(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vector3i color, Optional<ShootingStars> shootingStars, Optional<ResourceLocation> starsTexture) {
 
     public static final Codec<StarSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -33,19 +44,7 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
             ResourceLocation.CODEC.optionalFieldOf("star_texture").forGetter(StarSettings::starsTexture)
     ).apply(instance, StarSettings::new));
 
-    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Vec3 color, Optional<Integer> rotation) {
 
-        public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.getFirst(), listx.get(1))), (vec2) -> List.of(vec2.x, vec2.y));
-
-        public static final Codec<ShootingStars> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.INT.fieldOf("percentage").forGetter(ShootingStars::percentage),
-                VEC2.fieldOf("random_lifetime").forGetter(ShootingStars::randomLifetime),
-                Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
-                Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),
-                Vec3.CODEC.fieldOf("color").forGetter(ShootingStars::color),
-                Codec.INT.optionalFieldOf("rotation").forGetter(ShootingStars::rotation)
-        ).apply(instance, ShootingStars::new));
-    }
 
     public static StarSettings createDefaultStars() {
         return new StarSettings(true, false, 30000, false, 0.05f, new Vector3i(255, 255, 255), Optional.empty(), Optional.empty());
@@ -121,6 +120,27 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
         starsToRemove.forEach(shootingStars::remove);
     }
 
+    /**
+     *
+     * @param percentage The chance for a shooting star to happen
+     * @param randomLifetime The random lifetime of star
+     * @param scale The scale of the star
+     * @param speed The speed of the star
+     * @param color The color of the star
+     * @param rotation The rotation of the star
+     */
+    public record ShootingStars(int percentage, Vec2 randomLifetime, float scale, float speed, Vec3 color, Optional<Integer> rotation) {
 
+        public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.getFirst(), listx.get(1))), (vec2) -> List.of(vec2.x, vec2.y));
+
+        public static final Codec<ShootingStars> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.INT.fieldOf("percentage").forGetter(ShootingStars::percentage),
+                VEC2.fieldOf("random_lifetime").forGetter(ShootingStars::randomLifetime),
+                Codec.FLOAT.fieldOf("scale").forGetter(ShootingStars::scale),
+                Codec.FLOAT.fieldOf("speed").forGetter(ShootingStars::speed),
+                Vec3.CODEC.fieldOf("color").forGetter(ShootingStars::color),
+                Codec.INT.optionalFieldOf("rotation").forGetter(ShootingStars::rotation)
+        ).apply(instance, ShootingStars::new));
+    }
 
 }

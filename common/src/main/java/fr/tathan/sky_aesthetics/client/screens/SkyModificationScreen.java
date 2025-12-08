@@ -278,12 +278,25 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
 
+        Optional<Rotation> rotation = Optional.empty();
+
+        if(skyBoxSetting.expanded()) {
+            CollapsibleContainer dynamicRotationSettings = skyBoxSetting.childById(CollapsibleContainer.class, "dynamic_rotation");
+
+            rotation = !dynamicRotationSettings.expanded() ? Optional.empty() :
+                    Optional.of(new Rotation(
+                            Rotation.Axis.valueOf(dynamicRotationSettings.childById(TextBoxComponent.class, "axis").getValue()),
+                            getRotationType(dynamicRotationSettings.childById(TextBoxComponent.class, "rotation_type").getValue())
+                    ));
+
+        }
+
         Optional<SkyBoxSetting> skyBox = !skyBoxSetting.expanded() ? Optional.empty() :
                 Optional.of(new SkyBoxSetting(
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
                         ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
                         getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new),
-                        Optional.of(Rotation.createDefaultSettings()))
+                        rotation)
                 );
 
         CollapsibleContainer lightSettings = component.childById(CollapsibleContainer.class, "light_settings");
@@ -314,8 +327,9 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
     public static String getRotationType(String str) {
         return switch (str.toLowerCase()) {
-            case "static" -> "STATIC";
             case "day" -> "DAY";
+            case "night" -> "NIGHT";
+
             default -> "STATIC";
         };
     }

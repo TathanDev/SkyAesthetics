@@ -3,6 +3,12 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+/**
+ * Settings related to lighting in the sky.
+ *
+ * @param forceBrightLightmap   If true, forces a bright lightmap regardless of time of day.
+ * @param constantAmbientLight  If true, maintains constant ambient light levels.
+ */
 public record LightSettings(
         boolean forceBrightLightmap,
         boolean constantAmbientLight) {

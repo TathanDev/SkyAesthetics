@@ -10,6 +10,12 @@ import org.joml.Vector3i;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * The class containing information about fog settings
+ * @param fog Whether fog is enabled
+ * @param customFogColor The custom RGB color of the fog
+ * @param fogDensity The density settings of the fog (near, far)
+ */
 public record FogSettings(Boolean fog, Optional<Vector3i> customFogColor, Optional<Vector2f> fogDensity) {
 
     public static Codec<Vector2f> VEC2F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vector2f(listx.getFirst(), listx.getLast())), (vector2f) -> List.of(vector2f.x, vector2f.y));

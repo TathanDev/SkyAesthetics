@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The class handling the rendering of a custom sky
+ */
 public class DimensionRenderer {
 
     public final List<SkyObject> skyObjects;
@@ -68,7 +71,6 @@ public class DimensionRenderer {
 
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
 
-
         Tesselator tesselator = Tesselator.getInstance();
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
         float nightAngle = dayAngle + 180;
@@ -83,7 +85,6 @@ public class DimensionRenderer {
         this.skyColor.setSkyColor(level, camera, partialTick);
 
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
-        SkyAesthetics.LOG.error("rotation {}", dayAngle);
 
         if(this.skyBoxSetting != null) {
             this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera,dayAngle);
@@ -138,10 +139,14 @@ public class DimensionRenderer {
         public List<SkyObject> skyObjects = new ArrayList<>();
         // Default cloud settings: show clouds and set height to 192
         public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
+        //No sun and moon by default
         public CustomVanillaObject.Sun sun = null;
         public CustomVanillaObject.Moon moon = null;
+
         public FogSettings fogSettings = FogSettings.createDefaultSettings();
         public StarSettings star = StarSettings.createDefaultStars();
+
+        //Always render sky by default
         public SkyProperties.RenderCondition renderCondition = null;
         public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
         public boolean weather = true; // Default to true
