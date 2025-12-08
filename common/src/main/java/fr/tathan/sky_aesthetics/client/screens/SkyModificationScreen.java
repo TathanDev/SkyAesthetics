@@ -45,6 +45,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     protected void build(FlowLayout rootComponent) {
+        SkyAesthetics.LOG.error("Sky Dev null ? {}", SkiesRegistry.SKY_DEV == null);
+
         FlowLayout skyComponents = SkiesComponents.createDefaultComponent(
                 SkiesRegistry.SKY_DEV == null ? SkyProperties.createDefault() : SkiesRegistry.SKY_DEV.getSkyProperties()
         );

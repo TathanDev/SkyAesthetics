@@ -12,7 +12,11 @@ If no sun settings are specified, the world won't have a sun.
   "sky_box": {
     "gradation": 100,
     "texture": "sky_aesthetics:textures/skyboxes/venus.png",
-    "rotation": [0.0, 0.0, 0.0]
+    "rotation": [0.0, 0.0, 0.0],
+    "dynamic_rotation": {
+      "axis": "XP",
+      "rotation": "DAY"
+    }
   }
 }
 ```
@@ -21,6 +25,23 @@ If no sun settings are specified, the world won't have a sun.
 - `gradation`: The gradation is the quality of the skybox sphere. More gradation equals to a better sphere but worst performance.
 - `texture`: The texture of the skybox.
 - `rotation`: A three float arrays to modify the rotation of the skybox.
+- `dynamic_rotation`: An object that contains settings for the skybox rotation.
+
+## Dynamic Rotation Settings
+
+you can move the skybox with the time !
+
+```json
+{
+  "dynamic_rotation": {
+    "axis": "XP",
+    "rotation": "DAY"
+  }
+}
+```
+
+- `axis`: the axis of the rotation. Possible values : `XP`, `YP` and `ZP`
+- `rotation`: The rotation the skybox will follow (like the sun or the moon). Possible values : `DAY`, `NIGHT` or `STATIC`
 
 <style>
 

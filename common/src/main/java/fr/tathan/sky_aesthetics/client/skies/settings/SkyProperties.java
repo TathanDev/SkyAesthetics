@@ -98,15 +98,18 @@ public record SkyProperties(
         );
     }
 
-    public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.getFirst(), listx.getLast())), (vector4f) -> List.of(vector4f.x, vector4f.y));
 
 
     public record RenderCondition(Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome, Optional<Vec2> heightRange) {
+        public static Codec<Vec2> VEC2 = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 2).map((listx) -> new Vec2(listx.getFirst(), listx.getLast())), (vector4f) -> List.of(vector4f.x, vector4f.y));
+
         public static final Codec<RenderCondition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 TagKey.codec(Registries.BIOME).optionalFieldOf("biomes").forGetter(RenderCondition::biomes),
                 ResourceKey.codec(Registries.BIOME).optionalFieldOf("biome").forGetter(RenderCondition::biome),
                 VEC2.optionalFieldOf("height_range").forGetter(RenderCondition::heightRange)
         ).apply(instance, RenderCondition::new));
+
+
 
         public boolean isSkyRendered(ServerLevel level) {
             LocalPlayer player = Minecraft.getInstance().player;

@@ -122,7 +122,6 @@ public class SkyBoxSetting {
                 .rotate(Axis.ZP.rotationDegrees(this.rotation.z));
 
         this.dynamicRotation.ifPresent((dynRota -> {
-            SkyAesthetics.LOG.error("rotation {}", dayAngle);
             dynRota.rotatePoseStack(modelMatrix, dayAngle);
         }));
 
@@ -146,7 +145,7 @@ public class SkyBoxSetting {
                 Codec.INT.fieldOf("gradation").forGetter((b) -> b.gradation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter((b) -> b.texture),
                 SkyObject.VEC3F.fieldOf("rotation").forGetter((b) -> b.rotation),
-                Rotation.CODEC.optionalFieldOf("dynamicRotation").forGetter((b) -> b.dynamicRotation)
+                Rotation.CODEC.optionalFieldOf("dynamic_rotation").forGetter((b) -> b.dynamicRotation)
         ).apply(instance, SkyBoxSetting::new));
 
     }

@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
