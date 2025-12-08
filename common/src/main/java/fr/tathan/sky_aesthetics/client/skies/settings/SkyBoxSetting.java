@@ -137,7 +137,7 @@ public class SkyBoxSetting {
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
+        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/milky_way.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
     }
 
     static {
