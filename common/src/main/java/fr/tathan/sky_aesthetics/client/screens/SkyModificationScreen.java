@@ -281,7 +281,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
                         ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
                         getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new),
-                        Optional.empty())
+                        Optional.of(Rotation.createDefaultSettings()))
                 );
 
         CollapsibleContainer lightSettings = component.childById(CollapsibleContainer.class, "light_settings");

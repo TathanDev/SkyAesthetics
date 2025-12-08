@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.settings.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -82,9 +83,10 @@ public class DimensionRenderer {
         this.skyColor.setSkyColor(level, camera, partialTick);
 
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
+        SkyAesthetics.LOG.error("rotation {}", dayAngle);
 
         if(this.skyBoxSetting != null) {
-            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera);
+            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera,dayAngle);
         }
 
         this.fogSettings.runFogCallback(fogCallback);

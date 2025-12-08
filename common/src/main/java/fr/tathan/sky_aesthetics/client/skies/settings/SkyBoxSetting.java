@@ -100,7 +100,7 @@ public class SkyBoxSetting {
     }
 
 
-    public void renderSkyBox(PoseStack poseStack, Matrix4f projectionMatrix, Camera camera) {
+    public void renderSkyBox(PoseStack poseStack, Matrix4f projectionMatrix, Camera camera, float dayAngle) {
         poseStack.pushPose();
 
         FogRenderer.setupNoFog();
@@ -121,6 +121,11 @@ public class SkyBoxSetting {
                 .rotate(Axis.YP.rotationDegrees(this.rotation.y))
                 .rotate(Axis.ZP.rotationDegrees(this.rotation.z));
 
+        this.dynamicRotation.ifPresent((dynRota -> {
+            SkyAesthetics.LOG.error("rotation {}", dayAngle);
+            dynRota.rotatePoseStack(modelMatrix, dayAngle);
+        }));
+
         // Combine view and model matrices
         Matrix4f mvMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
 
@@ -133,7 +138,7 @@ public class SkyBoxSetting {
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0), Optional.empty());
+        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
     }
 
     static {
