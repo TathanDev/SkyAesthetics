@@ -45,6 +45,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     protected void build(FlowLayout rootComponent) {
+        SkyAesthetics.LOG.error("Sky Dev null ? {}", SkiesRegistry.SKY_DEV == null);
+
         FlowLayout skyComponents = SkiesComponents.createDefaultComponent(
                 SkiesRegistry.SKY_DEV == null ? SkyProperties.createDefault() : SkiesRegistry.SKY_DEV.getSkyProperties()
         );
@@ -54,17 +56,21 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                         .child(
                                 Containers.collapsible(Sizing.fill(75), Sizing.content(), net.minecraft.network.chat.Component.literal("Sky Settings"), true)
                                         .child(Containers.verticalScroll(Sizing.fill(50), Sizing.fill(90),
-                                                skyComponents.id("sky_components")
+                                                        skyComponents.id("sky_components")
                                                 ).surface(Surface.VANILLA_TRANSLUCENT).id("vertical_scroll")
                                         ).id("collapsible_container")
-                                )
+                        )
                         .child(
                                 Containers.verticalFlow(Sizing.fill(), Sizing.content())
-                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> skyToText(skyComponents)).id("save_button"))
+                                        .child(
+                                                Components.button(net.minecraft.network.chat.Component.literal("Documentation"), b -> Util.getPlatform().openUri("https://tathandev.github.io/SkyAesthetics/sky/")).margins(Insets.top(10)))
+
+                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> {
+                                            skyToText(skyComponents);
+                                        }).id("save_button"))
                                         .child(createSkiesImportDropdown(rootComponent, skyComponents).id("import_dropdown"))
                                         .child(createToggleDevSkyButton(skyComponents).horizontalSizing(Sizing.content()).id("toggle_button").margins(Insets.top(10)))
                                         .child(createReloadButton(skyComponents).horizontalSizing(Sizing.content()).id("reload_button").margins(Insets.top(10)))
-
                                         .margins(Insets.of(10, 0, -20, 0))
                         ).id("horizontal_flow")
         );
@@ -274,12 +280,25 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         CollapsibleContainer skyBoxSetting = component.childById(CollapsibleContainer.class, "skybox_settings");
 
+        Optional<Rotation> rotation = Optional.empty();
+
+        if(skyBoxSetting.expanded()) {
+            CollapsibleContainer dynamicRotationSettings = skyBoxSetting.childById(CollapsibleContainer.class, "dynamic_rotation");
+
+            rotation = !dynamicRotationSettings.expanded() ? Optional.empty() :
+                    Optional.of(new Rotation(
+                            Rotation.Axis.valueOf(dynamicRotationSettings.childById(TextBoxComponent.class, "axis").getValue()),
+                            getRotationType(dynamicRotationSettings.childById(TextBoxComponent.class, "rotation_type").getValue())
+                    ));
+
+        }
+
         Optional<SkyBoxSetting> skyBox = !skyBoxSetting.expanded() ? Optional.empty() :
                 Optional.of(new SkyBoxSetting(
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
                         ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
                         getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new),
-                        Optional.empty())
+                        rotation)
                 );
 
         CollapsibleContainer lightSettings = component.childById(CollapsibleContainer.class, "light_settings");
@@ -310,8 +329,9 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
     public static String getRotationType(String str) {
         return switch (str.toLowerCase()) {
-            case "static" -> "STATIC";
             case "day" -> "DAY";
+            case "night" -> "NIGHT";
+
             default -> "STATIC";
         };
     }
@@ -415,7 +435,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     public void playToast(net.minecraft.network.chat.Component title, net.minecraft.network.chat.Component description) {
-        this.minecraft.getToastManager().addToast(new SystemToast(
+        this.minecraft.getToasts().addToast(new SystemToast(
                 SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
                 title,
                 description

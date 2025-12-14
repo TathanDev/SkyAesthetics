@@ -9,8 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public record Constellation(
-         String id, float scale, Vec3 color, Vec3 firstPoint, List<Vec3> points, Optional<ResourceLocation> starTexture
-) {
+         String id, float scale, Vec3 color, Vec3 firstPoint, List<Vec3> points, Optional<ResourceLocation> starTexture) {
 
     public static final Codec<Constellation> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("id").forGetter(Constellation::id),

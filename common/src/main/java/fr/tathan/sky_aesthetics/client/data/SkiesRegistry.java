@@ -7,11 +7,9 @@ import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
-import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.Nullable;
@@ -19,7 +17,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SkiesRegistry extends SimpleJsonResourceReloadListener<JsonElement>  {
+/**
+ * The registry handling the loading of custom skies from data packs
+ */
+public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
 
     public static final Map<ResourceLocation, DimensionSky> SKY_PROPERTIES = new HashMap<>();
 
@@ -32,7 +33,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<JsonElement>
 
 
     public SkiesRegistry() {
-        super(ExtraCodecs.JSON, FileToIdConverter.json("sky_aesthetics"));
+        super(SkyAesthetics.GSON, "sky_aesthetics");
     }
 
     @Override
@@ -56,6 +57,12 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<JsonElement>
         });
     }
 
+    /**
+     * Allow to register sky.
+     * Can be used to register skies from code/at runtime.
+     * @param id the id of the sky to register
+     * @param sky the sky to register
+     */
     public static void registerSky(ResourceLocation id, DimensionSky sky) {
         if(SKY_PROPERTIES.containsKey(id)) {
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);

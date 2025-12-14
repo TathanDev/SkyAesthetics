@@ -103,6 +103,29 @@ public class SkiesComponents {
                 .tooltip(Component.literal("The Sphere rotation"))
                 .id("rotation"));
 
+        container.child(createDynamicRotation(setting.dynamicRotation).id("dynamic_rotation"));
+
+        return container;
+    }
+    public static CollapsibleContainer createDynamicRotation(Optional<Rotation> settings) {
+        CollapsibleContainer container = (CollapsibleContainer) Containers.collapsible(Sizing.content(), Sizing.content(0), Component.literal("Dynamic Rotation (Optionnal)"), settings.isPresent()).id("dynamic_rotation");
+
+        if(settings.isEmpty() && container.expanded()) container.toggleExpansion();
+
+        Rotation rotation = settings.orElseGet(Rotation::createDefaultSettings);
+
+        container.child(textBox(Sizing.fill(40))
+                .text(rotation.axis().getSerializedName())
+                .id("axis")
+                .tooltip(Component.literal("The rotation axis.").append("\nPossible Values : XP, ZP, YP"))
+        );
+        container.child(textBox(Sizing.fill(40))
+                .text(rotation.rotationType())
+                .id("rotation_type")
+                .tooltip(Component.literal("The rotation type.").append("\nPossible Values : DAY, NIGHT, STATIC"))
+
+        );
+
         return container;
     }
 
@@ -262,6 +285,8 @@ public class SkiesComponents {
 
         return container;
     }
+
+
 
 
     public static TextBoxComponent textBox(Sizing horizontalSizing) {

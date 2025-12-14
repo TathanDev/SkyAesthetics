@@ -102,7 +102,7 @@ public class SkyBoxSetting {
     }
 
 
-    public void renderSkyBox(PoseStack poseStack, Matrix4f projectionMatrix, Camera camera) {
+    public void renderSkyBox(PoseStack poseStack, Matrix4f projectionMatrix, Camera camera, float dayAngle) {
         poseStack.pushPose();
 
         FogRenderer.fogEnabled = false;
@@ -123,6 +123,10 @@ public class SkyBoxSetting {
                 .rotate(Axis.YP.rotationDegrees(this.rotation.y))
                 .rotate(Axis.ZP.rotationDegrees(this.rotation.z));
 
+        this.dynamicRotation.ifPresent((dynRota -> {
+            dynRota.rotatePoseStack(modelMatrix, dayAngle);
+        }));
+
         // Combine view and model matrices
         Matrix4f mvMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
 
@@ -135,7 +139,7 @@ public class SkyBoxSetting {
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/venus.png"), new Vector3f(0, 0, 0), Optional.empty());
+        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/milky_way.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
     }
 
     static {
@@ -143,7 +147,7 @@ public class SkyBoxSetting {
                 Codec.INT.fieldOf("gradation").forGetter((b) -> b.gradation),
                 ResourceLocation.CODEC.fieldOf("texture").forGetter((b) -> b.texture),
                 SkyObject.VEC3F.fieldOf("rotation").forGetter((b) -> b.rotation),
-                Rotation.CODEC.optionalFieldOf("dynamicRotation").forGetter((b) -> b.dynamicRotation)
+                Rotation.CODEC.optionalFieldOf("dynamic_rotation").forGetter((b) -> b.dynamicRotation)
         ).apply(instance, SkyBoxSetting::new));
 
     }

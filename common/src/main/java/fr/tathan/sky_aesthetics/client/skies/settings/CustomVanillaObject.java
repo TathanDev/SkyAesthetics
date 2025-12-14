@@ -8,6 +8,9 @@ import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 
+/**
+ * Custom vanilla objects like sun and moon with custom textures, sizes and heights.
+ */
 public class CustomVanillaObject{
 
     public record Sun(ResourceLocation sunTexture, Float sunHeight, Float sunSize) {

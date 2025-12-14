@@ -1,9 +1,9 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 
 import java.util.Objects;
@@ -15,19 +15,23 @@ public record Rotation(Axis axis, String rotationType) {
             Codec.STRING.fieldOf("rotation").forGetter(Rotation::rotationType)
     ).apply(instance, Rotation::new));
 
+    public static Rotation createDefaultSettings() {
+        return new Rotation(Axis.XP, "NIGHT");
+    }
 
-    public void rotatePoseStack(PoseStack stack, float dayAngle){
+    public void rotatePoseStack(Matrix4f modelMatrix, float dayAngle){
         if(Objects.equals(rotationType, "NIGHT")){
             dayAngle = -dayAngle;
         }
-       stack.mulPose(axis.toQuaternion(dayAngle));
+        if(!Objects.equals(rotationType, "STATIC")) {
+            modelMatrix.rotate(axis.toQuaternion(dayAngle));
+        }
     }
 
     public enum Axis implements StringRepresentable {
         XP("XP"),
         YP("YP"),
         ZP("ZP");
-
 
 
         public final String name;
