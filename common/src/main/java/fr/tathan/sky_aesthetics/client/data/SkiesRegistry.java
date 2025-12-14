@@ -7,6 +7,7 @@ import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -20,7 +21,7 @@ import java.util.Map;
 /**
  * The registry handling the loading of custom skies from data packs
  */
-public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
+public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyProperties>  {
 
     public static final Map<ResourceLocation, DimensionSky> SKY_PROPERTIES = new HashMap<>();
 
@@ -33,28 +34,21 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener  {
 
 
     public SkiesRegistry() {
-        super(SkyAesthetics.GSON, "sky_aesthetics");
+        super(SkyProperties.CODEC, FileToIdConverter.json("sky_aesthetics"));
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, @Nullable ResourceManager resourceManager, @Nullable ProfilerFiller profiler) {
+    protected void apply(Map<ResourceLocation, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
         SKY_PROPERTIES.clear();
-        object.forEach((key, value) -> {
-            JsonObject json = GsonHelper.convertToJsonObject(value, "sky properties");
-            DataResult<SkyProperties> decoder = SkyProperties.CODEC.parse(JsonOps.INSTANCE, json);
+        object.forEach((key, skyProperties) -> {
 
-            if(decoder.error().isPresent()) {
-                SkyAesthetics.LOG.error("Error parsing sky : {}", decoder.error().get().message());
-                return;
-            }
-
-            SkyProperties skyProperties = decoder.getOrThrow();
             DimensionSky dimensionSky = new DimensionSky(skyProperties);
 
             registerSky(skyProperties.id(), dimensionSky);
             SkyAesthetics.LOG.info("{} | registered", skyProperties.id());
 
         });
+
     }
 
     /**

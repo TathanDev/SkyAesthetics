@@ -32,7 +32,7 @@ public record FogSettings(Boolean fog, Optional<Vector3i> customFogColor, Option
 
     public void runFogCallback(Runnable fogCallback) {
         if(this.fog) {
-            fogCallback.run();
+            //fogCallback.run();
         }
     }
 }

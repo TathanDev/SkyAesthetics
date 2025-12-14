@@ -12,6 +12,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import org.joml.Matrix4f;
@@ -69,8 +70,9 @@ public class DimensionRenderer {
         return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource bufferSource,  Runnable fogCallback) {
 
+        //TODO use buffersource for EVERYTHING
 
         Tesselator tesselator = Tesselator.getInstance();
         float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
@@ -79,25 +81,24 @@ public class DimensionRenderer {
         //Sky delimitation
         this.fogSettings.runFogCallback(fogCallback);
 
-
-        FogRenderer.levelFogColor();
+        //FogRenderer.levelFogColor();
         RenderSystem.depthMask(false);
 
-        this.skyColor.setSkyColor(level, camera, partialTick);
+        //this.skyColor.setSkyColor(level, camera, partialTick);
 
         SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
 
         if(this.skyBoxSetting != null) {
-            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera);
+            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
         }
 
         this.fogSettings.runFogCallback(fogCallback);
 
-        this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
+        //this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
 
-        this.starSettings.shootingStars().ifPresent((shootingStars) -> {
-            this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
-        });
+        //this.starSettings.shootingStars().ifPresent((shootingStars) -> {
+        //    this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
+        //});
 
         this.fogSettings.runFogCallback(fogCallback);
 

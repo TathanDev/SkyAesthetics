@@ -435,7 +435,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
     }
 
     public void playToast(net.minecraft.network.chat.Component title, net.minecraft.network.chat.Component description) {
-        this.minecraft.getToasts().addToast(new SystemToast(
+        this.minecraft.getToastManager().addToast(new SystemToast(
                 SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
                 title,
                 description
