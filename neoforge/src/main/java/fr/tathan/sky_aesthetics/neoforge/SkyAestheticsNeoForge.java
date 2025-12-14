@@ -7,6 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import fr.tathan.SkyAesthetics;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 
 @Mod(SkyAesthetics.MODID)
@@ -21,10 +22,15 @@ public final class SkyAestheticsNeoForge {
     public static class ClientModEvents {
 
         @SubscribeEvent
-        public static void onClientSetup(RegisterClientReloadListenersEvent event) {
-            PlatformHelperClient.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
+        public static void onReloadListener(RegisterClientReloadListenersEvent event) {
 
             SkyAesthetics.onAddReloadListenerEvent((id, listener) -> event.registerReloadListener(listener));
+        }
+
+        @SubscribeEvent
+        public static void onClientSetup(FMLClientSetupEvent event) {
+            PlatformHelperClient.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
+
         }
     }
 
