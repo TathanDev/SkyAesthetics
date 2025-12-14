@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -29,8 +30,8 @@ public class CustomVanillaObject{
             return new Sun(texture, height, size);
         }
 
-        public void render(Tesselator tesselator, PoseStack poseStack, float dayAngle) {
-            SkyHelper.drawCelestialBody(this.sunTexture(), tesselator, poseStack, sunHeight, sunSize, dayAngle, true);
+        public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float dayAngle) {
+            SkyHelper.drawCelestialBody(this.sunTexture(), bufferSource, poseStack, sunHeight, sunSize, dayAngle, true);
         }
 
     }
@@ -52,11 +53,11 @@ public class CustomVanillaObject{
             return new Moon(moonPhase, texture, height, size);
         }
 
-        public void render(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float nightAngle) {
+        public void render(ClientLevel level, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float nightAngle) {
             if (this.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(tesselator, poseStack, moonSize(), moonTexture(), nightAngle);
+                SkyHelper.drawMoonWithPhase(bufferSource, poseStack, moonSize(), moonTexture(), nightAngle);
             } else {
-                SkyHelper.drawCelestialBody(moonTexture(), tesselator, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);
+                SkyHelper.drawCelestialBody(moonTexture(), bufferSource, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);
             }
         }
     }

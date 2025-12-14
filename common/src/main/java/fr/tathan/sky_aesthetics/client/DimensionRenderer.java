@@ -70,7 +70,7 @@ public class DimensionRenderer {
         return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource bufferSource,  Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource,  Runnable fogCallback) {
 
         //TODO use buffersource for EVERYTHING
 
@@ -82,15 +82,15 @@ public class DimensionRenderer {
         this.fogSettings.runFogCallback(fogCallback);
 
         //FogRenderer.levelFogColor();
-        RenderSystem.depthMask(false);
+        //RenderSystem.depthMask(false);
 
         //this.skyColor.setSkyColor(level, camera, partialTick);
 
-        SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
+        //SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
 
-        if(this.skyBoxSetting != null) {
-            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
-        }
+        //if(this.skyBoxSetting != null) {
+        //    this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
+        //}
 
         this.fogSettings.runFogCallback(fogCallback);
 
@@ -103,23 +103,23 @@ public class DimensionRenderer {
         this.fogSettings.runFogCallback(fogCallback);
 
         if (sun != null) {
-            sun.render(tesselator, poseStack, dayAngle);
+            sun.render(bufferSource, poseStack, dayAngle);
         }
 
         if (moon != null) {
-            moon.render(null, tesselator, poseStack, nightAngle);
+            moon.render(null, bufferSource, poseStack, nightAngle);
         }
 
-        for (SkyObject skyObject : skyObjects) {
-            skyObject.drawSkyObject(tesselator, poseStack, dayAngle);
-        }
+        //for (SkyObject skyObject : skyObjects) {
+        //    skyObject.drawSkyObject(tesselator, poseStack, dayAngle);
+        //}
 
         this.testRender(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
 
         this.fogSettings.runFogCallback(fogCallback);
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        RenderSystem.depthMask(true);
+        //RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        //RenderSystem.depthMask(true);
 
     }
 

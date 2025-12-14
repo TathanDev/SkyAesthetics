@@ -12,7 +12,10 @@ import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
@@ -32,7 +35,7 @@ public class SkyHelper {
         VertexBuffer.unbind();
     }
 
-    public static void drawMoonWithPhase(Tesselator tesselator, PoseStack poseStack, float y, ResourceLocation texture, float dayAngle) {
+    public static void drawMoonWithPhase(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, ResourceLocation texture, float dayAngle) {
         int moonPhase = 3; // TODO: Get moon phase
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
@@ -40,19 +43,19 @@ public class SkyHelper {
         float startY = yCoord / 2.0F;
         float endX = (xCoord + 1) / 4.0F;
         float endY = (yCoord + 1) / 2.0F;
-        drawCelestialBody(texture, tesselator, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
+        drawCelestialBody(texture, bufferSource, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, boolean blend) {
-        drawCelestialBody(texture, tesselator, poseStack, y, size, dayAngle, 0f, 1f, 1f, 0f, blend);
+    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, boolean blend) {
+        drawCelestialBody(texture, bufferSource, poseStack, y, size, dayAngle, 0f, 1f, 1f, 0f, blend);
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
-        drawCelestialBody(texture, tesselator, poseStack, y, size, dayAngle, startX, endX, startY, endY, blend, new float[]{1f, 1f, 1f, 1f});
+    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
+        drawCelestialBody(texture, bufferSource, poseStack, y, size, dayAngle, startX, endX, startY, endY, blend, new float[]{1f, 1f, 1f, 1f});
 
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, Tesselator tesselator, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
+    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
         if (blend) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -69,20 +72,22 @@ public class SkyHelper {
             color = new float[]{1f, 1f, 1f, 1f};
         }
 
+        int i = ARGB.white(color[3 ]);
+
         float ratio = 1;
         if (y > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / y;
         }
 
-        RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
-        RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, texture);
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY);
-        bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY);
-        bufferBuilder.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY);
-        bufferBuilder.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
+        //RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
+        //RenderSystem.setShader(CoreShaders.POSITION_TEX);
+        //RenderSystem.setShaderTexture(0, texture);
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.celestial(texture));
+        consumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY).setColor(i);
+        consumer.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY).setColor(i);
+        consumer.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY).setColor(i);
+        consumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY).setColor(i);
+        bufferSource.endBatch();
         poseStack.popPose();
 
         if (blend) {
