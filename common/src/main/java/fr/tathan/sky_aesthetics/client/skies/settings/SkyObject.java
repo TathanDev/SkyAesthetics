@@ -9,6 +9,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -71,7 +73,7 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
         poseStack.translate(0, -100, 0);
     }
 
-    public void drawSkyObject(Tesselator tesselator, PoseStack poseStack, float dayAngle) {
+    public void drawSkyObject(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float dayAngle) {
         if (this.blend()) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -93,17 +95,18 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / this.height();
         }
 
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        RenderSystem.setShaderTexture(0, this.texture());
-        BufferBuilder bufferBuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-        bufferBuilder.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f);
-        bufferBuilder.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(1f, 0f);
-        bufferBuilder.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(1f, 1f);
-        bufferBuilder.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(0f, 1f);
-        BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
-        poseStack.popPose();
 
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.celestial(texture));
+        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f);
+        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(1f, 0f);
+        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(1f, 1f);
+        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(0f, 1f);
+        poseStack.popPose();
+        bufferSource.endBatch();
+
+        if (blend) {
+            RenderSystem.disableBlend();
+        }
         if (this.blend()) {
             RenderSystem.disableBlend();
         }

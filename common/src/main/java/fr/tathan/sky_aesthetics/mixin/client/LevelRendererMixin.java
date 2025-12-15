@@ -34,6 +34,10 @@ public abstract class LevelRendererMixin {
     @Shadow
     private RenderBuffers renderBuffers;
 
+    @Mutable
+    @Shadow
+    public SkyRenderer skyRenderer;
+
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
@@ -53,10 +57,11 @@ public abstract class LevelRendererMixin {
                     RenderStateShard.MAIN_TARGET.setupRenderState();
 
                     MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
-
                     PoseStack poseStack = new PoseStack();
+
                     level.effects = planetSky;
-                    planetSky.getRenderer().render(level, poseStack, RenderSystem.getProjectionMatrix(), partialTick, camera,  bufferSource,() -> RenderSystem.setShaderFog(fog));
+
+                    planetSky.getRenderer().render(level, poseStack, RenderSystem.getProjectionMatrix(), partialTick, camera,  bufferSource, skyRenderer, fog);
                 });
                 ci.cancel();
             }));

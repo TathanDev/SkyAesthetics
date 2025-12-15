@@ -9,10 +9,7 @@ import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -20,6 +17,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -193,33 +191,25 @@ public class StarHelper {
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture) {
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
-        FogRenderer.fogEnabled = false;
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, float nightTime, Optional<ResourceLocation> starTexture, FogParameters fog) {
 
-        starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+        //Already Set
+        //RenderSystem.setShaderColor(starBrightness, starBrightness, starBrightness, starBrightness);
 
-        float cycleSpeed = 0.5f;
-        float alpha = (Mth.cos((float) (System.currentTimeMillis() * cycleSpeed / 1000.0)) + 1.0f) / 2.0f;
-        alpha = Mth.lerp(0.3f, 0.7f, alpha);
+        RenderSystem.setShaderFog(FogParameters.NO_FOG);
+        vertexBuffer.drawWithRenderType(stars());
+        RenderSystem.setShaderFog(fog);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        matrix4fStack.popMatrix();
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
-
-        vertexBuffer.bind();
-        if (starTexture.isPresent()) {
-            RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
-        } else {
-            RenderSystem.setShader(CoreShaders.POSITION_COLOR);
-            vertexBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
-        }
-
-        VertexBuffer.unbind();
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        poseStack.popPose();
     }
 
+    public static RenderType stars() {
+        return RenderType.create("colored_stars", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1536, false, false, RenderType.CompositeState.builder().setShaderState(RenderType.POSITION_COLOR_SHADER).setTransparencyState(RenderType.OVERLAY_TRANSPARENCY).setWriteMaskState(RenderType.COLOR_WRITE).createCompositeState(false));
+    }
 
     public static VertexBuffer createVanillaStars() {
 

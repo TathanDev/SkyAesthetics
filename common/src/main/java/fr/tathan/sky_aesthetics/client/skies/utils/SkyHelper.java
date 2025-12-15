@@ -79,16 +79,13 @@ public class SkyHelper {
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / y;
         }
 
-        //RenderSystem.setShaderColor(color[0] , color[1], color[2], 4.0F);
-        //RenderSystem.setShader(CoreShaders.POSITION_TEX);
-        //RenderSystem.setShaderTexture(0, texture);
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.celestial(texture));
         consumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, -size * ratio).setUv(startX, endY).setColor(i);
         consumer.addVertex(matrix4f, size * ratio, y * ratio - 1, -size * ratio).setUv(endX, endY).setColor(i);
         consumer.addVertex(matrix4f, size * ratio, y * ratio - 1, size * ratio).setUv(endX, startY).setColor(i);
         consumer.addVertex(matrix4f, -size * ratio, y * ratio - 1, size * ratio).setUv(startX, startY).setColor(i);
-        bufferSource.endBatch();
         poseStack.popPose();
+        bufferSource.endBatch();
 
         if (blend) {
             RenderSystem.disableBlend();

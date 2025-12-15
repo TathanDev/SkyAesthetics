@@ -10,8 +10,7 @@ import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -60,19 +59,16 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
         return null;
     }
 
-    public void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, float nightAngle, VertexBuffer starBuffer) {
+    public void renderStars(ClientLevel level, float partialTick, PoseStack poseStack, Matrix4f projectionMatrix, FogParameters fog, float nightAngle, VertexBuffer starBuffer, SkyRenderer skyRenderer) {
         float starLight = level.getStarBrightness(partialTick) * (1.0f - level.getRainLevel(partialTick));
+
 
         if(starBuffer == null) return;
 
         if (this.vanilla()) {
             if (starLight > 0.0f) {
-                RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
-                RenderSystem.setShader(CoreShaders.POSITION);
-                FogRenderer.fogEnabled = false;
-                starBuffer.bind();
-                starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, RenderSystem.getShader());
-                VertexBuffer.unbind();
+
+                skyRenderer.renderStars(fog, starLight, poseStack);
             }
             return;
         }
@@ -87,10 +83,10 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
 
         if (this.allDaysVisible()) {
             RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-        } else if (starLight > 0.2F) {
-            RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
+        } else if (starLight > 0.0f) {
+            RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
         }
-        StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture());
+        StarHelper.drawStars(starBuffer, poseStack, starsAngle, this.starsTexture(), fog);
 
     }
 

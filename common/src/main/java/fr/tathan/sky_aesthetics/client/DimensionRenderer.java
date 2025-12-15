@@ -11,10 +11,10 @@ import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -70,21 +70,34 @@ public class DimensionRenderer {
         return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
-    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource,  Runnable fogCallback) {
+    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource, SkyRenderer skyRenderer,  FogParameters fog) {
 
         //TODO use buffersource for EVERYTHING
 
-        Tesselator tesselator = Tesselator.getInstance();
-        float dayAngle = level.getTimeOfDay(partialTick) * 360f % 360f;
+        DimensionSpecialEffects dimensionSpecialEffects = level.effects();
+
+
+
+        float timeOfTheDay = level.getTimeOfDay(partialTick);
+        float dayAngle = level.getSunAngle(partialTick);
         float nightAngle = dayAngle + 180;
+        int sunsetColor = dimensionSpecialEffects.getSunriseOrSunsetColor(timeOfTheDay);
+
+
 
         //Sky delimitation
-        this.fogSettings.runFogCallback(fogCallback);
 
         //FogRenderer.levelFogColor();
         //RenderSystem.depthMask(false);
 
         //this.skyColor.setSkyColor(level, camera, partialTick);
+
+        int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
+        float n = ARGB.redFloat(m);
+        float o = ARGB.greenFloat(m);
+        float p = ARGB.blueFloat(m);
+        skyRenderer.renderSkyDisc(n, o, p);
+
 
         //SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
 
@@ -92,15 +105,13 @@ public class DimensionRenderer {
         //    this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
         //}
 
-        this.fogSettings.runFogCallback(fogCallback);
 
-        //this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
+
+        this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, fog, nightAngle, starBuffer, skyRenderer);
 
         //this.starSettings.shootingStars().ifPresent((shootingStars) -> {
         //    this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
         //});
-
-        this.fogSettings.runFogCallback(fogCallback);
 
         if (sun != null) {
             sun.render(bufferSource, poseStack, dayAngle);
@@ -110,14 +121,19 @@ public class DimensionRenderer {
             moon.render(null, bufferSource, poseStack, nightAngle);
         }
 
-        //for (SkyObject skyObject : skyObjects) {
-        //    skyObject.drawSkyObject(tesselator, poseStack, dayAngle);
-        //}
+        for (SkyObject skyObject : skyObjects) {
+            skyObject.drawSkyObject(bufferSource, poseStack, dayAngle);
+        }
 
-        this.testRender(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
 
-        this.fogSettings.runFogCallback(fogCallback);
+        if (dimensionSpecialEffects.isSunriseOrSunset(dayAngle)) {
+            skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, dayAngle, sunsetColor);
 
+        }
+        bufferSource.endBatch();
+        if (Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F) {
+            skyRenderer.renderDarkDisc(poseStack);
+        }
         //RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         //RenderSystem.depthMask(true);
 
