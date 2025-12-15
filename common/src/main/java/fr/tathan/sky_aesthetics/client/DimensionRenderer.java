@@ -83,13 +83,6 @@ public class DimensionRenderer {
         float nightAngle = dayAngle + 180;
         int sunsetColor = dimensionSpecialEffects.getSunriseOrSunsetColor(timeOfTheDay);
 
-
-
-        //Sky delimitation
-
-        //FogRenderer.levelFogColor();
-        //RenderSystem.depthMask(false);
-
         //this.skyColor.setSkyColor(level, camera, partialTick);
 
         int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
@@ -98,12 +91,9 @@ public class DimensionRenderer {
         float p = ARGB.blueFloat(m);
         skyRenderer.renderSkyDisc(n, o, p);
 
-
-        //SkyHelper.drawSky(poseStack.last().pose(), projectionMatrix);
-
-        //if(this.skyBoxSetting != null) {
-        //    this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
-        //}
+        if(this.skyBoxSetting != null) {
+            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
+        }
 
 
 
@@ -128,7 +118,6 @@ public class DimensionRenderer {
 
         if (dimensionSpecialEffects.isSunriseOrSunset(dayAngle)) {
             skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, dayAngle, sunsetColor);
-
         }
         bufferSource.endBatch();
         if (Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F) {
