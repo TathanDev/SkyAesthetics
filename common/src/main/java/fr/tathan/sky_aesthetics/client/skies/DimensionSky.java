@@ -92,6 +92,11 @@ public class DimensionSky extends DimensionSpecialEffects {
         return super.constantAmbientLight();
     }
 
+    public boolean isSunriseOrSunset(float timeOfDay) {
+        float f = Mth.cos(timeOfDay * ((float)Math.PI * 2F));
+        return f >= -0.4F && f <= 0.4F;
+    }
+
     /** Getter **/
     public ResourceKey<Level> getDimension() {
         return dimension;

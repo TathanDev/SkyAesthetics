@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ARGB;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -95,12 +96,12 @@ public record SkyObject(ResourceLocation texture, boolean blend, float size, Vec
             ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / this.height();
         }
 
-
+        int i = ARGB.white(1f);
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.celestial(texture));
-        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f);
-        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(1f, 0f);
-        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(1f, 1f);
-        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(0f, 1f);
+        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f).setColor(i);
+        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(1f, 0f).setColor(i);
+        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(1f, 1f).setColor(i);
+        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(0f, 1f).setColor(i);
         poseStack.popPose();
         bufferSource.endBatch();
 

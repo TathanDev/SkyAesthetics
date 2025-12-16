@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.settings.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
@@ -15,7 +16,7 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ARGB;
-import org.joml.Matrix4f;
+import org.joml.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,25 +73,43 @@ public class DimensionRenderer {
 
     public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource, SkyRenderer skyRenderer,  FogParameters fog) {
 
-        //TODO use buffersource for EVERYTHING
+        //TODO : Add Fix Sky Color, change fog params, sun angle
 
         DimensionSpecialEffects dimensionSpecialEffects = level.effects();
 
-
-
         float timeOfTheDay = level.getTimeOfDay(partialTick);
         float dayAngle = level.getSunAngle(partialTick);
+
         float nightAngle = dayAngle + 180;
         int sunsetColor = dimensionSpecialEffects.getSunriseOrSunsetColor(timeOfTheDay);
 
-        //this.skyColor.setSkyColor(level, camera, partialTick);
+        //Fog Handling
+        fog = this.fogSettings.setCustomFog(fog);
+        this.fogSettings.runFogCallback(fog);
 
-        int m = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
-        float n = ARGB.redFloat(m);
-        float o = ARGB.greenFloat(m);
-        float p = ARGB.blueFloat(m);
-        skyRenderer.renderSkyDisc(n, o, p);
+        /**
+         * Sky Color Handling
+         */
+        int baseSkyColor = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
 
+        Vector3f skyColor = new Vector3f(ARGB.redFloat(baseSkyColor), ARGB.greenFloat(baseSkyColor), ARGB.blueFloat(baseSkyColor));
+
+        if(this.skyColor.color().isPresent()) {
+            Vector4f customSkyColor = this.skyColor.color().get();
+            skyColor.set(customSkyColor.x / 255f, customSkyColor.y / 255f, customSkyColor.z / 255f);
+        }
+        skyRenderer.renderSkyDisc(skyColor.x, skyColor.y, skyColor.z);
+
+        /**
+         * Sunrise and Sunset Rendering
+         */
+        if (dimensionSpecialEffects.isSunriseOrSunset(timeOfTheDay)) {
+            skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, dayAngle, sunsetColor);
+        }
+
+        /**
+         * Skybox Rendering
+         */
         if(this.skyBoxSetting != null) {
             this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
         }
@@ -103,6 +122,30 @@ public class DimensionRenderer {
         //    this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
         //});
 
+
+        this.renderSunAndMoon(poseStack, bufferSource, timeOfTheDay, dayAngle, nightAngle);
+
+        for (SkyObject skyObject : skyObjects) {
+            skyObject.drawSkyObject(bufferSource, poseStack, dayAngle);
+        }
+
+
+        bufferSource.endBatch();
+        if (Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F) {
+            skyRenderer.renderDarkDisc(poseStack);
+        }
+
+    }
+
+    public void testRender(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
+    }
+
+    public void renderSunAndMoon(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float timeOfTheDay, float dayAngle, float nightAngle) {
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
+        poseStack.mulPose(Axis.XP.rotationDegrees(timeOfTheDay * 360.0F));
+
+
         if (sun != null) {
             sun.render(bufferSource, poseStack, dayAngle);
         }
@@ -111,24 +154,8 @@ public class DimensionRenderer {
             moon.render(null, bufferSource, poseStack, nightAngle);
         }
 
-        for (SkyObject skyObject : skyObjects) {
-            skyObject.drawSkyObject(bufferSource, poseStack, dayAngle);
-        }
+        poseStack.popPose();
 
-
-        if (dimensionSpecialEffects.isSunriseOrSunset(dayAngle)) {
-            skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, dayAngle, sunsetColor);
-        }
-        bufferSource.endBatch();
-        if (Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F) {
-            skyRenderer.renderDarkDisc(poseStack);
-        }
-        //RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-        //RenderSystem.depthMask(true);
-
-    }
-
-    public void testRender(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
     }
 
     public boolean renderClouds() {

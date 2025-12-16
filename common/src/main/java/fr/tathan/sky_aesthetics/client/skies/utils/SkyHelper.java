@@ -72,7 +72,7 @@ public class SkyHelper {
             color = new float[]{1f, 1f, 1f, 1f};
         }
 
-        int i = ARGB.white(color[3 ]);
+        int i = ARGB.white(color[3]);
 
         float ratio = 1;
         if (y > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
