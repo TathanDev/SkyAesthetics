@@ -10,3 +10,4 @@ accessible field net/minecraft/client/renderer/SkyRenderer topSkyBuffer Lcom/moj
 accessible field net/minecraft/client/renderer/SkyRenderer bottomSkyBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
 accessible field net/minecraft/client/renderer/FogRenderer fogEnabled Z
 accessible method net/minecraft/client/renderer/SkyRenderer renderStars (Lnet/minecraft/client/renderer/FogParameters;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+accessible class net/minecraft/client/renderer/WeatherEffectRenderer$ColumnInstance

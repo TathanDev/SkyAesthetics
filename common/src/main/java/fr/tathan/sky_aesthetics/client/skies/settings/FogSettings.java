@@ -40,9 +40,7 @@ public record FogSettings(Boolean fog, Optional<Vector3i> customFogColor, Option
         if (this.fogDensity().isPresent()) {
             Vector2f density = this.fogDensity().get();
             fog = new FogParameters(density.x, density.y, fog.shape(), fog.red(), fog.green(), fog.blue(), fog.alpha());
-
         }
-
         return fog;
     }
 

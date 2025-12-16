@@ -21,11 +21,6 @@ public class FogRendererMixin {
     @Unique
     private static ClientLevel sky_aesthetics$level;
 
-    @Inject(method = "computeFogColor", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;z()D", shift = At.Shift.AFTER))
-    private static void setupCustomColor(Camera camera, float partialTick, ClientLevel level, int renderDistance, float darkenWorldAmount, CallbackInfoReturnable<Vector3i> cir) {
-        FogRendererMixin.sky_aesthetics$level = level;
-        SkyHelper.canRenderSky(level, (planetSky -> planetSky.getRenderer().fogSettings.customFogColor().ifPresent(cir::setReturnValue)));
-    }
 
     @Inject(method = "setupFog", at = @At(value = "TAIL"))
     private static void modifyFogThickness(Camera camera, FogRenderer.FogMode fogMode, Vector4f fogColor, float renderDistance, boolean isFoggy, float partialTick, CallbackInfoReturnable<FogParameters> cir) {

@@ -10,6 +10,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
+import net.minecraft.server.level.ParticleStatus;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -53,7 +54,6 @@ public abstract class LevelRendererMixin {
                 this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                 framePass.executes(() -> {
-                    RenderSystem.setShaderFog(fog);
                     RenderStateShard.MAIN_TARGET.setupRenderState();
 
                     MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
@@ -80,6 +80,16 @@ public abstract class LevelRendererMixin {
             }
         }));
     }
+
+//    @Inject(method = "tickParticles", at = @At(value = "HEAD"), cancellable = true)
+//    public void cancelSnowAndRainRenderer(Camera camera, CallbackInfo ci) {
+//        SkyHelper.canRenderSky(level, (planetSky -> {
+//            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
+//                ci.cancel();
+//            }
+//        }));
+//    }
+
 
     /*@Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
