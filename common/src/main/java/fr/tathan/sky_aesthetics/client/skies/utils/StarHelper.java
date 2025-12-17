@@ -194,16 +194,16 @@ public class StarHelper {
     public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, float nightTime, Optional<ResourceLocation> starTexture, FogParameters fog) {
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
-        //Already Set
-        //RenderSystem.setShaderColor(starBrightness, starBrightness, starBrightness, starBrightness);
-
+        matrix4fStack.rotate(Axis.ZP.rotationDegrees(nightTime));
         RenderSystem.setShaderFog(FogParameters.NO_FOG);
         vertexBuffer.drawWithRenderType(stars());
         RenderSystem.setShaderFog(fog);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         matrix4fStack.popMatrix();
+
 
     }
 
