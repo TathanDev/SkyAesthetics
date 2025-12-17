@@ -10,6 +10,7 @@
     "client.WeatherEffectRendererMixin"
   ],
   "mixins": [
+    "client.LeavesBlockMixin"
   ],
   "injectors": {
     "defaultRequire": 1

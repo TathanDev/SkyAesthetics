@@ -40,10 +40,11 @@ public abstract class WeatherEffectRendererMixin {
     @Inject(method = "tickRainParticles", at = @At(value = "HEAD"), cancellable = true)
     public void tickRainParticles(ClientLevel level, Camera camera, int ticks, ParticleStatus particleStatus, CallbackInfo ci) {
         if (!(level instanceof ClientLevel)) return;
-        SkyHelper.canRenderSky((ClientLevel) level, (planetSky -> {
+        SkyHelper.canRenderSky(level, (planetSky -> {
             if (!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
                 ci.cancel();
             }
         }));
+
     }
 }
