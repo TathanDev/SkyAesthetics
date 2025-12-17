@@ -51,4 +51,4 @@ docs/.vitepress/dist
 node_modules/
 .vitepress
 
-build/reports/problems/problems-report.html
+build
