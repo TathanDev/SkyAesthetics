@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 loom {
@@ -53,7 +53,7 @@ processResources {
     }
 }
 
-shadowJar {
+tasks.shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowBundle]
@@ -62,7 +62,7 @@ shadowJar {
 
 remapJar {
     injectAccessWidener = true
-    inputFile.set(shadowJar.archiveFile)
+    inputFile.set(tasks.shadowJar.archiveFile)
     dependsOn shadowJar
     archiveClassifier = null
 

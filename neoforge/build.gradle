@@ -1,5 +1,5 @@
 plugins {
-    id 'com.github.johnrengelman.shadow'
+    id 'com.gradleup.shadow'
 }
 
 architectury {
@@ -67,7 +67,7 @@ processResources {
     }
 }
 
-shadowJar {
+tasks.shadowJar {
     exclude "architectury.common.json"
 
     configurations = [project.configurations.shadowBundle]
@@ -75,7 +75,7 @@ shadowJar {
 }
 
 remapJar {
-    input.set shadowJar.archiveFile
+    input.set tasks.shadowJar.archiveFile
     atAccessWideners.add("sky_aesthetics.accesswidener")
 
 }
