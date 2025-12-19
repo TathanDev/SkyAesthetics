@@ -1,21 +1,15 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.FogRenderer;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.Optional;
@@ -28,11 +22,11 @@ public class SkyBoxSetting {
     public VertexBuffer sphere;
 
     public final int gradation;
-    public final ResourceLocation texture;
+    public final Identifier texture;
     public final Vector3f rotation;
     public final Optional<Rotation> dynamicRotation;
 
-    public SkyBoxSetting(int gradation, ResourceLocation texture, Vector3f rotation, Optional<Rotation> dynamicRotation) {
+    public SkyBoxSetting(int gradation, Identifier texture, Vector3f rotation, Optional<Rotation> dynamicRotation) {
         this.gradation = gradation;
         this.texture = texture;
         this.rotation = rotation;
@@ -123,9 +117,7 @@ public class SkyBoxSetting {
                 .rotate(Axis.YP.rotationDegrees(this.rotation.y))
                 .rotate(Axis.ZP.rotationDegrees(this.rotation.z));
 
-        this.dynamicRotation.ifPresent((dynRota -> {
-            dynRota.rotatePoseStack(modelMatrix, dayAngle);
-        }));
+        this.dynamicRotation.ifPresent((dynRota -> dynRota.rotatePoseStack(modelMatrix, dayAngle)));
 
         // Combine view and model matrices
         Matrix4f mvMatrix = new Matrix4f(viewMatrix).mul(modelMatrix);
@@ -139,13 +131,13 @@ public class SkyBoxSetting {
     }
 
     public static SkyBoxSetting createDefaultSettings() {
-        return new SkyBoxSetting(100, ResourceLocation.parse("sky_aesthetics:textures/skyboxes/milky_way.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
+        return new SkyBoxSetting(100, Identifier.parse("sky_aesthetics:textures/skyboxes/milky_way.png"), new Vector3f(0, 0, 0), Optional.of(Rotation.createDefaultSettings()));
     }
 
     static {
         CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 Codec.INT.fieldOf("gradation").forGetter((b) -> b.gradation),
-                ResourceLocation.CODEC.fieldOf("texture").forGetter((b) -> b.texture),
+                Identifier.CODEC.fieldOf("texture").forGetter((b) -> b.texture),
                 SkyObject.VEC3F.fieldOf("rotation").forGetter((b) -> b.rotation),
                 Rotation.CODEC.optionalFieldOf("dynamic_rotation").forGetter((b) -> b.dynamicRotation)
         ).apply(instance, SkyBoxSetting::new));

@@ -5,7 +5,7 @@ import fr.tathan.exoconfig.platform.PlatformClientHelper;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
 
@@ -30,7 +30,7 @@ public final class SkyAestheticsClientFabric implements ClientModInitializer {
             }
 
             @Override
-            public ResourceLocation getFabricId() {
+            public Identifier getFabricId() {
                 return id;
             }
         }));

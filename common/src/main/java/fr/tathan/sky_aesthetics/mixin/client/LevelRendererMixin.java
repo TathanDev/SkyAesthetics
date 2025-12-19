@@ -1,5 +1,6 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -10,7 +11,6 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
-import net.minecraft.server.level.ParticleStatus;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -43,7 +43,7 @@ public abstract class LevelRendererMixin {
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, float partialTick, FogParameters fog, CallbackInfo ci) {
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice gpuBufferSlice, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
         if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
@@ -69,7 +69,7 @@ public abstract class LevelRendererMixin {
     }
 
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CloudStatus cloudStatus, Vec3 cameraPosition, float ageInTicks, int height, float ticks, CallbackInfo ci) {
+    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, long l, float f, int i, float g, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.getRenderer().renderClouds()) {
                 //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds

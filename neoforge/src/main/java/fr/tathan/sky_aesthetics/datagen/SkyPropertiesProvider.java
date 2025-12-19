@@ -10,7 +10,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class SkyPropertiesProvider implements DataProvider {
     private final PackOutput.PathProvider pathProvider;
     private String modid = SkyAesthetics.MODID;
     private final Codec<SkyProperties> codec;
-    private final ResourceKey<Registry<SkyProperties>> registry = ResourceKey.createRegistryKey(ResourceLocation.fromNamespaceAndPath(modid, "sky_aesthetics"));
+    private final ResourceKey<Registry<SkyProperties>> registry = ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(modid, "sky_aesthetics"));
 
     public SkyPropertiesProvider(PackOutput packOutput) {
         this(packOutput, PackOutput.Target.RESOURCE_PACK, SkyAesthetics.MODID);
@@ -59,10 +59,10 @@ public class SkyPropertiesProvider implements DataProvider {
         return "Sky Provider";
     }
 
-    protected void build(BiConsumer<ResourceLocation, SkyProperties> consumer) {
+    protected void build(BiConsumer<Identifier, SkyProperties> consumer) {
         consumer.accept(skyLocation("test"),
                 new SkyProperties(
-                        ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("overworld")),
+                        ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                         skyLocation("test"),
                         Optional.of(CloudSettings.createDefaultSettings()),
                         Optional.of(FogSettings.createDefaultSettings()),
@@ -79,8 +79,8 @@ public class SkyPropertiesProvider implements DataProvider {
         );
     }
 
-    public ResourceLocation skyLocation(String path) {
-        return ResourceLocation.fromNamespaceAndPath(SkyAesthetics.MODID, path);
+    public Identifier skyLocation(String path) {
+        return Identifier.fromNamespaceAndPath(SkyAesthetics.MODID, path);
     }
 
 }

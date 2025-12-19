@@ -37,6 +37,6 @@ Every Sky Objects you want to add need to be added to the `sky_objects` array in
   - `STATIC`: The object remains in a fixed position in the sky.
   - `DAY`: The object rotates with the sun during the day.
   - `NIGHT`: The object rotates with the moon during the night.
-- `texture`: The resourcelocation of the sky object texture.
+- `texture`: The Identifier of the sky object texture.
 - `blend`: A boolean value (`true` or `false`) that determines whether the sky object should be blended with the sky.
 - `size`: A float value to define the scale/size of the sky object.

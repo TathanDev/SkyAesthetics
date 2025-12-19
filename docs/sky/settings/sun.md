@@ -16,7 +16,7 @@ If no sun settings are specified, the world won't have a sun.
 ```
 
 ## Fields
-- `texture`: The resourcelocation of the sun texture.
+- `texture`: The Identifier of the sun texture.
 - `size`: A float value to define the scale/size of the sun.
 - `height`: An float value that sets the height of the sun in the sky.
 

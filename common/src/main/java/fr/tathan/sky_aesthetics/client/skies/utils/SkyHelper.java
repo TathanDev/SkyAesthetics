@@ -14,7 +14,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.CoreShaders;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -23,7 +23,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class SkyHelper {
-    private static final ResourceLocation END_SKY_TEXTURE = ResourceLocation.withDefaultNamespace("textures/environment/end_sky.png");
+    private static final Identifier END_SKY_TEXTURE = Identifier.withDefaultNamespace("textures/environment/end_sky.png");
 
     public static void drawSky(Matrix4f matrix4f, Matrix4f projectionMatrix) {
         Minecraft.getInstance().levelRenderer.skyRenderer.topSkyBuffer.bind();
@@ -35,7 +35,7 @@ public class SkyHelper {
         VertexBuffer.unbind();
     }
 
-    public static void drawMoonWithPhase(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, ResourceLocation texture, float dayAngle) {
+    public static void drawMoonWithPhase(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, Identifier texture, float dayAngle) {
         int moonPhase = 3; // TODO: Get moon phase
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
@@ -46,16 +46,16 @@ public class SkyHelper {
         drawCelestialBody(texture, bufferSource, poseStack, y, 20f, dayAngle, startX, endX, startY, endY, true);
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, boolean blend) {
+    public static void drawCelestialBody(Identifier texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, boolean blend) {
         drawCelestialBody(texture, bufferSource, poseStack, y, size, dayAngle, 0f, 1f, 1f, 0f, blend);
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
+    public static void drawCelestialBody(Identifier texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend) {
         drawCelestialBody(texture, bufferSource, poseStack, y, size, dayAngle, startX, endX, startY, endY, blend, new float[]{1f, 1f, 1f, 1f});
 
     }
 
-    public static void drawCelestialBody(ResourceLocation texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
+    public static void drawCelestialBody(Identifier texture, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float y, float size, float dayAngle, float startX, float endX, float startY, float endY, boolean blend, float @Nullable [] color) {
         if (blend) {
             RenderSystem.enableBlend();
             RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

@@ -9,7 +9,7 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.Sizing;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
@@ -206,7 +206,7 @@ public class SkiesComponents {
                         .child(Components.button(Component.literal("Add Sky Object"), (buttonComponent -> {
 
                             SkyObject newSkyObject = new SkyObject(
-                                    ResourceLocation.parse("default_texture"),
+                                    Identifier.parse("default_texture"),
                                     false,
                                     40.0f,
                                     new Vector3f(0, 0, 0),

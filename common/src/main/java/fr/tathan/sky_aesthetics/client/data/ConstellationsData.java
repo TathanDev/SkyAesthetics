@@ -6,7 +6,7 @@ import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.ExtraCodecs;
@@ -25,7 +25,7 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener<JsonEle
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, JsonElement> object, ResourceManager resourceManager, ProfilerFiller profiler) {
         CONSTELLATIONS.clear();
         object.forEach((key, value) -> {
             JsonObject json = GsonHelper.convertToJsonObject(value, "constellation");

@@ -1,17 +1,15 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
-import net.minecraft.Util;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
@@ -30,7 +28,7 @@ import java.util.*;
  * @param shootingStars Shooting Star Settings
  * @param starsTexture The texture of the star
  */
-public record StarSettings(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vector3i color, Optional<ShootingStars> shootingStars, Optional<ResourceLocation> starsTexture) {
+public record StarSettings(boolean vanilla, boolean movingStars, int count, boolean allDaysVisible, float scale, Vector3i color, Optional<ShootingStars> shootingStars, Optional<Identifier> starsTexture) {
 
     public static final Codec<StarSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("vanilla").forGetter(StarSettings::vanilla),
@@ -40,7 +38,7 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
             Codec.FLOAT.fieldOf("scale").forGetter(StarSettings::scale),
             SkyColorSettings.VEC3I.fieldOf("color").forGetter(StarSettings::color),
             ShootingStars.CODEC.optionalFieldOf("shooting_stars").forGetter(StarSettings::shootingStars),
-            ResourceLocation.CODEC.optionalFieldOf("star_texture").forGetter(StarSettings::starsTexture)
+            Identifier.CODEC.optionalFieldOf("star_texture").forGetter(StarSettings::starsTexture)
     ).apply(instance, StarSettings::new));
 
 
@@ -49,7 +47,7 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
         return new StarSettings(true, false, 30000, false, 0.05f, new Vector3i(255, 255, 255), Optional.empty(), Optional.empty());
     }
 
-    public VertexBuffer getStarsBuffer() {
+    public GpuBuffer getStarsBuffer() {
         if (this.vanilla() ){
             return StarHelper.createVanillaStars();
         }

@@ -1,14 +1,10 @@
 package fr.tathan.sky_aesthetics.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.math.Axis;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.settings.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
-import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;

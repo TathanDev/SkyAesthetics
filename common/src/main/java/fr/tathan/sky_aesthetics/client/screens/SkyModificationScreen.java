@@ -19,7 +19,7 @@ import net.minecraft.Util;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.metadata.pack.PackMetadataSection;
 import org.jetbrains.annotations.NotNull;
@@ -65,9 +65,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                                         .child(
                                                 Components.button(net.minecraft.network.chat.Component.literal("Documentation"), b -> Util.getPlatform().openUri("https://tathandev.github.io/SkyAesthetics/sky/")).margins(Insets.top(10)))
 
-                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> {
-                                            skyToText(skyComponents);
-                                        }).id("save_button"))
+                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> skyToText(skyComponents)).id("save_button"))
                                         .child(createSkiesImportDropdown(rootComponent, skyComponents).id("import_dropdown"))
                                         .child(createToggleDevSkyButton(skyComponents).horizontalSizing(Sizing.content()).id("toggle_button").margins(Insets.top(10)))
                                         .child(createReloadButton(skyComponents).horizontalSizing(Sizing.content()).id("reload_button").margins(Insets.top(10)))
@@ -196,7 +194,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
         Optional<CustomVanillaObject.Moon> moon = !moonSettings.expanded() ? Optional.empty() :
                 Optional.of(new CustomVanillaObject.Moon(
                         moonSettings.childById(CheckboxComponent.class, "phases").selected(),
-                        ResourceLocation.parse(moonSettings.childById(TextBoxComponent.class, "texture").getValue()),
+                        Identifier.parse(moonSettings.childById(TextBoxComponent.class, "texture").getValue()),
                         (float) convertValue(moonSettings.childById(TextBoxComponent.class, "height").getValue(), Float.class),
                         (float) convertValue(moonSettings.childById(TextBoxComponent.class, "size").getValue(), Float.class)
                 ));
@@ -206,7 +204,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
 
         Optional<CustomVanillaObject.Sun> sun = !sunSettings.expanded() ? Optional.empty() :
                 Optional.of(new CustomVanillaObject.Sun(
-                        ResourceLocation.parse(sunSettings.childById(TextBoxComponent.class, "texture").getValue()),
+                        Identifier.parse(sunSettings.childById(TextBoxComponent.class, "texture").getValue()),
                         (float) convertValue(sunSettings.childById(TextBoxComponent.class, "height").getValue(), Float.class),
                         (float) convertValue(sunSettings.childById(TextBoxComponent.class, "size").getValue(), Float.class)
                 ));
@@ -229,7 +227,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                 FlowLayout layout = (FlowLayout) container.children().getLast();
 
 
-                ResourceLocation location = ResourceLocation.parse(layout.childById(TextBoxComponent.class, "texture").getValue());
+                Identifier location = Identifier.parse(layout.childById(TextBoxComponent.class, "texture").getValue());
                 boolean blend = layout.childById(CheckboxComponent.class, "blend").selected();
                 float size = (float) convertValue(layout.childById(TextBoxComponent.class, "size").getValue(), Float.class);
                 int height = (int) convertValue(layout.childById(TextBoxComponent.class, "height").getValue(), Integer.class);
@@ -296,7 +294,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
         Optional<SkyBoxSetting> skyBox = !skyBoxSetting.expanded() ? Optional.empty() :
                 Optional.of(new SkyBoxSetting(
                         (int) skyBoxSetting.childById(DiscreteSliderComponent.class, "gradation").discreteValue(),
-                        ResourceLocation.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
+                        Identifier.parse(skyBoxSetting.childById(TextBoxComponent.class, "texture").getValue()),
                         getVec3fFromComponent(skyBoxSetting.childById(FlowLayout.class, "rotation")).orElseGet(Vector3f::new),
                         rotation)
                 );
@@ -310,8 +308,8 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                 ));
 
 
-        return new SkyProperties(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(world)),
-                ResourceLocation.parse(id),
+        return new SkyProperties(ResourceKey.create(Registries.DIMENSION, Identifier.parse(world)),
+                Identifier.parse(id),
                 cloud,
                 fog,
                 weather,

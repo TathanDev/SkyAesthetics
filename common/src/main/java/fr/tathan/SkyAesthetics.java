@@ -7,7 +7,7 @@ import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +30,8 @@ public final class SkyAesthetics {
     }
 
 
-    public static void onAddReloadListenerEvent(BiConsumer<ResourceLocation, PreparableReloadListener> registry) {
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "constellation"), new ConstellationsData());
-        registry.accept(ResourceLocation.fromNamespaceAndPath(MODID, "sky_aesthetics"), new SkiesRegistry());
+    public static void onAddReloadListenerEvent(BiConsumer<Identifier, PreparableReloadListener> registry) {
+        registry.accept(Identifier.fromNamespaceAndPath(MODID, "constellation"), new ConstellationsData());
+        registry.accept(Identifier.fromNamespaceAndPath(MODID, "sky_aesthetics"), new SkiesRegistry());
     }
 }

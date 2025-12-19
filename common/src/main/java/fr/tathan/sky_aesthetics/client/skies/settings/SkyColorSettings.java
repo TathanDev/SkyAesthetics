@@ -1,12 +1,8 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
-import net.minecraft.client.Camera;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.util.Util;
 import org.joml.Vector3i;
 import org.joml.Vector4f;
 
@@ -38,15 +34,5 @@ public record SkyColorSettings(Optional<Vector4f> color,
 
     public static SkyColorSettings createDefaultSettings() {
         return new SkyColorSettings(Optional.empty(), Optional.empty(), Optional.of(1));
-    }
-
-    public void setSkyColor(ClientLevel level, Camera camera, float partialTick) {
-        if(this.color().isPresent()) {
-            Vector4f skyColor = this.color().get();
-            RenderSystem.setShaderColor(skyColor.x, skyColor.y, skyColor.z, skyColor.w);
-        } else {
-            Vec3 defaultSkyColor = Vec3.fromRGB24(level.getSkyColor(camera.getPosition(), partialTick));
-            RenderSystem.setShaderColor((float) defaultSkyColor.x, (float) defaultSkyColor.y, (float) defaultSkyColor.z, 1.0f);
-        }
     }
 }

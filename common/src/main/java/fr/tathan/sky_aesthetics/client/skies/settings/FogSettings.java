@@ -3,8 +3,7 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.Util;
-import net.minecraft.client.renderer.FogParameters;
+import net.minecraft.util.Util;
 import org.joml.Vector2f;
 import org.joml.Vector3i;
 

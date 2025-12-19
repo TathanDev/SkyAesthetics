@@ -1,19 +1,13 @@
 package fr.tathan.sky_aesthetics.client.data;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +17,7 @@ import java.util.Map;
  */
 public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyProperties>  {
 
-    public static final Map<ResourceLocation, DimensionSky> SKY_PROPERTIES = new HashMap<>();
+    public static final Map<Identifier, DimensionSky> SKY_PROPERTIES = new HashMap<>();
 
     /**
      * The default sky used in development, it is not registered in the registry.
@@ -38,7 +32,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyPropertie
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
         SKY_PROPERTIES.clear();
         object.forEach((key, skyProperties) -> {
 
@@ -57,7 +51,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyPropertie
      * @param id the id of the sky to register
      * @param sky the sky to register
      */
-    public static void registerSky(ResourceLocation id, DimensionSky sky) {
+    public static void registerSky(Identifier id, DimensionSky sky) {
         if(SKY_PROPERTIES.containsKey(id)) {
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);
         }

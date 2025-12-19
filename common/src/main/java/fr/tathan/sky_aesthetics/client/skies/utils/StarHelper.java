@@ -1,6 +1,7 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
 import com.mojang.blaze3d.buffers.BufferUsage;
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -9,14 +10,13 @@ import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.skies.settings.Constellation;
 import net.minecraft.client.GraphicsStatus;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -27,7 +27,7 @@ import java.util.Random;
 
 public class StarHelper {
 
-    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<ResourceLocation> starTexture) {
+    public static VertexBuffer createStars(float scale, int amountFancy, int r, int g, int b, Optional<List<String>> constellations, Optional<Identifier> starTexture) {
         Tesselator tesselator = Tesselator.getInstance();
         RenderSystem.setShader(CoreShaders.POSITION_TEX_COLOR);
 
@@ -43,7 +43,7 @@ public class StarHelper {
         GraphicsStatus graphicsMode = Minecraft.getInstance().options.graphicsMode().get();
         int stars = amountFancy / (BooleanUtils.toInteger(graphicsMode == GraphicsStatus.FANCY || graphicsMode == GraphicsStatus.FABULOUS) + 1);
 
-        starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
+        starTexture.ifPresent(Identifier -> RenderSystem.setShaderTexture(0, Identifier));
 
         /** Stars **/
         for (int i = 0; i < stars; i++) {
@@ -139,7 +139,7 @@ public class StarHelper {
         return vertexBuffer;
     }
 
-    public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder,@Nullable ResourceLocation starTexture) {
+    public static void createStar(Vec3 pos, Vec3 color, float scale, Random random, BufferBuilder bufferBuilder,@Nullable Identifier starTexture) {
         float d0 = (float) pos.x;
         float d1 = (float) pos.y;
         float d2 = (float) pos.z;
@@ -191,7 +191,7 @@ public class StarHelper {
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, float nightTime, Optional<ResourceLocation> starTexture, FogParameters fog) {
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, float nightTime, Optional<Identifier> starTexture, FogParameters fog) {
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
 
@@ -211,9 +211,8 @@ public class StarHelper {
         return RenderType.create("colored_stars", DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS, 1536, false, false, RenderType.CompositeState.builder().setShaderState(RenderType.POSITION_COLOR_SHADER).setTransparencyState(RenderType.OVERLAY_TRANSPARENCY).setWriteMaskState(RenderType.COLOR_WRITE).createCompositeState(false));
     }
 
-    public static VertexBuffer createVanillaStars() {
-
-        VertexBuffer starBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
+    public static GpuBuffer createVanillaStars() {
+        GpuBuffer starBuffer = new VertexBuffer(BufferUsage.STATIC_WRITE);
         starBuffer.bind();
         starBuffer.upload(createVanillaStars(Tesselator.getInstance()));
         VertexBuffer.unbind();

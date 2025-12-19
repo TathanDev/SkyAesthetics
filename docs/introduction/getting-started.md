@@ -44,7 +44,7 @@ Here [namespace] should be replaced by your resource pack namespace. If my datap
 ```
 
 All the work you will do is in the `your_sky.json`.
-If you use custom textures, the resourcelocation (the "path") for theses will be `[namespace]:textures/my_texture.png`
+If you use custom textures, the Identifier (the "path") for theses will be `[namespace]:textures/my_texture.png`
 
 Now, all you need to do is to fill the file with the [**required**](/sky/) values and then add the wanted settings.
 

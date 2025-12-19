@@ -10,18 +10,19 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(LeavesBlock.class)
 public class LeavesBlockMixin {
 
-    @WrapOperation(method = "animateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/ParticleUtils;spawnParticleBelow(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/particles/ParticleOptions;)V"))
-    public void stopLeavesDrip(Level level, BlockPos pos, RandomSource random, ParticleOptions particle, Operation<Void> original) {
+    @WrapOperation(method = "animateTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/LeavesBlock;makeFallingLeavesParticles(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;)V"))
+    public void stopLeavesDrip(LeavesBlock instance, Level level, BlockPos pos, RandomSource random, BlockState state, BlockPos pos2, Operation<Void> original) {
         if (!(level instanceof ClientLevel)) return;
         SkyHelper.canRenderSky((ClientLevel) level, (planetSky -> {
             if (planetSky.getRenderer().weather || (SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-                original.call(level, pos, random, particle);
+                original.call(level, pos, random, state, pos2);
             }
         }));
     }

@@ -4,26 +4,24 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Util;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Optional;
 
 public record SkyProperties(
         ResourceKey<Level> world,
-        ResourceLocation id,
+        Identifier id,
         Optional<CloudSettings> cloudSettings,
         Optional<FogSettings> fogSettings,
         Boolean weather,
@@ -40,7 +38,7 @@ public record SkyProperties(
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
-            ResourceLocation.CODEC.fieldOf("id").forGetter(SkyProperties::id),
+            Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
 
             CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
 
@@ -81,8 +79,8 @@ public record SkyProperties(
 
     public static SkyProperties createDefault() {
         return new SkyProperties(
-                ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse("overworld")),
-                ResourceLocation.parse("default"),
+                ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
+                Identifier.parse("default"),
                 Optional.of(CloudSettings.createDefaultSettings()),
                 Optional.of(FogSettings.createDefaultSettings()),
                 true,
