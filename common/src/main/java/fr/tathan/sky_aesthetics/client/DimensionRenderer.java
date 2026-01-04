@@ -1,29 +1,28 @@
 package fr.tathan.sky_aesthetics.client;
 
-//import com.mojang.blaze3d.vertex.PoseStack;
-//import com.mojang.math.Axis;
-//import fr.tathan.sky_aesthetics.client.skies.settings.*;
-//import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
-//import net.minecraft.client.Camera;
-//import net.minecraft.client.Minecraft;
-//import net.minecraft.client.multiplayer.ClientLevel;
-//import net.minecraft.client.renderer.*;
-//import net.minecraft.client.server.IntegratedServer;
-//import net.minecraft.server.level.ServerLevel;
-//import net.minecraft.util.ARGB;
-//import org.joml.*;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import fr.tathan.sky_aesthetics.client.skies.settings.SkyObject;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.SkyRenderer;
+import net.minecraft.client.renderer.state.SkyRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.data.AtlasIds;
+import net.minecraft.world.level.MoonPhase;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * The class handling the rendering of a custom sky
+ */
+public class DimensionRenderer {
 //
-//import java.util.ArrayList;
-//import java.util.HashMap;
-//import java.util.List;
-//import java.util.UUID;
-//
-///**
-// * The class handling the rendering of a custom sky
-//
-//public class DimensionRenderer {
-//
-//    public final List<SkyObject> skyObjects;
+    public final List<SkyObject> skyObjects;
+    public final TextureAtlas celestialsAtlas;
 //    public final CloudSettings cloudSettings;
 //
 //    public final CustomVanillaObject.Sun sun;
@@ -39,13 +38,14 @@ package fr.tathan.sky_aesthetics.client;
 //    private final HashMap<UUID, ShootingStar> shootingStars = new HashMap<>();
 //
 //
-//    private DimensionRenderer(List<SkyObject> skyObjects,
+    private DimensionRenderer(List<SkyObject> skyObjects) {
 //                              CloudSettings cloudSettings,
 //                              CustomVanillaObject.Sun sun,
 //                              CustomVanillaObject.Moon moon,
 //                              SkyColorSettings skyColor, FogSettings fogSettings, StarSettings starSettings, SkyBoxSetting skyBoxSetting, boolean weather, SkyProperties.RenderCondition renderCondition) {
 //
-//        this.skyObjects = skyObjects;
+        this.skyObjects = skyObjects;
+        this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
 //        this.cloudSettings = cloudSettings;
 //        this.sun = sun;
 //        this.moon = moon;
@@ -62,8 +62,56 @@ package fr.tathan.sky_aesthetics.client;
 //            return true; // No condition set, render by default
 //        }
 //        return this.renderCondition.isSkyRendered(this.getServerLevel());
-//    }
-//
+    }
+
+    public void render(ClientLevel level, SkyRenderState skyRenderState, SkyRenderer skyRenderer, Camera camera) {
+       // Implementation goes here
+       PoseStack poseStack = new PoseStack();
+
+       skyRenderer.renderSkyDisc(skyRenderState.skyColor);
+
+       //TODO: change sunriseAndSunsetColor to use skyRenderState.sunriseAndSunsetColor
+       skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
+
+       renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
+
+       if (skyRenderState.starBrightness > 0.0F) {
+           poseStack.pushPose();
+           poseStack.mulPose(Axis.XP.rotation(skyRenderState.starAngle));
+           skyRenderer.renderStars(skyRenderState.starBrightness, poseStack);
+           poseStack.popPose();
+       }
+
+
+       if (skyRenderState.shouldRenderDarkDisc) {
+           skyRenderer.renderDarkDisc();
+       }
+
+   }
+
+    public void renderSkyObjects(PoseStack poseStack, float sunAngle, float moonAngle, MoonPhase moonPhase, float rainBrightness, SkyRenderer skyRenderer) {
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
+
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.XP.rotation(sunAngle));
+        skyRenderer.renderSun(rainBrightness, poseStack);
+        poseStack.popPose();
+
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.XP.rotation(moonAngle));
+        skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
+        poseStack.popPose();
+
+        for( SkyObject skyObject : skyObjects) {
+
+            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, sunAngle);
+        }
+
+
+        poseStack.popPose();
+    }
+
 //    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource, SkyRenderer skyRenderer,  FogParameters fog) {
 //
 //        //TODO : Add Fix Sky Color, change fog params, sun angle
@@ -161,27 +209,27 @@ package fr.tathan.sky_aesthetics.client;
 //        return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
 //    }
 //
-//    public static class Builder {
-//
-//        public List<SkyObject> skyObjects = new ArrayList<>();
-//        // Default cloud settings: show clouds and set height to 192
+    public static class Builder {
+
+        public List<SkyObject> skyObjects = new ArrayList<>();
+        // Default cloud settings: show clouds and set height to 192
 //        public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
-//        //No sun and moon by default
+        //No sun and moon by default
 //        public CustomVanillaObject.Sun sun = null;
 //        public CustomVanillaObject.Moon moon = null;
 //        public FogSettings fogSettings = FogSettings.createDefaultSettings();
 //        public StarSettings star = StarSettings.createDefaultStars();
-//        //Always render sky by default
+        //Always render sky by default
 //        public SkyProperties.RenderCondition renderCondition = null;
 //        public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
 //        public boolean weather = true; // Default to true
 //
 //        public SkyBoxSetting skyBoxSetting = null;
-//
-//        public Builder() {
-//            // Initialize any necessary fields or configurations here
-//        }
-//
+
+        public Builder() {
+            // Initialize any necessary fields or configurations here
+        }
+
 //        public Builder setSkyBoxSetting(SkyBoxSetting skyBoxSetting) {
 //            this.skyBoxSetting = skyBoxSetting;
 //            return this;
@@ -226,16 +274,26 @@ package fr.tathan.sky_aesthetics.client;
 //            this.cloudSettings = cloudSettings;
 //            return this;
 //        }
-//
-//        public Builder addSkyObject(SkyObject skyObject) {
-//            this.skyObjects.add(skyObject);
-//            return this;
-//        }
-//
-//        public DimensionRenderer build() {
-//            return new DimensionRenderer(skyObjects, cloudSettings, sun, moon, skyColor, fogSettings, star, skyBoxSetting, weather, renderCondition);
-//        }
-//
-//    }
-//
-//}
+
+        public Builder addSkyObject(SkyObject skyObject) {
+            this.skyObjects.add(skyObject);
+            return this;
+        }
+
+        public DimensionRenderer build() {
+            return new DimensionRenderer(
+                    skyObjects
+//                    , cloudSettings,
+//                    sun,
+//                    moon,
+//                    skyColor,
+//                    fogSettings,
+//                    star,
+//                    skyBoxSetting,
+//                    weather,
+//                    renderCondition
+            );
+        }
+    }
+
+}
