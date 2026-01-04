@@ -31,21 +31,21 @@ public record FogSettings(Boolean fog, Optional<Vector3i> customFogColor, Option
         return new FogSettings(true, Optional.empty(), Optional.empty());
     }
 
-    public FogParameters setCustomFog(FogParameters fog) {
-        if(this.customFogColor().isPresent()) {
-            Vector3i color = this.customFogColor().get();
-            fog = new FogParameters(fog.start(), fog.end(), fog.shape(), color.x, color.y, color.z, fog.alpha());
-        }
-        if (this.fogDensity().isPresent()) {
-            Vector2f density = this.fogDensity().get();
-            fog = new FogParameters(density.x, density.y, fog.shape(), fog.red(), fog.green(), fog.blue(), fog.alpha());
-        }
-        return fog;
-    }
-
-    public void runFogCallback(FogParameters fog) {
-        if(this.fog) {
-            RenderSystem.setShaderFog(fog);
-        }
-    }
+//    public FogParameters setCustomFog(FogParameters fog) {
+//        if(this.customFogColor().isPresent()) {
+//            Vector3i color = this.customFogColor().get();
+//            fog = new FogParameters(fog.start(), fog.end(), fog.shape(), color.x, color.y, color.z, fog.alpha());
+//        }
+//        if (this.fogDensity().isPresent()) {
+//            Vector2f density = this.fogDensity().get();
+//            fog = new FogParameters(density.x, density.y, fog.shape(), fog.red(), fog.green(), fog.blue(), fog.alpha());
+//        }
+//        return fog;
+//    }
+//
+//    public void runFogCallback(FogParameters fog) {
+//        if(this.fog) {
+//            RenderSystem.setShaderFog(fog);
+//        }
+//    }
 }

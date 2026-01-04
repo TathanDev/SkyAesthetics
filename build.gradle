@@ -65,14 +65,10 @@ subprojects {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings loom.layered() {
             officialMojangMappings()
-            //parchment("org.parchmentmc.data:parchment-${rootProject.minecraft_version}:${rootProject.parchment_mapping_version}@zip")
+            parchment("org.parchmentmc.data:parchment-1.21.10:${rootProject.parchment_mapping_version}@zip")
         }
 
-        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.4:$exoconfig_version"
-
-        if(!isCommon) {
-            include "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.4:$exoconfig_version"
-        }
+        
     }
 
     java {

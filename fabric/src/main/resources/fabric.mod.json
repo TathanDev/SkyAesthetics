@@ -22,9 +22,6 @@
     ],
     "client": [
       "fr.tathan.sky_aesthetics.fabric.SkyAestheticsClientFabric"
-    ],
-    "modmenu": [
-      "fr.tathan.sky_aesthetics.fabric.ModMenuCompat"
     ]
   },
   "mixins": [

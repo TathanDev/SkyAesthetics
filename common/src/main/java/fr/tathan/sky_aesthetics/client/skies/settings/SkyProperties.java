@@ -2,7 +2,6 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -31,7 +30,7 @@ public record SkyProperties(
         Optional<SkyColorSettings> skyColor,
         List<SkyObject> skyObjects,
         Optional<RenderCondition> renderCondition,
-        Optional<SkyBoxSetting> skyBoxSetting,
+        //Optional<SkyBoxSetting> skyBoxSetting,
         Optional<LightSettings> lightSettings
 
 ) {
@@ -51,27 +50,27 @@ public record SkyProperties(
             SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
-            SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
+            //SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
             LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
     ).apply(instance, SkyProperties::new));
 
 
-    public DimensionRenderer toDimensionRenderer() {
-        DimensionRenderer.Builder builder = new DimensionRenderer.Builder()
-                .setWeather(this.weather);
-
-        this.stars.ifPresent(builder::setStar);
-        this.moon.ifPresent(builder::addMoon);
-        this.sun.ifPresent(builder::addSun);
-        this.skyObjects.forEach(builder::addSkyObject);
-        this.cloudSettings.ifPresent(builder::addCloudSettings);
-        this.fogSettings.ifPresent(builder::setFogSettings);
-        this.skyColor.ifPresent(builder::setSkyColor);
-        this.renderCondition.ifPresent(builder::setRenderCondition);
-        this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
-
-        return builder.build();
-    }
+//    public DimensionRenderer toDimensionRenderer() {
+//        DimensionRenderer.Builder builder = new DimensionRenderer.Builder()
+//                .setWeather(this.weather);
+//
+//        this.stars.ifPresent(builder::setStar);
+//        this.moon.ifPresent(builder::addMoon);
+//        this.sun.ifPresent(builder::addSun);
+//        this.skyObjects.forEach(builder::addSkyObject);
+//        this.cloudSettings.ifPresent(builder::addCloudSettings);
+//        this.fogSettings.ifPresent(builder::setFogSettings);
+//        this.skyColor.ifPresent(builder::setSkyColor);
+//        this.renderCondition.ifPresent(builder::setRenderCondition);
+//        //this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
+//
+//        return builder.build();
+//    }
 
     public DimensionSky toDimensionSky() {
         return new DimensionSky(this);
@@ -89,7 +88,6 @@ public record SkyProperties(
                 Optional.of(StarSettings.createDefaultStars()),
                 Optional.of(SkyColorSettings.createDefaultSettings()),
                 List.of(),
-                Optional.empty(),
                 Optional.empty(),
                 Optional.empty()
         );

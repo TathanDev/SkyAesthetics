@@ -30,7 +30,7 @@ public class CustomVanillaObject{
         }
 
         public void render(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float dayAngle) {
-            SkyHelper.drawCelestialBody(this.sunTexture(), bufferSource, poseStack, sunHeight, sunSize, dayAngle, true);
+            //SkyHelper.drawCelestialBody(this.sunTexture(), bufferSource, poseStack, sunHeight, sunSize, dayAngle, true);
         }
 
     }
@@ -54,9 +54,9 @@ public class CustomVanillaObject{
 
         public void render(ClientLevel level, MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float nightAngle) {
             if (this.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(bufferSource, poseStack, moonSize(), moonTexture(), nightAngle);
+                //SkyHelper.drawMoonWithPhase(bufferSource, poseStack, moonSize(), moonTexture(), nightAngle);
             } else {
-                SkyHelper.drawCelestialBody(moonTexture(), bufferSource, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);
+                //SkyHelper.drawCelestialBody(moonTexture(), bufferSource, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);
             }
         }
     }

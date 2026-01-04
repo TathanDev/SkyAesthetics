@@ -3,7 +3,6 @@ package fr.tathan;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
-import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
@@ -17,7 +16,7 @@ import java.util.function.BiConsumer;
 public final class SkyAesthetics {
     public static final String MODID = "sky_aesthetics";
     public static final Logger LOG = LoggerFactory.getLogger("Sky Aesthetics");
-    public static SkyConfig CONFIG;
+    public static SkyConfig CONFIG = new SkyConfig();
 
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
@@ -26,7 +25,7 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
+        //CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
     }
 
 

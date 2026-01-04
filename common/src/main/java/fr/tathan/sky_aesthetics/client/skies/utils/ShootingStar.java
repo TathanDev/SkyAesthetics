@@ -1,12 +1,9 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
-import com.mojang.blaze3d.buffers.BufferUsage;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.skies.settings.StarSettings;
-import net.minecraft.client.renderer.CoreShaders;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -14,6 +11,8 @@ import java.util.Random;
 import java.util.UUID;
 
 public class ShootingStar {
+
+    /**
 
     private final float lifeTime;
     private final StarSettings.ShootingStars starConfig;
@@ -84,4 +83,5 @@ public class ShootingStar {
         return false;
 
     }
+     */
 }

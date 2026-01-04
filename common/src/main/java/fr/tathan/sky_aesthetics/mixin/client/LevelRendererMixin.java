@@ -1,28 +1,12 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
-import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
-import com.mojang.blaze3d.framegraph.FramePass;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
-import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
-import net.minecraft.client.Camera;
-import net.minecraft.client.CloudStatus;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
-import net.minecraft.world.level.material.FogType;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Mutable;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = LevelRenderer.class, priority = 900)
 public abstract class LevelRendererMixin {
+
+    /*
     @Mutable
     @Shadow
     private ClientLevel level;
@@ -43,7 +27,7 @@ public abstract class LevelRendererMixin {
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice gpuBufferSlice, CallbackInfo ci) {
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
         FogType cameraSubmersionType = camera.getFluidInCamera();
 
         if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
@@ -54,12 +38,13 @@ public abstract class LevelRendererMixin {
                 this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                 framePass.executes(() -> {
-                    RenderStateShard.MAIN_TARGET.setupRenderState();
-
-                    MultiBufferSource.BufferSource bufferSource = this.renderBuffers.bufferSource();
                     PoseStack poseStack = new PoseStack();
-
-                    level.effects = planetSky;
+                    //skyRenderer.renderSkyDisc(skyRenderState.skyColor);
+                    //skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
+                    //skyRenderer.renderSunMoonAndStars(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.starAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderState.starBrightness);
+                    //if (skyRenderState.shouldRenderDarkDisc) {
+                        skyRenderer.renderDarkDisc();
+                    }
 
                     planetSky.getRenderer().render(level, poseStack, RenderSystem.getProjectionMatrix(), partialTick, camera,  bufferSource, skyRenderer, fog);
                 });
@@ -91,7 +76,7 @@ public abstract class LevelRendererMixin {
 //    }
 
 
-    /*@Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
     private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {

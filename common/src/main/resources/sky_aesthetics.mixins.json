@@ -4,9 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.FogRendererMixin",
     "client.LevelRendererMixin",
     "client.PauseMenuMixin",
+    "client.TestRendering",
     "client.WeatherEffectRendererMixin"
   ],
   "mixins": [

@@ -1,21 +1,39 @@
 package fr.tathan.sky_aesthetics.client.skies.settings;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SkyRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import org.joml.Matrix4f;
+import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  *
@@ -72,43 +90,41 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         poseStack.translate(0, -100, 0);
     }
 
-    public void drawSkyObject(MultiBufferSource.BufferSource bufferSource, PoseStack poseStack, float dayAngle) {
-        if (this.blend()) {
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        }
-
-        poseStack.pushPose();
 
 
-        //Object Position
-        this.setObjectPosition(poseStack, dayAngle);
 
-        //Local Rotation
-        this.setObjectRotation(poseStack);
-
-        Matrix4f matrix4f = poseStack.last().pose();
-
-        float ratio = 1;
-        if (this.height() > Minecraft.getInstance().gameRenderer.getRenderDistance()) {
-            ratio = Minecraft.getInstance().gameRenderer.getRenderDistance() / this.height();
-        }
-
-        int i = ARGB.white(1f);
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.celestial(texture));
-        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(0f, 0f).setColor(i);
-        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, -this.size() * ratio).setUv(1f, 0f).setColor(i);
-        consumer.addVertex(matrix4f, this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(1f, 1f).setColor(i);
-        consumer.addVertex(matrix4f, -this.size() * ratio, this.height() * ratio - 1, this.size() * ratio).setUv(0f, 1f).setColor(i);
-        poseStack.popPose();
-        bufferSource.endBatch();
-
-        if (blend) {
-            RenderSystem.disableBlend();
-        }
-        if (this.blend()) {
-            RenderSystem.disableBlend();
-        }
+    public GpuBuffer buildSkyObject(TextureAtlas textureAtlas) {
+        return SkyRenderer.buildCelestialQuad(this.texture.getPath(), textureAtlas.getSprite(this.texture));
     }
 
+
+
+    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial) {
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+
+        GpuBuffer objectBuffer = this.buildSkyObject(celestial);
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+        matrix4fStack.translate(0.0F, 100.0F, 0.0F);
+        matrix4fStack.scale(30.0F, 1.0F, 30.0F);
+        GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(1.0F, 1.0F, 1.0F, alpha), new Vector3f(), new Matrix4f());
+        GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
+        GpuTextureView gpuTextureView2 = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        GpuBuffer gpuBuffer = quadIndices.getBuffer(6);
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sky sun", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelines.CELESTIAL);
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
+            renderPass.bindTexture("Sampler0", celestial.getTextureView(), celestial.getSampler());
+            renderPass.setVertexBuffer(0, objectBuffer);
+            renderPass.setIndexBuffer(gpuBuffer, quadIndices.type());
+            renderPass.drawIndexed(0, 0, 6, 1);
+        }
+
+        matrix4fStack.popMatrix();
+    }
 }
+

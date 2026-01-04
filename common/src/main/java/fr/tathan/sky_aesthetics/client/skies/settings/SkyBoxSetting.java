@@ -17,6 +17,9 @@ import java.util.Optional;
 
 public class SkyBoxSetting {
 
+    /**
+     *
+
     public static Codec<SkyBoxSetting> CODEC;
 
     public VertexBuffer sphere;
@@ -143,6 +146,7 @@ public class SkyBoxSetting {
         ).apply(instance, SkyBoxSetting::new));
 
     }
-
+     */
 
 }
+

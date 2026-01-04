@@ -1,11 +1,12 @@
 accessWidener v2 named
 
-accessible field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
-mutable field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
+#accessible field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
+#mutable field net/minecraft/client/multiplayer/ClientLevel effects Lnet/minecraft/client/renderer/DimensionSpecialEffects;
 
-accessible field net/minecraft/client/renderer/LevelRenderer skyRenderer Lnet/minecraft/client/renderer/SkyRenderer;
-accessible field net/minecraft/client/renderer/SkyRenderer topSkyBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
-accessible field net/minecraft/client/renderer/SkyRenderer bottomSkyBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
-accessible field net/minecraft/client/renderer/FogRenderer fogEnabled Z
-accessible method net/minecraft/client/renderer/SkyRenderer renderStars (Lnet/minecraft/client/renderer/FogParameters;FLcom/mojang/blaze3d/vertex/PoseStack;)V
-accessible class net/minecraft/client/renderer/WeatherEffectRenderer$ColumnInstance
+#accessible field net/minecraft/client/renderer/LevelRenderer skyRenderer Lnet/minecraft/client/renderer/SkyRenderer;
+#accessible field net/minecraft/client/renderer/SkyRenderer topSkyBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
+#accessible field net/minecraft/client/renderer/SkyRenderer bottomSkyBuffer Lcom/mojang/blaze3d/vertex/VertexBuffer;
+#accessible field net/minecraft/client/renderer/FogRenderer fogEnabled Z
+#accessible method net/minecraft/client/renderer/SkyRenderer renderStars (Lnet/minecraft/client/renderer/FogParameters;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+#accessible class net/minecraft/client/renderer/WeatherEffectRenderer$ColumnInstance
+accessible method net/minecraft/client/renderer/SkyRenderer buildCelestialQuad (Ljava/lang/String;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)Lcom/mojang/blaze3d/buffers/GpuBuffer;
