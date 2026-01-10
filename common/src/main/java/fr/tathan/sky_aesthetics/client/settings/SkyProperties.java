@@ -23,7 +23,7 @@ public record SkyProperties(
         Identifier id,
         Optional<Boolean> cloudSettings,
         //Boolean weather,
-        //Optional<CustomVanillaObject.Sun> sun,
+        Optional<CustomVanillaObject> customVanillaObject,
         //Optional<CustomVanillaObject.Moon> moon,
         Optional<StarSettings> stars,
 
@@ -38,7 +38,7 @@ public record SkyProperties(
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
 
             Codec.BOOL.optionalFieldOf("cloud").forGetter(SkyProperties::cloudSettings),
-
+            CustomVanillaObject.CODEC.optionalFieldOf("custom_vanilla_object").forGetter(SkyProperties::customVanillaObject),
             //Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
             //CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
             //CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
@@ -74,6 +74,7 @@ public record SkyProperties(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                 Identifier.parse("default"),
                 Optional.of(true),
+                Optional.of(CustomVanillaObject.createDefaultSettings()),
                 //Optional.of(CloudSettings.createDefaultSettings()),
                 //Optional.of(FogSettings.createDefaultSettings()),
                 //true,

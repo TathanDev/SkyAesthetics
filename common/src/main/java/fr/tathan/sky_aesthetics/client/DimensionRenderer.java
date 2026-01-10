@@ -5,6 +5,7 @@ import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.settings.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.client.settings.StarSettings;
@@ -41,7 +42,7 @@ public class DimensionRenderer {
 //    public final FogSettings fogSettings;
     public final StarSettings starSettings;
 //    public final SkyBoxSetting skyBoxSetting;
-
+    public final CustomVanillaObject customVanillaObject;
 //    public final boolean weather;
     public final SkyProperties.RenderCondition renderCondition;
     public final StarSettings.BufferHolder gpuBuffer;
@@ -49,8 +50,7 @@ public class DimensionRenderer {
 //    private final HashMap<UUID, ShootingStar> shootingStars = new HashMap<>();
 
     private DimensionRenderer(List<SkyObject> skyObjects,
-//                              CloudSettings cloudSettings,
-//                              CustomVanillaObject.Sun sun,
+                              CustomVanillaObject customVanillaObject,
 //                              CustomVanillaObject.Moon moon,
 //                              SkyColorSettings skyColor, FogSettings fogSettings,
                               StarSettings starSettings,
@@ -61,7 +61,7 @@ public class DimensionRenderer {
         this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
 //        this.cloudSettings = cloudSettings;
 //        this.sun = sun;
-//        this.moon = moon;
+        this.customVanillaObject = customVanillaObject;
 //        this.skyColor = skyColor;
 //        this.fogSettings = fogSettings;
         this.starSettings = starSettings;
@@ -108,15 +108,20 @@ public class DimensionRenderer {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
 
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotation(sunAngle));
-        skyRenderer.renderSun(rainBrightness, poseStack);
-        poseStack.popPose();
+        if(this.customVanillaObject.sun()) {
+            poseStack.pushPose();
+            poseStack.mulPose(Axis.XP.rotation(sunAngle));
+            skyRenderer.renderSun(rainBrightness, poseStack);
+            poseStack.popPose();
+        }
 
-        poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotation(moonAngle));
-        skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
-        poseStack.popPose();
+        if(this.customVanillaObject.moon()) {
+            poseStack.pushPose();
+            poseStack.mulPose(Axis.XP.rotation(moonAngle));
+            skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
+            poseStack.popPose();
+        }
+
 
         for( SkyObject skyObject : skyObjects) {
 
@@ -231,7 +236,7 @@ public class DimensionRenderer {
 //        public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
         //No sun and moon by default
 //        public CustomVanillaObject.Sun sun = null;
-//        public CustomVanillaObject.Moon moon = null;
+        public CustomVanillaObject customVanillaObject = CustomVanillaObject.createDefaultSettings();
 //        public FogSettings fogSettings = FogSettings.createDefaultSettings();
     //TODO: Default star settings
         public StarSettings star = new StarSettings(false, true,  0, false, 0.15f, new Vector3i(1), Optional.empty());;
@@ -271,10 +276,10 @@ public class DimensionRenderer {
 //            return this;
 //        }
 //
-//        public Builder addMoon(CustomVanillaObject.Moon moon) {
-//            this.moon = moon;
-//            return this;
-//        }
+        public Builder addMoon(CustomVanillaObject vanillaObject) {
+            this.customVanillaObject = vanillaObject;
+            return this;
+        }
 
         public Builder setRenderCondition(SkyProperties.RenderCondition renderCondition) {
             this.renderCondition = renderCondition;
@@ -299,6 +304,7 @@ public class DimensionRenderer {
         public DimensionRenderer build() {
             return new DimensionRenderer(
                     skyObjects,
+                    customVanillaObject,
 //                  cloudSettings,
 //                    sun,
 //                    moon,

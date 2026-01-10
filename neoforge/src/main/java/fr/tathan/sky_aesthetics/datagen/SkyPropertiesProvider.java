@@ -67,7 +67,7 @@ public class SkyPropertiesProvider implements DataProvider {
                         Optional.of(CloudSettings.createDefaultSettings()),
                         Optional.of(FogSettings.createDefaultSettings()),
                         true,
-                        Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
+                        Optional.of(CustomVanillaObject.createDefaultSettings()),
                         Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
                         Optional.of(StarSettings.createDefaultStars()),
                         Optional.of(SkyColorSettings.createDefaultSettings()),
