@@ -55,10 +55,11 @@ public record SkyProperties(
         DimensionRenderer.Builder builder = new DimensionRenderer.Builder();
                 //.setWeather(this.weather);
 
-        //this.stars.ifPresent(builder::setStar);
+        this.stars.ifPresent(builder::setStar);
         //this.moon.ifPresent(builder::addMoon);
         //this.sun.ifPresent(builder::addSun);
         this.skyObjects.forEach(builder::addSkyObject);
+        this.customVanillaObject.ifPresent(builder::setCustomVanillaObject);
         //this.cloudSettings.ifPresent(builder::addCloudSettings);
         //this.fogSettings.ifPresent(builder::setFogSettings);
         //this.skyColor.ifPresent(builder::setSkyColor);

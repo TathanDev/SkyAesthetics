@@ -1,5 +1,18 @@
 {
   "world": "minecraft:overworld",
   "sky_objects": [],
-  "id": "test"
+  "id": "test",
+  "cloud": false,
+  "custom_vanilla_object": {
+    "sun": false,
+    "moon": false
+  },
+  "stars": {
+    "vanilla": false,
+    "moving_stars": true,
+    "count": 30000,
+    "all_days_visible": false,
+    "scale": 0.15,
+    "color": [1.0, 1.0, 1.0]
+  }
 }

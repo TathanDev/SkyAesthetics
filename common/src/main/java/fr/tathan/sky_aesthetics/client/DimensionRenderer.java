@@ -1,10 +1,8 @@
 package fr.tathan.sky_aesthetics.client;
 
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.settings.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
@@ -83,7 +81,7 @@ public class DimensionRenderer {
        PoseStack poseStack = new PoseStack();
 
         SkyObject object = new SkyObject(Identifier.withDefaultNamespace("sun"),
-                false, 70, new Vector3f(30),
+                false, 70, new Vector3f(0),
                 new Vector3f(0), 1, "DAY");
 
         this.skyObjects.add(object);
@@ -239,7 +237,7 @@ public class DimensionRenderer {
         public CustomVanillaObject customVanillaObject = CustomVanillaObject.createDefaultSettings();
 //        public FogSettings fogSettings = FogSettings.createDefaultSettings();
     //TODO: Default star settings
-        public StarSettings star = new StarSettings(false, true,  0, false, 0.15f, new Vector3i(1), Optional.empty());;
+        public StarSettings star = StarSettings.createDefaultStars();
         //Always render sky by default
         public SkyProperties.RenderCondition renderCondition = null;
 //        public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
@@ -276,7 +274,7 @@ public class DimensionRenderer {
 //            return this;
 //        }
 //
-        public Builder addMoon(CustomVanillaObject vanillaObject) {
+        public Builder setCustomVanillaObject(CustomVanillaObject vanillaObject) {
             this.customVanillaObject = vanillaObject;
             return this;
         }

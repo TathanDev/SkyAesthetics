@@ -106,7 +106,7 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
 
         matrix4fStack.mul(poseStack.last().pose());
         matrix4fStack.translate(0.0F, 100.0F, 0.0F);
-        matrix4fStack.scale(this.size, 1.0F, 30.0F);
+        matrix4fStack.scale(this.size, 1.0F, this.size);
 
         GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(1.0F, 1.0F, 1.0F, alpha), new Vector3f(), new Matrix4f());
         GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
