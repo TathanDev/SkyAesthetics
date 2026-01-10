@@ -1,20 +1,30 @@
 package fr.tathan.sky_aesthetics.client;
 
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import fr.tathan.sky_aesthetics.client.skies.settings.SkyObject;
+import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.settings.SkyObject;
+import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
+import fr.tathan.sky_aesthetics.client.settings.StarSettings;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.MoonPhase;
+import org.joml.Vector3f;
+import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The class handling the rendering of a custom sky
@@ -29,20 +39,24 @@ public class DimensionRenderer {
 //    public final CustomVanillaObject.Moon moon;
 //    public final SkyColorSettings skyColor;
 //    public final FogSettings fogSettings;
-//    public final StarSettings starSettings;
+    public final StarSettings starSettings;
 //    public final SkyBoxSetting skyBoxSetting;
 //
 //    public final boolean weather;
-//    public final SkyProperties.RenderCondition renderCondition;
+    public final SkyProperties.RenderCondition renderCondition;
+    public final StarSettings.BufferHolder gpuBuffer;
 //
 //    private final HashMap<UUID, ShootingStar> shootingStars = new HashMap<>();
 //
 //
-    private DimensionRenderer(List<SkyObject> skyObjects) {
+    private DimensionRenderer(List<SkyObject> skyObjects,
 //                              CloudSettings cloudSettings,
 //                              CustomVanillaObject.Sun sun,
 //                              CustomVanillaObject.Moon moon,
-//                              SkyColorSettings skyColor, FogSettings fogSettings, StarSettings starSettings, SkyBoxSetting skyBoxSetting, boolean weather, SkyProperties.RenderCondition renderCondition) {
+//                              SkyColorSettings skyColor, FogSettings fogSettings,
+                              StarSettings starSettings,
+//                              SkyBoxSetting skyBoxSetting, boolean weather
+                              SkyProperties.RenderCondition renderCondition) {
 //
         this.skyObjects = skyObjects;
         this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
@@ -51,22 +65,29 @@ public class DimensionRenderer {
 //        this.moon = moon;
 //        this.skyColor = skyColor;
 //        this.fogSettings = fogSettings;
-//        this.starSettings = starSettings;
+        this.starSettings = starSettings;
+        this.gpuBuffer = starSettings.buildCustomStars();
 //        this.skyBoxSetting = skyBoxSetting;
 //        this.weather = weather;
-//        this.renderCondition = renderCondition;
-//    }
+        this.renderCondition = renderCondition;
+    }
 //
-//    public boolean canRenderSky() {
-//        if(this.renderCondition == null) {
-//            return true; // No condition set, render by default
-//        }
-//        return this.renderCondition.isSkyRendered(this.getServerLevel());
+    public boolean canRenderSky() {
+        if(this.renderCondition == null) {
+            return true; // No condition set, render by default
+        }
+        return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
     public void render(ClientLevel level, SkyRenderState skyRenderState, SkyRenderer skyRenderer, Camera camera) {
        // Implementation goes here
        PoseStack poseStack = new PoseStack();
+
+        SkyObject object = new SkyObject(Identifier.withDefaultNamespace("sun"),
+                false, 70, new Vector3f(30),
+                new Vector3f(0), 1, "DAY");
+
+        this.skyObjects.add(object);
 
        skyRenderer.renderSkyDisc(skyRenderState.skyColor);
 
@@ -75,12 +96,7 @@ public class DimensionRenderer {
 
        renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
 
-       if (skyRenderState.starBrightness > 0.0F) {
-           poseStack.pushPose();
-           poseStack.mulPose(Axis.XP.rotation(skyRenderState.starAngle));
-           skyRenderer.renderStars(skyRenderState.starBrightness, poseStack);
-           poseStack.popPose();
-       }
+       this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
 
 
        if (skyRenderState.shouldRenderDarkDisc) {
@@ -203,11 +219,11 @@ public class DimensionRenderer {
 //        return cloudSettings.showCloud();
 //    }
 //
-//    public static ServerLevel getServerLevel() {
-//        Minecraft minecraft = Minecraft.getInstance();
-//        IntegratedServer integratedServer = minecraft.getSingleplayerServer();
-//        return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
-//    }
+    public static ServerLevel getServerLevel() {
+        Minecraft minecraft = Minecraft.getInstance();
+        IntegratedServer integratedServer = minecraft.getSingleplayerServer();
+        return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
+    }
 //
     public static class Builder {
 
@@ -218,9 +234,10 @@ public class DimensionRenderer {
 //        public CustomVanillaObject.Sun sun = null;
 //        public CustomVanillaObject.Moon moon = null;
 //        public FogSettings fogSettings = FogSettings.createDefaultSettings();
-//        public StarSettings star = StarSettings.createDefaultStars();
+    //TODO: Default star settings
+        public StarSettings star = new StarSettings(false, true,  60000, false, 0.15f, new Vector3i(1), Optional.empty());;
         //Always render sky by default
-//        public SkyProperties.RenderCondition renderCondition = null;
+        public SkyProperties.RenderCondition renderCondition = null;
 //        public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
 //        public boolean weather = true; // Default to true
 //
@@ -235,10 +252,10 @@ public class DimensionRenderer {
 //            return this;
 //        }
 //
-//        public Builder setStar(StarSettings star) {
-//            this.star = star;
-//            return this;
-//        }
+        public Builder setStar(StarSettings star) {
+            this.star = star;
+            return this;
+        }
 //
 //        public Builder setFogSettings(FogSettings fogSettings) {
 //            this.fogSettings = fogSettings;
@@ -260,10 +277,10 @@ public class DimensionRenderer {
 //            return this;
 //        }
 //
-//        public Builder setRenderCondition(SkyProperties.RenderCondition renderCondition) {
-//            this.renderCondition = renderCondition;
-//            return this;
-//        }
+        public Builder setRenderCondition(SkyProperties.RenderCondition renderCondition) {
+            this.renderCondition = renderCondition;
+            return this;
+        }
 //
 //        public Builder addSun(CustomVanillaObject.Sun sun) {
 //            this.sun = sun;
@@ -282,16 +299,16 @@ public class DimensionRenderer {
 
         public DimensionRenderer build() {
             return new DimensionRenderer(
-                    skyObjects
-//                    , cloudSettings,
+                    skyObjects,
+//                  cloudSettings,
 //                    sun,
 //                    moon,
 //                    skyColor,
 //                    fogSettings,
-//                    star,
+                    star,
 //                    skyBoxSetting,
 //                    weather,
-//                    renderCondition
+                    renderCondition
             );
         }
     }

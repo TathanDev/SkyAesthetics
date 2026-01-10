@@ -6,7 +6,6 @@
   "client": [
     "client.LevelRendererMixin",
     "client.PauseMenuMixin",
-    "client.TestRendering",
     "client.WeatherEffectRendererMixin"
   ],
   "mixins": [

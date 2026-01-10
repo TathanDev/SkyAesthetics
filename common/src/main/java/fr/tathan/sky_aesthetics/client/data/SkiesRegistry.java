@@ -1,13 +1,13 @@
 package fr.tathan.sky_aesthetics.client.data;
 
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
-import fr.tathan.sky_aesthetics.client.skies.settings.SkyProperties;
+import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,15 +15,15 @@ import java.util.Map;
 /**
  * The registry handling the loading of custom skies from data packs
  */
-public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyProperties>  {
+public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull SkyProperties>  {
 
-    public static final Map<Identifier, DimensionSky> SKY_PROPERTIES = new HashMap<>();
+    public static final Map<Identifier, SkyProperties> SKY_PROPERTIES = new HashMap<>();
 
     /**
      * The default sky used in development, it is not registered in the registry.
      * It is used to test the sky aesthetics without having to load a custom sky.
      */
-    public static DimensionSky SKY_DEV = null;
+    public static SkyProperties SKY_DEV = null;
     public static Boolean USE_SKY_DEV = false;
 
 
@@ -34,11 +34,10 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyPropertie
     @Override
     protected void apply(Map<Identifier, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
         SKY_PROPERTIES.clear();
+        SkyAesthetics.LOG.info("Registering skies...");
         object.forEach((key, skyProperties) -> {
 
-            DimensionSky dimensionSky = new DimensionSky(skyProperties);
-
-            registerSky(skyProperties.id(), dimensionSky);
+            registerSky(skyProperties.id(), skyProperties);
             SkyAesthetics.LOG.info("{} | registered", skyProperties.id());
 
         });
@@ -51,14 +50,14 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<SkyPropertie
      * @param id the id of the sky to register
      * @param sky the sky to register
      */
-    public static void registerSky(Identifier id, DimensionSky sky) {
+    public static void registerSky(Identifier id, SkyProperties sky) {
         if(SKY_PROPERTIES.containsKey(id)) {
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);
         }
         SKY_PROPERTIES.put(id, sky);
     }
 
-    public static void setSkyDev(DimensionSky sky) {
+    public static void setSkyDev(SkyProperties sky) {
         if(SKY_DEV != null) {
             SkyAesthetics.LOG.warn("Sky dev already set, overwriting it");
         }

@@ -1,12 +1,28 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
+import com.mojang.blaze3d.framegraph.FramePass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.SkyRenderState;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.material.FogType;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = LevelRenderer.class, priority = 900)
 public abstract class LevelRendererMixin {
 
-    /*
+
     @Mutable
     @Shadow
     private ClientLevel level;
@@ -26,33 +42,42 @@ public abstract class LevelRendererMixin {
     @Shadow
     protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
+    @Mutable
+    @Shadow
+    private LevelRenderState levelRenderState;
+
+
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
-        FogType cameraSubmersionType = camera.getFluidInCamera();
+    private void renderCustomSkyboxes2(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
+        FogType fogType = camera.getFluidInCamera();
+        if (fogType != FogType.POWDER_SNOW && fogType != FogType.LAVA && !this.doesMobEffectBlockSky(camera)) {
+            SkyRenderState skyRenderState = this.levelRenderState.skyRenderState;
+            if (skyRenderState.skybox != DimensionType.Skybox.NONE) {
+                SkyRenderer skyRenderer = this.skyRenderer;
+                if (skyRenderer != null) {
+                    SkyHelper.canRenderSky(level, (planetSky -> {
+                        FramePass framePass = frameGraphBuilder.addPass("sky");
+                        this.targets.main = framePass.readsAndWrites(this.targets.main);
 
-        if (cameraSubmersionType != FogType.POWDER_SNOW && cameraSubmersionType != FogType.LAVA && cameraSubmersionType != FogType.WATER && !this.doesMobEffectBlockSky(camera)) {
-            SkyHelper.canRenderSky(level, (planetSky -> {
-                if(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingMainSkyRender) || SkyAesthetics.CONFIG.disableCustomSkies) return;
+                        framePass.executes(() -> {
+                            RenderSystem.setShaderFog(shaderFog);
+                            planetSky.toDimensionRenderer().render(
+                                    level,
+                                    skyRenderState,
+                                    skyRenderer,
+                                    camera
+                            );
 
-                FramePass framePass = frameGraphBuilder.addPass("sky");
-                this.targets.main = framePass.readsAndWrites(this.targets.main);
+                        });
+                        ci.cancel();
+                    }));
 
-                framePass.executes(() -> {
-                    PoseStack poseStack = new PoseStack();
-                    //skyRenderer.renderSkyDisc(skyRenderState.skyColor);
-                    //skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
-                    //skyRenderer.renderSunMoonAndStars(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.starAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderState.starBrightness);
-                    //if (skyRenderState.shouldRenderDarkDisc) {
-                        skyRenderer.renderDarkDisc();
-                    }
-
-                    planetSky.getRenderer().render(level, poseStack, RenderSystem.getProjectionMatrix(), partialTick, camera,  bufferSource, skyRenderer, fog);
-                });
-                ci.cancel();
-            }));
+                }
+            }
         }
     }
 
+/*
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, long l, float f, int i, float g, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {

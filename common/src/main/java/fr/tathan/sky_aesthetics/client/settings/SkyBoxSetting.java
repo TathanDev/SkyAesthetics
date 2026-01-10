@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.client.skies.settings;
+package fr.tathan.sky_aesthetics.client.settings;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;

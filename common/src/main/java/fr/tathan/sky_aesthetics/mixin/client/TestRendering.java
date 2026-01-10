@@ -1,12 +1,9 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import fr.tathan.sky_aesthetics.client.skies.settings.SkyObject;
+import fr.tathan.sky_aesthetics.client.settings.SkyObject;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.MoonPhase;

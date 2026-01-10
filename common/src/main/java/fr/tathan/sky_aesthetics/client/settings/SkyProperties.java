@@ -1,8 +1,8 @@
-package fr.tathan.sky_aesthetics.client.skies.settings;
+package fr.tathan.sky_aesthetics.client.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
+import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
@@ -21,17 +21,15 @@ import java.util.Optional;
 public record SkyProperties(
         ResourceKey<Level> world,
         Identifier id,
-        Optional<CloudSettings> cloudSettings,
-        Optional<FogSettings> fogSettings,
-        Boolean weather,
-        Optional<CustomVanillaObject.Sun> sun,
-        Optional<CustomVanillaObject.Moon> moon,
+        //Optional<CloudSettings> cloudSettings,
+        //Boolean weather,
+        //Optional<CustomVanillaObject.Sun> sun,
+        //Optional<CustomVanillaObject.Moon> moon,
         Optional<StarSettings> stars,
-        Optional<SkyColorSettings> skyColor,
+
         List<SkyObject> skyObjects,
-        Optional<RenderCondition> renderCondition,
+        Optional<RenderCondition> renderCondition
         //Optional<SkyBoxSetting> skyBoxSetting,
-        Optional<LightSettings> lightSettings
 
 ) {
 
@@ -39,38 +37,36 @@ public record SkyProperties(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
 
-            CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
+            //CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
 
-            FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings),
-
-            Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
-            CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
-            CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
+            //Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
+            //CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
+            //CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
             StarSettings.CODEC.optionalFieldOf("stars").forGetter(SkyProperties::stars),
-            SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
+            //SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
-            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
+            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
             //SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
-            LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
+            //LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
     ).apply(instance, SkyProperties::new));
 
 
-//    public DimensionRenderer toDimensionRenderer() {
-//        DimensionRenderer.Builder builder = new DimensionRenderer.Builder()
-//                .setWeather(this.weather);
-//
-//        this.stars.ifPresent(builder::setStar);
-//        this.moon.ifPresent(builder::addMoon);
-//        this.sun.ifPresent(builder::addSun);
-//        this.skyObjects.forEach(builder::addSkyObject);
-//        this.cloudSettings.ifPresent(builder::addCloudSettings);
-//        this.fogSettings.ifPresent(builder::setFogSettings);
-//        this.skyColor.ifPresent(builder::setSkyColor);
-//        this.renderCondition.ifPresent(builder::setRenderCondition);
-//        //this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
-//
-//        return builder.build();
-//    }
+    public DimensionRenderer toDimensionRenderer() {
+        DimensionRenderer.Builder builder = new DimensionRenderer.Builder();
+                //.setWeather(this.weather);
+
+        //this.stars.ifPresent(builder::setStar);
+        //this.moon.ifPresent(builder::addMoon);
+        //this.sun.ifPresent(builder::addSun);
+        this.skyObjects.forEach(builder::addSkyObject);
+        //this.cloudSettings.ifPresent(builder::addCloudSettings);
+        //this.fogSettings.ifPresent(builder::setFogSettings);
+        //this.skyColor.ifPresent(builder::setSkyColor);
+        this.renderCondition.ifPresent(builder::setRenderCondition);
+        //this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
+
+        return builder.build();
+    }
 
     public DimensionSky toDimensionSky() {
         return new DimensionSky(this);
@@ -80,16 +76,16 @@ public record SkyProperties(
         return new SkyProperties(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                 Identifier.parse("default"),
-                Optional.of(CloudSettings.createDefaultSettings()),
-                Optional.of(FogSettings.createDefaultSettings()),
-                true,
-                Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
-                Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
+                //Optional.of(CloudSettings.createDefaultSettings()),
+                //Optional.of(FogSettings.createDefaultSettings()),
+                //true,
+                //Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
+                //Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
                 Optional.of(StarSettings.createDefaultStars()),
-                Optional.of(SkyColorSettings.createDefaultSettings()),
+                //Optional.of(SkyColorSettings.createDefaultSettings()),
                 List.of(),
-                Optional.empty(),
                 Optional.empty()
+                //Optional.empty()
         );
     }
 

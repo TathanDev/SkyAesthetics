@@ -1,6 +1,5 @@
-package fr.tathan.sky_aesthetics.client.skies.settings;
+package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.Util;

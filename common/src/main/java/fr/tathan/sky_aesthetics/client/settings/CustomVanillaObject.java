@@ -1,9 +1,8 @@
-package fr.tathan.sky_aesthetics.client.skies.settings;
+package fr.tathan.sky_aesthetics.client.settings;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.resources.Identifier;

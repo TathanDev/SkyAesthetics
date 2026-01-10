@@ -3,7 +3,7 @@ package fr.tathan.sky_aesthetics.datagen;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.skies.settings.*;
+import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.CachedOutput;
@@ -36,7 +36,7 @@ public class SkyPropertiesProvider implements DataProvider {
 
     public SkyPropertiesProvider(PackOutput packOutput, PackOutput.Target target, String modid) {
         this.modid = modid;
-        this.pathProvider = packOutput.createPathProvider(target, registry.location().getPath());
+        this.pathProvider = packOutput.createPathProvider(target, registry.identifier().getPath());
         this.codec = SkyProperties.CODEC;
     }
 
@@ -72,7 +72,6 @@ public class SkyPropertiesProvider implements DataProvider {
                         Optional.of(StarSettings.createDefaultStars()),
                         Optional.of(SkyColorSettings.createDefaultSettings()),
                         List.of(),
-                        Optional.empty(),
                         Optional.empty(),
                         Optional.empty()
                 )
