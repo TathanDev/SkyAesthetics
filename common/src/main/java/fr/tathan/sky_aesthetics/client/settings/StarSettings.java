@@ -66,6 +66,11 @@ public record StarSettings(
 
 
     public BufferHolder buildCustomStars() {
+
+        if(this.vanilla || this.count() < 100) {
+            return null;
+        }
+
         RandomSource randomSource = RandomSource.create(10842L);
         int indexCount = 0;
 

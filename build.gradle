@@ -68,7 +68,10 @@ subprojects {
             parchment("org.parchmentmc.data:parchment-1.21.10:${rootProject.parchment_mapping_version}@zip")
         }
 
-        
+        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.11:${rootProject.exoconfig_version}"
+
+
+
     }
 
     java {

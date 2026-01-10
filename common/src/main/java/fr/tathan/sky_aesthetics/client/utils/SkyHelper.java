@@ -3,6 +3,7 @@ package fr.tathan.sky_aesthetics.client.utils;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
+import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.client.multiplayer.ClientLevel;
 
 import java.util.function.Consumer;
@@ -37,13 +38,13 @@ public class SkyHelper {
         }
         return false;
     }
-//
-//    public static boolean isAModCancelRendering(String[] modIds) {
-//        for(String modId : modIds) {
-//            if (PlatformHelper.isModLoaded(modId)) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+
+    public static boolean isAModCancelRendering(String[] modIds) {
+        for(String modId : modIds) {
+            if (PlatformHelper.isModLoaded(modId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

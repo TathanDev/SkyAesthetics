@@ -30,25 +30,24 @@ import java.util.Optional;
  * The class handling the rendering of a custom sky
  */
 public class DimensionRenderer {
-//
+
     public final List<SkyObject> skyObjects;
     public final TextureAtlas celestialsAtlas;
 //    public final CloudSettings cloudSettings;
-//
+
 //    public final CustomVanillaObject.Sun sun;
 //    public final CustomVanillaObject.Moon moon;
 //    public final SkyColorSettings skyColor;
 //    public final FogSettings fogSettings;
     public final StarSettings starSettings;
 //    public final SkyBoxSetting skyBoxSetting;
-//
+
 //    public final boolean weather;
     public final SkyProperties.RenderCondition renderCondition;
     public final StarSettings.BufferHolder gpuBuffer;
-//
+
 //    private final HashMap<UUID, ShootingStar> shootingStars = new HashMap<>();
-//
-//
+
     private DimensionRenderer(List<SkyObject> skyObjects,
 //                              CloudSettings cloudSettings,
 //                              CustomVanillaObject.Sun sun,
@@ -71,7 +70,7 @@ public class DimensionRenderer {
 //        this.weather = weather;
         this.renderCondition = renderCondition;
     }
-//
+
     public boolean canRenderSky() {
         if(this.renderCondition == null) {
             return true; // No condition set, render by default
@@ -218,13 +217,13 @@ public class DimensionRenderer {
 //    public boolean renderClouds() {
 //        return cloudSettings.showCloud();
 //    }
-//
+
     public static ServerLevel getServerLevel() {
         Minecraft minecraft = Minecraft.getInstance();
         IntegratedServer integratedServer = minecraft.getSingleplayerServer();
         return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
-//
+
     public static class Builder {
 
         public List<SkyObject> skyObjects = new ArrayList<>();
@@ -235,7 +234,7 @@ public class DimensionRenderer {
 //        public CustomVanillaObject.Moon moon = null;
 //        public FogSettings fogSettings = FogSettings.createDefaultSettings();
     //TODO: Default star settings
-        public StarSettings star = new StarSettings(false, true,  60000, false, 0.15f, new Vector3i(1), Optional.empty());;
+        public StarSettings star = new StarSettings(false, true,  0, false, 0.15f, new Vector3i(1), Optional.empty());;
         //Always render sky by default
         public SkyProperties.RenderCondition renderCondition = null;
 //        public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
@@ -276,17 +275,17 @@ public class DimensionRenderer {
 //            this.moon = moon;
 //            return this;
 //        }
-//
+
         public Builder setRenderCondition(SkyProperties.RenderCondition renderCondition) {
             this.renderCondition = renderCondition;
             return this;
         }
-//
+
 //        public Builder addSun(CustomVanillaObject.Sun sun) {
 //            this.sun = sun;
 //            return this;
 //        }
-//
+
 //        public Builder addCloudSettings(CloudSettings cloudSettings) {
 //            this.cloudSettings = cloudSettings;
 //            return this;

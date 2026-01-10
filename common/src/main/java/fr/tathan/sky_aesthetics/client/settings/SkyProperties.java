@@ -21,7 +21,7 @@ import java.util.Optional;
 public record SkyProperties(
         ResourceKey<Level> world,
         Identifier id,
-        //Optional<CloudSettings> cloudSettings,
+        Optional<Boolean> cloudSettings,
         //Boolean weather,
         //Optional<CustomVanillaObject.Sun> sun,
         //Optional<CustomVanillaObject.Moon> moon,
@@ -37,7 +37,7 @@ public record SkyProperties(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
 
-            //CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
+            Codec.BOOL.optionalFieldOf("cloud").forGetter(SkyProperties::cloudSettings),
 
             //Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
             //CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
@@ -68,14 +68,12 @@ public record SkyProperties(
         return builder.build();
     }
 
-    public DimensionSky toDimensionSky() {
-        return new DimensionSky(this);
-    }
 
     public static SkyProperties createDefault() {
         return new SkyProperties(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                 Identifier.parse("default"),
+                Optional.of(true),
                 //Optional.of(CloudSettings.createDefaultSettings()),
                 //Optional.of(FogSettings.createDefaultSettings()),
                 //true,
@@ -89,6 +87,10 @@ public record SkyProperties(
         );
     }
 
+
+    public boolean renderClouds() {
+        return this.cloudSettings.orElse(true);
+    }
 
 
     public record RenderCondition(Optional<TagKey<Biome>> biomes, Optional<ResourceKey<Biome>> biome, Optional<Vec2> heightRange) {
