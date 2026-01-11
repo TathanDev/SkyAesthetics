@@ -18,6 +18,7 @@ import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.MoonPhase;
+import net.minecraft.world.level.biome.Biome;
 import org.joml.Vector3f;
 import org.joml.Vector3i;
 

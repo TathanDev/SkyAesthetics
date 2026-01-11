@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Util;
+import net.minecraft.world.attribute.EnvironmentAttributeMap;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec2;
@@ -28,7 +29,8 @@ public record SkyProperties(
         Optional<StarSettings> stars,
 
         List<SkyObject> skyObjects,
-        Optional<RenderCondition> renderCondition
+        Optional<RenderCondition> renderCondition,
+        Optional<EnvironmentAttributeMap> environmentAttributes
         //Optional<SkyBoxSetting> skyBoxSetting,
 
 ) {
@@ -45,7 +47,8 @@ public record SkyProperties(
             StarSettings.CODEC.optionalFieldOf("stars").forGetter(SkyProperties::stars),
             //SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
-            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
+            RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
+            EnvironmentAttributeMap.CODEC_ONLY_POSITIONAL.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes)
             //SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
             //LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
     ).apply(instance, SkyProperties::new));
@@ -84,6 +87,7 @@ public record SkyProperties(
                 Optional.of(StarSettings.createDefaultStars()),
                 //Optional.of(SkyColorSettings.createDefaultSettings()),
                 List.of(),
+                Optional.empty(),
                 Optional.empty()
                 //Optional.empty()
         );

@@ -12,6 +12,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.client.renderer.state.SkyRenderState;
+import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class LevelRendererMixin {
 
 
+
     @Mutable
     @Shadow
     private ClientLevel level;
@@ -34,9 +36,6 @@ public abstract class LevelRendererMixin {
     @Shadow
     private LevelTargetBundle targets;
 
-    @Mutable
-    @Shadow
-    private RenderBuffers renderBuffers;
 
     @Mutable
     @Shadow
@@ -79,7 +78,6 @@ public abstract class LevelRendererMixin {
             }
         }
     }
-
 
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, long l, float f, int i, float g, CallbackInfo ci) {

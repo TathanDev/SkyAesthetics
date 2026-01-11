@@ -14,5 +14,9 @@
     "all_days_visible": false,
     "scale": 0.15,
     "color": [1.0, 1.0, 1.0]
+  },
+  "environment_attributes": {
+    "minecraft:visual/sky_light_color": "#7a7aff",
+    "minecraft:visual/sky_color": "#D09EFF"
   }
 }
