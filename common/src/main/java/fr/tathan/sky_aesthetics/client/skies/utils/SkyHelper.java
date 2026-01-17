@@ -32,8 +32,12 @@ public class SkyHelper {
         VertexBuffer.unbind();
     }
 
-    public static void drawMoonWithPhase(Tesselator tesselator, PoseStack poseStack, float y, ResourceLocation texture, float dayAngle) {
-        int moonPhase = 3; // TODO: Get moon phase
+    public static void drawMoonWithPhase(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float y, ResourceLocation texture, float dayAngle) {
+
+        var moonPhase = 3;
+        if(level != null)
+            moonPhase = level.getMoonPhase();
+
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
         float startX = xCoord / 4.0F;

@@ -55,10 +55,10 @@ public class CustomVanillaObject{
         }
 
         public void render(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float nightAngle) {
-            if(PlatformHelper.isModLoaded("lunar")) {
+            if(PlatformHelper.isModLoaded("lunar") && level != null) {
                 SkyCompat.drawLunarSky(level, tesselator, poseStack, moonSize(), nightAngle);
             } else if (this.moonPhase()) {
-                SkyHelper.drawMoonWithPhase(tesselator, poseStack, moonSize(), moonTexture(), nightAngle);
+                SkyHelper.drawMoonWithPhase(level, tesselator, poseStack, moonSize(), moonTexture(), nightAngle);
             } else {
                 SkyHelper.drawCelestialBody(moonTexture(), tesselator, poseStack, moonHeight(), moonSize(), nightAngle, 0, 1, 0, 1, false);
             }
