@@ -11,7 +11,9 @@ import net.minecraft.resources.ResourceLocation;
 public class SkyCompat {
 
     public static void drawLunarSky(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float y, float dayAngle) {
-        int moonPhase = level.getMoonPhase();
+        var moonPhase = 3;
+        if(level != null)
+            moonPhase = level.getMoonPhase();
         int xCoord = moonPhase % 4;
         int yCoord = moonPhase / 4 % 2;
         float startX = xCoord / 4.0F;

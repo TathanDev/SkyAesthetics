@@ -55,7 +55,7 @@ public class CustomVanillaObject{
         }
 
         public void render(ClientLevel level, Tesselator tesselator, PoseStack poseStack, float nightAngle) {
-            if(PlatformHelper.isModLoaded("lunar") && level != null) {
+            if(PlatformHelper.isModLoaded("lunar")) {
                 SkyCompat.drawLunarSky(level, tesselator, poseStack, moonSize(), nightAngle);
             } else if (this.moonPhase()) {
                 SkyHelper.drawMoonWithPhase(level, tesselator, poseStack, moonSize(), moonTexture(), nightAngle);
