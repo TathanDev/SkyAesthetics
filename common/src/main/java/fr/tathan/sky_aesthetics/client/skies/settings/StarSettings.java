@@ -84,13 +84,12 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
         }
 
-
         if (this.allDaysVisible()) {
-            RenderSystem.setShaderColor(starLight + 1f, starLight + 1f, starLight + 1f, starLight + 1f);
-        } else if (starLight > 0.2F) {
-            RenderSystem.setShaderColor(starLight + 0.5f, starLight + 0.5f, starLight + 0.5f, starLight + 0.5f);
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture(), starLight + 1f);
+        } else if (starLight > 0.0f) {
+            StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture(), starLight);
+
         }
-        StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture());
 
     }
 

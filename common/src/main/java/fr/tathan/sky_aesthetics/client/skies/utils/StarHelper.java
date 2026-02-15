@@ -1,5 +1,6 @@
 package fr.tathan.sky_aesthetics.client.skies.utils;
 
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -191,7 +192,11 @@ public class StarHelper {
 
     }
 
-    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture) {
+    public static void drawStars(VertexBuffer vertexBuffer, PoseStack poseStack, Matrix4f projectionMatrix, float nightTime, Optional<ResourceLocation> starTexture, float starLight) {
+
+        RenderSystem.enableBlend();
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+
         poseStack.pushPose();
         poseStack.mulPose(Axis.ZP.rotationDegrees(nightTime));
         FogRenderer.setupNoFog();
@@ -199,11 +204,9 @@ public class StarHelper {
 
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
-        float cycleSpeed = 0.5f;
-        float alpha = (Mth.cos((float) (System.currentTimeMillis() * cycleSpeed / 1000.0)) + 1.0f) / 2.0f;
-        alpha = Mth.lerp(0.3f, 0.7f, alpha);
 
-        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, alpha);
+        SkyAesthetics.LOG.error("Star Light : {}", starLight);
+        RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
 
         vertexBuffer.bind();
         if (starTexture.isPresent()) {
@@ -215,6 +218,10 @@ public class StarHelper {
         VertexBuffer.unbind();
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         poseStack.popPose();
+        RenderSystem.disableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.depthMask(true);
+
     }
 
 

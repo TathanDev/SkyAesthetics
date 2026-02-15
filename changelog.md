@@ -1,4 +1,5 @@
-# Sky Aesthetics 2.0.10-BETA Changelog
+# Sky Aesthetics 2.0.11-BETA Changelog
 
-## Features
-- Added a link to the documentation in the screen.
+## Fixes
+- Fix moon phases.
+- Fix Lunar Compat crashing
