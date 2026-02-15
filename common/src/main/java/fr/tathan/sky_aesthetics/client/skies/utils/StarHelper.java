@@ -204,8 +204,6 @@ public class StarHelper {
 
         starTexture.ifPresent(resourceLocation -> RenderSystem.setShaderTexture(0, resourceLocation));
 
-
-        SkyAesthetics.LOG.error("Star Light : {}", starLight);
         RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
 
         vertexBuffer.bind();
@@ -220,7 +218,6 @@ public class StarHelper {
         poseStack.popPose();
         RenderSystem.disableBlend();
         RenderSystem.defaultBlendFunc();
-        RenderSystem.depthMask(true);
 
     }
 
