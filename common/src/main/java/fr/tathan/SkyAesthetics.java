@@ -3,6 +3,7 @@ package fr.tathan;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
+import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
@@ -26,7 +27,7 @@ public final class SkyAesthetics {
             .create();
 
     public static void init() {
-        //CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
+        CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
         RenderPipelineRegistry.init();
     }
 

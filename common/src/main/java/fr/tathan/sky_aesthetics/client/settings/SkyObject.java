@@ -81,16 +81,11 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         poseStack.translate(0, -100, 0);
     }
 
-
-
-
     public GpuBuffer buildSkyObject(TextureAtlas textureAtlas) {
         return SkyRenderer.buildCelestialQuad(this.texture.getPath(), textureAtlas.getSprite(this.texture));
     }
 
-
-
-    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle, float moonAngle) {
+    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.XP.rotation(sunAngle));
 

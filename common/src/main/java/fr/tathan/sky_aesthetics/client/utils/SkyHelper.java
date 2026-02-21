@@ -1,16 +1,17 @@
 package fr.tathan.sky_aesthetics.client.utils;
 
+import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.world.level.Level;
 
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 public class SkyHelper {
-//    private static final Identifier END_SKY_TEXTURE = Identifier.withDefaultNamespace("textures/environment/end_sky.png");
-//
+
     public static boolean canRenderSky(Level level, Consumer<SkyProperties> action) {
 
         if((SkiesRegistry.SKY_DEV != null && SkiesRegistry.USE_SKY_DEV) && level.dimension().equals(SkiesRegistry.SKY_DEV.world())) {
@@ -23,10 +24,10 @@ public class SkyHelper {
             if (sky.world().equals(level.dimension())) {
 
                 // Check if the sky is disabled in the config
-                //if(Arrays.stream(SkyAesthetics.CONFIG.disabledSkies).anyMatch((s)-> s.equals(sky.getSkyId().toString()))) return false;
+                if(Arrays.stream(SkyAesthetics.CONFIG.disabledSkies).anyMatch((s)-> s.equals(sky.id().toString()))) return false;
 
                 // Check if the sky's dimension is disabled in the properties
-                //if(Arrays.stream(SkyAesthetics.CONFIG.disabledDimensions).anyMatch((s)-> s.equals(sky.getDimension().identifier().toString()))) return false;
+                if(Arrays.stream(SkyAesthetics.CONFIG.disabledDimensions).anyMatch((s)-> s.equals(sky.world().identifier().toString()))) return false;
 
 
                 if (sky.renderCondition().isPresent() && sky.renderCondition().get().isSkyRendered(DimensionRenderer.getServerLevel())) {

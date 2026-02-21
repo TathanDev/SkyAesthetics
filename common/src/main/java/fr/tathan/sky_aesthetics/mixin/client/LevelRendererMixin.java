@@ -26,8 +26,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = LevelRenderer.class, priority = 900)
 public abstract class LevelRendererMixin {
 
-
-
     @Mutable
     @Shadow
     private ClientLevel level;

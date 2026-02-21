@@ -15,12 +15,7 @@ public class AttributeSystemMixin {
     @Inject(method = "addDefaultLayers", at = @At("TAIL"), cancellable = false)
     private static void addDefaultLayers(EnvironmentAttributeSystem.Builder builder, Level level, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
-            SkyAesthetics.LOG.error("Adding environment attributes for sky: " + planetSky.id());
-            planetSky.environmentAttributes().ifPresent(envAttributes -> {
-                SkyAesthetics.LOG.error("Attributes set : " + envAttributes.keySet().size());
-                        builder.addConstantLayer(envAttributes);
-                    }
-            );
+            planetSky.environmentAttributes().ifPresent(builder::addConstantLayer);
         }));
     }
 

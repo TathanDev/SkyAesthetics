@@ -78,21 +78,15 @@ public class DimensionRenderer {
     }
 
     public void render(ClientLevel level, SkyRenderState skyRenderState, SkyRenderer skyRenderer, Camera camera) {
-       // Implementation goes here
        PoseStack poseStack = new PoseStack();
-
 
        skyRenderer.renderSkyDisc(skyRenderState.skyColor);
 
-       //TODO: change sunriseAndSunsetColor to use skyRenderState.sunriseAndSunsetColor
        skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
 
         this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
 
-
         this.renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
-
-
 
        if (skyRenderState.shouldRenderDarkDisc) {
            skyRenderer.renderDarkDisc();
@@ -120,103 +114,13 @@ public class DimensionRenderer {
 
 
         for( SkyObject skyObject : skyObjects) {
-            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, sunAngle);
+            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle);
         }
 
 
         poseStack.popPose();
     }
 
-//    public void render(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, MultiBufferSource.BufferSource bufferSource, SkyRenderer skyRenderer,  FogParameters fog) {
-//
-//        //TODO : Add Fix Sky Color, change fog params, sun angle
-//
-//        DimensionSpecialEffects dimensionSpecialEffects = level.effects();
-//
-//        float timeOfTheDay = level.getTimeOfDay(partialTick);
-//        float dayAngle = level.getSunAngle(partialTick);
-//
-//        float nightAngle = dayAngle + 180;
-//        int sunsetColor = dimensionSpecialEffects.getSunriseOrSunsetColor(timeOfTheDay);
-//
-//        //Fog Handling
-//        fog = this.fogSettings.setCustomFog(fog);
-//        this.fogSettings.runFogCallback(fog);
-//
-//        /**
-//         * Sky Color Handling
-//         */
-//        int baseSkyColor = level.getSkyColor(Minecraft.getInstance().gameRenderer.getMainCamera().getPosition(), partialTick);
-//
-//        Vector3f skyColor = new Vector3f(ARGB.redFloat(baseSkyColor), ARGB.greenFloat(baseSkyColor), ARGB.blueFloat(baseSkyColor));
-//
-//        if(this.skyColor.color().isPresent()) {
-//            Vector4f customSkyColor = this.skyColor.color().get();
-//            skyColor.set(customSkyColor.x / 255f, customSkyColor.y / 255f, customSkyColor.z / 255f);
-//        }
-//        skyRenderer.renderSkyDisc(skyColor.x, skyColor.y, skyColor.z);
-//
-//        /**
-//         * Sunrise and Sunset Rendering
-//         */
-//        if (dimensionSpecialEffects.isSunriseOrSunset(timeOfTheDay)) {
-//            skyRenderer.renderSunriseAndSunset(poseStack, bufferSource, dayAngle, sunsetColor);
-//        }
-//
-//        /**
-//         * Skybox Rendering
-//         */
-//        if(this.skyBoxSetting != null) {
-//            this.skyBoxSetting.renderSkyBox(poseStack, projectionMatrix, camera, dayAngle);
-//        }
-//
-//
-//
-//        this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, fog, nightAngle, starBuffer, skyRenderer);
-//
-//        //this.starSettings.shootingStars().ifPresent((shootingStars) -> {
-//        //    this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
-//        //});
-//
-//
-//        this.renderSunAndMoon(poseStack, bufferSource, timeOfTheDay, dayAngle, nightAngle);
-//
-//        for (SkyObject skyObject : skyObjects) {
-//            skyObject.drawSkyObject(bufferSource, poseStack, dayAngle);
-//        }
-//
-//
-//        bufferSource.endBatch();
-//        if (Minecraft.getInstance().player.getEyePosition(partialTick).y - level.getLevelData().getHorizonHeight(level) < (double)0.0F) {
-//            skyRenderer.renderDarkDisc(poseStack);
-//        }
-//
-//    }
-//
-//    public void testRender(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
-//    }
-//
-//    public void renderSunAndMoon(PoseStack poseStack, MultiBufferSource.BufferSource bufferSource, float timeOfTheDay, float dayAngle, float nightAngle) {
-//        poseStack.pushPose();
-//        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
-//        poseStack.mulPose(Axis.XP.rotationDegrees(timeOfTheDay * 360.0F));
-//
-//
-//        if (sun != null) {
-//            sun.render(bufferSource, poseStack, dayAngle);
-//        }
-//
-//        if (moon != null) {
-//            moon.render(null, bufferSource, poseStack, nightAngle);
-//        }
-//
-//        poseStack.popPose();
-//
-//    }
-//
-//    public boolean renderClouds() {
-//        return cloudSettings.showCloud();
-//    }
 
     public static ServerLevel getServerLevel() {
         Minecraft minecraft = Minecraft.getInstance();
