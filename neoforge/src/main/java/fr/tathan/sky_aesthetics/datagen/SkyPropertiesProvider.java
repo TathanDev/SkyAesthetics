@@ -60,22 +60,21 @@ public class SkyPropertiesProvider implements DataProvider {
     }
 
     protected void build(BiConsumer<Identifier, SkyProperties> consumer) {
-        consumer.accept(skyLocation("test"),
-                new SkyProperties(
-                        ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
-                        skyLocation("test"),
-                        Optional.of(CloudSettings.createDefaultSettings()),
-                        Optional.of(FogSettings.createDefaultSettings()),
-                        true,
-                        Optional.of(CustomVanillaObject.createDefaultSettings()),
-                        Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
-                        Optional.of(StarSettings.createDefaultStars()),
-                        Optional.of(SkyColorSettings.createDefaultSettings()),
-                        List.of(),
-                        Optional.empty(),
-                        Optional.empty()
-                )
-        );
+//        consumer.accept(skyLocation("test"),
+//                new SkyProperties(
+//                        ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
+//                        skyLocation("test"),
+//                        Optional.of(CloudSettings.createDefaultSettings()),
+//                        Optional.of(FogSettings.createDefaultSettings()),
+//                        true,
+//                        Optional.of(CustomVanillaObject.createDefaultSettings()),
+//                        Optional.of(StarSettings.createDefaultStars()),
+//                        Optional.of(SkyColorSettings.createDefaultSettings()),
+//                        List.of(),
+//                        Optional.empty(),
+//                        Optional.empty()
+//                )
+//        );
     }
 
     public Identifier skyLocation(String path) {

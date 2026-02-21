@@ -17,7 +17,7 @@ public final class SkyAestheticsNeoForge {
 
     }
 
-    @EventBusSubscriber(modid = SkyAesthetics.MODID, bus = EventBusSubscriber.Bus.MOD, value= Dist.CLIENT)
+    @EventBusSubscriber(modid = SkyAesthetics.MODID, value= Dist.CLIENT)
     public static class ClientModEvents {
 
         @SubscribeEvent

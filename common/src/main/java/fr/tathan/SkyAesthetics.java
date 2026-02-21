@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.ToNumberPolicy;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
+import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -26,6 +27,7 @@ public final class SkyAesthetics {
 
     public static void init() {
         //CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
+        RenderPipelineRegistry.init();
     }
 
 

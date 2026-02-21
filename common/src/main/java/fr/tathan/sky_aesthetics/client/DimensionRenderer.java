@@ -81,20 +81,17 @@ public class DimensionRenderer {
        // Implementation goes here
        PoseStack poseStack = new PoseStack();
 
-        SkyObject object = new SkyObject(Identifier.withDefaultNamespace("sun"),
-                false, 70, new Vector3f(0),
-                new Vector3f(0), 1, "DAY");
-
-        this.skyObjects.add(object);
 
        skyRenderer.renderSkyDisc(skyRenderState.skyColor);
 
        //TODO: change sunriseAndSunsetColor to use skyRenderState.sunriseAndSunsetColor
        skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
 
-       renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
+        this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
 
-       this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
+
+        this.renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
+
 
 
        if (skyRenderState.shouldRenderDarkDisc) {
@@ -123,7 +120,6 @@ public class DimensionRenderer {
 
 
         for( SkyObject skyObject : skyObjects) {
-
             skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, sunAngle);
         }
 
