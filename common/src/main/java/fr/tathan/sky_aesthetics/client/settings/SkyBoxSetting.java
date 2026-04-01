@@ -1,19 +1,5 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
-import com.mojang.math.Axis;
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.Camera;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
-import org.joml.Matrix4f;
-import org.joml.Vector3f;
-
-import java.util.Optional;
-
 
 public class SkyBoxSetting {
 

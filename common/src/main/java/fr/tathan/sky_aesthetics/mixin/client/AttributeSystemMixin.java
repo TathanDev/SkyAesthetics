@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.mixin.client;
 
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.level.Level;

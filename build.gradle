@@ -1,7 +1,7 @@
 plugins {
-    id 'dev.architectury.loom' version '1.13-SNAPSHOT' apply false
-    id 'architectury-plugin' version '3.4-SNAPSHOT'
-    id 'com.gradleup.shadow' version '9.3.0' apply false
+    id 'dev.architectury.loom-no-remap' version '1.14-SNAPSHOT' apply false
+    id 'architectury-plugin' version '3.5-SNAPSHOT'
+    id 'com.gradleup.shadow' version '9.4.1' apply false
     id 'me.modmuss50.mod-publish-plugin' version '1.1.0' apply false
 
 }
@@ -16,7 +16,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'dev.architectury.loom-no-remap'
     apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
     apply plugin: 'me.modmuss50.mod-publish-plugin'
@@ -63,12 +63,8 @@ subprojects {
 
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings loom.layered() {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-1.21.10:${rootProject.parchment_mapping_version}@zip")
-        }
 
-        modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.11:${rootProject.exoconfig_version}"
+        //implementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.11:${rootProject.exoconfig_version}"
 
 
 
@@ -77,12 +73,12 @@ subprojects {
     java {
         withSourcesJar()
 
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
     }
 
     tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
+        it.options.release = 25
     }
 
     publishMods {
@@ -97,7 +93,7 @@ subprojects {
             projectSlug = "sky-aesthetics" // Required for discord webhook
             accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
             minecraftVersions.add("${minecraft_version}")
-            javaVersions.add(JavaVersion.VERSION_21)
+            javaVersions.add(JavaVersion.VERSION_25)
         }
 
         modrinth {

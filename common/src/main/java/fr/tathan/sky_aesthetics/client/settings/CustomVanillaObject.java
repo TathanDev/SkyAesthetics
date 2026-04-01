@@ -1,11 +1,7 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.resources.Identifier;
 
 /**
  * Custom vanilla objects like sun and moon with custom textures, sizes and heights.

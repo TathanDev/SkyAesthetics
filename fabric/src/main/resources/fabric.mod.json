@@ -7,7 +7,8 @@
 
   "authors": [
     "The Stellaris Team",
-    "TATHAN | Maintener"
+    "TATHAN | Maintener",
+    "St0x0ef | Maintener"
   ],
   "contact": {
     "homepage": "https://discord.gg/Rc7Mxcy2m3",
@@ -28,9 +29,9 @@
     "sky_aesthetics.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.16.3",
-    "minecraft": "~1.21",
-    "java": ">=21",
+    "fabricloader": ">=0.18.5",
+    "minecraft": "~26.1",
+    "java": ">=25",
     "fabric-api": "*"
   },
   "suggests": {
