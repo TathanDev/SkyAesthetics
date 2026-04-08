@@ -4,12 +4,10 @@
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
   "client": [
-    "client.LevelRendererMixin",
-    "client.WeatherEffectRendererMixin"
+    "client.LevelRendererMixin"
   ],
   "mixins": [
-    "client.AttributeSystemMixin",
-    "client.LeavesBlockMixin"
+    "client.AttributeSystemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

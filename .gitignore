@@ -52,3 +52,5 @@ node_modules/
 .vitepress
 
 build
+
+common/src/main/resources/assets/sky_aesthetics/
