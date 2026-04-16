@@ -7,7 +7,7 @@
     "client.LevelRendererMixin"
   ],
   "mixins": [
-    "client.AttributeSystemMixin"
+    "AttributeSystemMixin"
   ],
   "injectors": {
     "defaultRequire": 1

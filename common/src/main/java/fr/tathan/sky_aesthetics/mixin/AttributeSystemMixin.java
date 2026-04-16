@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.mixin.client;
+package fr.tathan.sky_aesthetics.mixin;
 
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;
@@ -11,11 +11,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(EnvironmentAttributeSystem.class)
 public class AttributeSystemMixin {
 
-    @Inject(method = "addDefaultLayers", at = @At("TAIL"), cancellable = false)
+    @Inject(method = "addDefaultLayers", at = @At("TAIL"))
     private static void addDefaultLayers(EnvironmentAttributeSystem.Builder builder, Level level, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
-            planetSky.environmentAttributes().ifPresent(builder::addConstantLayer);
-        }));
+        SkyHelper.canRenderSky(level, (planetSky -> planetSky.environmentAttributes().ifPresent(builder::addConstantLayer)));
     }
 
 
