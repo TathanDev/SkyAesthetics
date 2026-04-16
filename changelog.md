@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.0.14-BETA Changelog
+# Sky Aesthetics 2.0.15-BETA Changelog
 
 ## Fixes
-- Fix blending
+- Removed default sky

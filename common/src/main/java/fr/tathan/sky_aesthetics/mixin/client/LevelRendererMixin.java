@@ -50,7 +50,6 @@ public abstract class LevelRendererMixin {
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
     private void renderCustomSkyboxes2(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
 
-        SkyAesthetics.LOG.error("mixin running");
         FogType fogType = camera.getFluidInCamera();
         if (fogType != FogType.POWDER_SNOW && fogType != FogType.LAVA && !this.doesMobEffectBlockSky(camera)) {
             SkyRenderState skyRenderState = this.levelRenderState.skyRenderState;
