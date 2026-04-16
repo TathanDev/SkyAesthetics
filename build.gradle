@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.13.467' apply false
+    id 'dev.architectury.loom' version '1.13-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.gradleup.shadow' version '9.3.0' apply false
     id 'me.modmuss50.mod-publish-plugin' version '1.1.0' apply false
@@ -65,7 +65,7 @@ subprojects {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
         mappings loom.layered() {
             officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-1.21.10:${rootProject.parchment_mapping_version}@zip")
+            parchment("org.parchmentmc.data:parchment-1.21.11:${rootProject.parchment_mapping_version}@zip")
         }
 
         modImplementation "fr.tathan.exoconfig:exoconfig-$modLoader-1.21.11:${rootProject.exoconfig_version}"
