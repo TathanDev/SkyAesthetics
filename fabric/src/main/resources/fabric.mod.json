@@ -4,10 +4,10 @@
   "version": "${version}",
   "name": "Sky Aesthetics",
   "description": "Change the skybox of Minecraft like you want !",
-
   "authors": [
     "The Stellaris Team",
-    "TATHAN | Maintener"
+    "TATHAN | Maintener",
+    "St0x0ef | Maintener"
   ],
   "contact": {
     "homepage": "https://discord.gg/Rc7Mxcy2m3",
@@ -25,11 +25,12 @@
     ]
   },
   "mixins": [
-    "sky_aesthetics.mixins.json"
+    "sky_aesthetics.mixins.json",
+    "sky_aesthetics-fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.16.3",
-    "minecraft": "~1.21",
+    "minecraft": "~1.21.11",
     "java": ">=21",
     "fabric-api": "*"
   },

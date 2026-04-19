@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.mixin.client;
+package fr.tathan.sky_aesthetics.fabric.mixin.client;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
@@ -9,10 +9,11 @@ import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
+import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.LevelRenderState;
 import net.minecraft.client.renderer.state.SkyRenderState;
-import net.minecraft.world.attribute.EnvironmentAttributeSystem;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
@@ -48,8 +49,7 @@ public abstract class LevelRendererMixin {
 
 
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes2(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
-
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
         FogType fogType = camera.getFluidInCamera();
         if (fogType != FogType.POWDER_SNOW && fogType != FogType.LAVA && !this.doesMobEffectBlockSky(camera)) {
             SkyRenderState skyRenderState = this.levelRenderState.skyRenderState;
@@ -62,13 +62,7 @@ public abstract class LevelRendererMixin {
 
                         framePass.executes(() -> {
                             RenderSystem.setShaderFog(shaderFog);
-                            planetSky.toDimensionRenderer().render(
-                                    level,
-                                    skyRenderState,
-                                    skyRenderer,
-                                    camera
-                            );
-
+                            planetSky.toDimensionRenderer().render(skyRenderState, skyRenderer);
                         });
                         ci.cancel();
                     }));

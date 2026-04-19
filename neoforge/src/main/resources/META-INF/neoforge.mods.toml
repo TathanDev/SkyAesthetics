@@ -16,16 +16,19 @@ logoFile = "logo.png"
 [[dependencies.sky_aesthetics]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.0,)"
+versionRange = "[21.11,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.sky_aesthetics]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21,)"
+versionRange = "[1.21.11,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[mixins]]
 config = "sky_aesthetics.mixins.json"
+[[mixins]]
+config = "sky_aesthetics-neoforge.mixins.json"
+

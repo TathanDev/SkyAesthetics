@@ -77,7 +77,7 @@ public class DimensionRenderer {
         return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
-    public void render(ClientLevel level, SkyRenderState skyRenderState, SkyRenderer skyRenderer, Camera camera) {
+    public void render(SkyRenderState skyRenderState, SkyRenderer skyRenderer) {
        PoseStack poseStack = new PoseStack();
 
        skyRenderer.renderSkyDisc(skyRenderState.skyColor);
