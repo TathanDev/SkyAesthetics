@@ -1,4 +1,9 @@
-# Sky Aesthetics 2.0.12-BETA Changelog
+# Sky Aesthetics 2.0.13-BETA Changelog
+
+## Changes
+- Remove default skybox
+- Remove default constellation
 
 ## Fixes
-- Fix Black Stars
+- Fix black stars
+- Fix shooting stars crash
