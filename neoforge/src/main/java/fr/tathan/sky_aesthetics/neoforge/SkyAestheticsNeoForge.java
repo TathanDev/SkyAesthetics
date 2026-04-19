@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.neoforge;
 
-import fr.tathan.exoconfig.platform.PlatformHelper;
 import fr.tathan.exoconfig.platform.PlatformHelperClient;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;

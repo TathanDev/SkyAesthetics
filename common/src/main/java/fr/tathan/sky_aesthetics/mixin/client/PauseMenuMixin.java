@@ -26,9 +26,7 @@ public abstract class PauseMenuMixin extends Screen  {
 
         if(PlatformHelper.isModLoaded("owo")) {
             rowHelper.addChild(new SpacerElement(200, 30), 2);
-            rowHelper.addChild(Button.builder(Component.translatable("sky_aesthetics.pause_menu.sky_modification_screen"), button -> {
-                OwOCompat.openOwOSettings(minecraft);
-            }).bounds(0, 30, 200, 20).build(), 2);
+            rowHelper.addChild(Button.builder(Component.translatable("sky_aesthetics.pause_menu.sky_modification_screen"), button -> OwOCompat.openOwOSettings(minecraft)).bounds(0, 30, 200, 20).build(), 2);
 
             gridLayout.arrangeElements();
         }

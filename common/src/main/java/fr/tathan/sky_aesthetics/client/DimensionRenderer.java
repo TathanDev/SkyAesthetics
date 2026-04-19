@@ -4,7 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.settings.*;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.SkyHelper;
@@ -94,9 +93,7 @@ public class DimensionRenderer {
 
         this.starSettings.renderStars(level, partialTick, poseStack, projectionMatrix, nightAngle, starBuffer);
 
-        this.starSettings.shootingStars().ifPresent((shootingStars) -> {
-            this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars);
-        });
+        this.starSettings.shootingStars().ifPresent((shootingStars) -> this.starSettings.handleShootingStars(level, poseStack, projectionMatrix, this.starSettings, partialTick, this.shootingStars));
 
         this.fogSettings.runFogCallback(fogCallback);
 
@@ -112,16 +109,11 @@ public class DimensionRenderer {
             skyObject.drawSkyObject(tesselator, poseStack, dayAngle);
         }
 
-        this.testRender(level, poseStack, projectionMatrix, partialTick, camera, fogCallback);
-
         this.fogSettings.runFogCallback(fogCallback);
 
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         RenderSystem.depthMask(true);
 
-    }
-
-    public void testRender(ClientLevel level, PoseStack poseStack, Matrix4f projectionMatrix, float partialTick, Camera camera, Runnable fogCallback) {
     }
 
     public boolean renderClouds() {

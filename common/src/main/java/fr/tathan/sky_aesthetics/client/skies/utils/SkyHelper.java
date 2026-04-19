@@ -12,16 +12,12 @@ import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import fr.tathan.sky_aesthetics.mixin.client.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.Arrays;
-import java.util.Optional;
-import java.util.Random;
 import java.util.function.Consumer;
 
 public class SkyHelper {

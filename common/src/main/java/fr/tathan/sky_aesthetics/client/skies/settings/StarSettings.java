@@ -5,7 +5,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.skies.utils.ShootingStar;
 import fr.tathan.sky_aesthetics.client.skies.utils.StarHelper;
 import net.minecraft.Util;

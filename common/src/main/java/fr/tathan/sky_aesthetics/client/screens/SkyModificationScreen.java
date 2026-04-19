@@ -65,9 +65,7 @@ public class SkyModificationScreen extends BaseOwoScreen<FlowLayout> {
                                         .child(
                                                 Components.button(net.minecraft.network.chat.Component.literal("Documentation"), b -> Util.getPlatform().openUri("https://tathandev.github.io/SkyAesthetics/sky/")).margins(Insets.top(10)))
 
-                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> {
-                                            skyToText(skyComponents);
-                                        }).id("save_button"))
+                                        .child(Components.button(net.minecraft.network.chat.Component.literal("Generate resource pack"), button -> skyToText(skyComponents)).id("save_button"))
                                         .child(createSkiesImportDropdown(rootComponent, skyComponents).id("import_dropdown"))
                                         .child(createToggleDevSkyButton(skyComponents).horizontalSizing(Sizing.content()).id("toggle_button").margins(Insets.top(10)))
                                         .child(createReloadButton(skyComponents).horizontalSizing(Sizing.content()).id("reload_button").margins(Insets.top(10)))

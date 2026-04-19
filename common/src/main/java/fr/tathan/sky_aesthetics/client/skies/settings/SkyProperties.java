@@ -2,7 +2,6 @@ package fr.tathan.sky_aesthetics.client.skies.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.skies.DimensionSky;
 import net.minecraft.Util;
@@ -16,8 +15,6 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec2;
-import net.minecraft.world.phys.Vec3;
-import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.Optional;

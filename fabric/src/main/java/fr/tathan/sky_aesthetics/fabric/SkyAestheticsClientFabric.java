@@ -1,7 +1,6 @@
 package fr.tathan.sky_aesthetics.fabric;
 
 import fr.tathan.SkyAesthetics;
-import fr.tathan.exoconfig.platform.PlatformHelper;
 import fr.tathan.exoconfig.platform.PlatformHelperClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener;
