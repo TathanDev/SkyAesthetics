@@ -69,9 +69,11 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
             if (starLight > 0.0f) {
                 RenderSystem.setShaderColor(starLight, starLight, starLight, starLight);
                 FogRenderer.setupNoFog();
+                RenderSystem.enableBlend();
                 starBuffer.bind();
                 starBuffer.drawWithShader(poseStack.last().pose(), projectionMatrix, GameRenderer.getPositionShader());
                 VertexBuffer.unbind();
+                RenderSystem.disableBlend();
             }
             return;
         }
@@ -86,9 +88,8 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
 
         if (this.allDaysVisible()) {
             StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture(), starLight + 1f);
-        } else if (starLight > 0.0f) {
+        } else if (starLight > 0.0F) {
             StarHelper.drawStars(starBuffer, poseStack, projectionMatrix, starsAngle, this.starsTexture(), starLight);
-
         }
 
     }
@@ -101,22 +102,24 @@ public record StarSettings(boolean vanilla, boolean movingStars, int count, bool
             return;
         }
 
-        StarSettings.ShootingStars shootingStarConfig = star.shootingStars().get();
-        Random random = new Random();
-        if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
-            UUID starId = UUID.randomUUID();
-            var shootingStar = new ShootingStar(random.nextFloat(shootingStarConfig.randomLifetime().x, shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
-            shootingStars.putIfAbsent(starId, shootingStar);
-        }
-
-        if(this.shootingStars.isEmpty()) return;
-        ArrayList<UUID> starsToRemove = new ArrayList<>();
-        for (ShootingStar shootingStar : shootingStars.values()) {
-            if (shootingStar.render(poseStack, projectionMatrix)) {
-                starsToRemove.add(shootingStar.starId);
+        if (star.shootingStars.isPresent()) {
+            StarSettings.ShootingStars shootingStarConfig = star.shootingStars().get();
+            Random random = new Random();
+            if (random.nextInt(1001) >= shootingStarConfig.percentage()) {
+                UUID starId = UUID.randomUUID();
+                var shootingStar = new ShootingStar(random.nextFloat(shootingStarConfig.randomLifetime().x, shootingStarConfig.randomLifetime().y), shootingStarConfig,  starId);
+                shootingStars.putIfAbsent(starId, shootingStar);
             }
+
+            if(this.shootingStars.isEmpty()) return;
+            ArrayList<UUID> starsToRemove = new ArrayList<>();
+            for (ShootingStar shootingStar : shootingStars.values()) {
+                if (shootingStar.render(poseStack, projectionMatrix)) {
+                    starsToRemove.add(shootingStar.starId);
+                }
+            }
+            starsToRemove.forEach(shootingStars::remove);
         }
-        starsToRemove.forEach(shootingStars::remove);
     }
 
     /**
