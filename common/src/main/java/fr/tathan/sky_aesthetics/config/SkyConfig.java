@@ -4,7 +4,7 @@ import fr.tathan.exoconfig.common.infos.ConfigInfos;
 import fr.tathan.exoconfig.common.infos.ScreenInfos;
 import fr.tathan.exoconfig.common.utils.Side;
 
-@ConfigInfos(name = "sky_aesthetics", side = Side.COMMON)
+@ConfigInfos(name = "sky_aesthetics", modDisplayName = "Sky Aesthetics", side = Side.COMMON)
 public class SkyConfig {
 
     public String[] disabledSkies = new String[]{

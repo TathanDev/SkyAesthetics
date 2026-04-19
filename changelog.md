@@ -3,6 +3,7 @@
 ## Changes
 - Remove default skybox
 - Remove default constellation
+- Update Exo Config to 0.3.0
 
 ## Fixes
 - Fix black stars
