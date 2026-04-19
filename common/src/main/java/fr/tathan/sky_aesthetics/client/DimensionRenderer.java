@@ -7,24 +7,17 @@ import fr.tathan.sky_aesthetics.client.settings.CustomVanillaObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.client.settings.StarSettings;
-import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.MoonPhase;
-import net.minecraft.world.level.biome.Biome;
-import org.joml.Vector3f;
-import org.joml.Vector3i;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * The class handling the rendering of a custom sky
