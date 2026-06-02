@@ -1,11 +1,11 @@
 package fr.tathan.sky_aesthetics.neoforge;
 
+import fr.tathan.SkyAesthetics;
 import fr.tathan.exoconfig.platform.PlatformClientHelper;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import fr.tathan.SkyAesthetics;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 
@@ -28,7 +28,6 @@ public final class SkyAestheticsNeoForge {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             PlatformClientHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
-
         }
     }
 

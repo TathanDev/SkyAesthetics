@@ -9,6 +9,4 @@ public final class SkyAestheticsFabric implements ModInitializer {
     public void onInitialize() {
         SkyAesthetics.init();
     }
-
-
 }

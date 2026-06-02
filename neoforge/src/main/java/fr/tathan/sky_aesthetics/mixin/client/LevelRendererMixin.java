@@ -12,12 +12,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.LevelRenderState;
-import net.minecraft.client.renderer.state.SkyRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.state.level.LevelRenderState;
+import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -49,21 +50,24 @@ public abstract class LevelRendererMixin {
     private LevelRenderState levelRenderState;
 
 
-    @Inject(method = "addSkyPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/Camera;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Matrix4f;)V", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, Matrix4f modelViewMatrix, CallbackInfo ci) {
-        FogType fogType = camera.getFluidInCamera();
-        if (fogType != FogType.POWDER_SNOW && fogType != FogType.LAVA && !this.doesMobEffectBlockSky(camera)) {
+    @Inject(method = "addSkyPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Matrix4fc;)V", at = @At("HEAD"), cancellable = true)
+    private void renderCustomSkyboxes(FrameGraphBuilder frame, CameraRenderState cameraState, GpuBufferSlice skyFog, Matrix4fc modelViewMatrix, CallbackInfo ci) {
+        if (cameraState.fogType != FogType.POWDER_SNOW && cameraState.fogType != FogType.LAVA && !cameraState.entityRenderState.doesMobEffectBlockSky) {
             SkyRenderState skyRenderState = this.levelRenderState.skyRenderState;
             if (skyRenderState.skybox != DimensionType.Skybox.NONE) {
                 SkyRenderer skyRenderer = this.skyRenderer;
                 if (skyRenderer != null) {
                     SkyHelper.canRenderSky(level, (planetSky -> {
-                        FramePass framePass = frameGraphBuilder.addPass("sky");
+                        FramePass framePass = frame.addPass("sky");
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                         framePass.executes(() -> {
-                            RenderSystem.setShaderFog(shaderFog);
-                            planetSky.toDimensionRenderer().render(skyRenderState, skyRenderer);
+                            RenderSystem.setShaderFog(skyFog);
+                            planetSky.toDimensionRenderer().render(
+                                    skyRenderState,
+                                    skyRenderer
+                            );
+
                         });
                         ci.cancel();
                     }));
@@ -73,8 +77,8 @@ public abstract class LevelRendererMixin {
         }
     }
 
-    @Inject(method = "addCloudsPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/CloudStatus;Lnet/minecraft/world/phys/Vec3;JFIFLorg/joml/Matrix4f;)V", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(FrameGraphBuilder arg, CloudStatus arg2, Vec3 arg3, long l, float f, int i, float g, Matrix4f modelViewMatrix, CallbackInfo ci) {
+    @Inject(method = "addCloudsPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/CloudStatus;Lnet/minecraft/world/phys/Vec3;JFIFILorg/joml/Matrix4fc;)V", at = @At(value = "HEAD"), cancellable = true)
+    private void cancelCloudRenderer(FrameGraphBuilder frame, CloudStatus cloudStatus, Vec3 cameraPosition, long gameTime, float partialTicks, int cloudColor, float cloudHeight, int cloudRange, Matrix4fc modelViewMatrix, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.renderClouds()) {
                 //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds

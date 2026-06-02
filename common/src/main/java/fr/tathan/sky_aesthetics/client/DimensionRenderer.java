@@ -9,7 +9,7 @@ import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.client.settings.StarSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.SkyRenderState;
+import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;

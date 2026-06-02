@@ -3,7 +3,7 @@ architectury {
 }
 
 loom {
-    //accessWidenerPath = file("src/main/resources/sky_aesthetics.accesswidener")
+    accessWidenerPath = file("src/main/resources/sky_aesthetics.accesswidener")
 }
 
 dependencies {
