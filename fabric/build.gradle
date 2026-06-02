@@ -71,14 +71,3 @@ shadowJar {
     archiveClassifier = null           // shadowJar becomes the main artifact
     from rootProject.file("LICENSE.md")
 }
-
-configurations {
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-}
