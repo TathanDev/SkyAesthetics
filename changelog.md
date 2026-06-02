@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.0.16-BETA Changelog
+# Sky Aesthetics 2.0.17-ALPHA Changelog
 
-## Changes
-- Port to mc 26.1.2
+## Fixes
+- Fixed a bug with gradle that was preventing mod dev to import the mod.
