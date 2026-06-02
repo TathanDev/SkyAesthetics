@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.mixin.client;
+package fr.tathan.sky_aesthetics.fabric.mixin.client;
 
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
@@ -6,14 +6,14 @@ import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
+import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelTargetBundle;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.state.level.LevelRenderState;
-import net.minecraft.client.renderer.state.level.SkyRenderState;
+import net.minecraft.client.renderer.state.LevelRenderState;
+import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
@@ -40,7 +40,8 @@ public abstract class LevelRendererMixin {
     @Shadow
     public SkyRenderer skyRenderer;
 
-
+    @Shadow
+    protected abstract boolean doesMobEffectBlockSky(Camera camera);
 
     @Mutable
     @Shadow
@@ -48,8 +49,9 @@ public abstract class LevelRendererMixin {
 
 
     @Inject(method = "addSkyPass", at = @At("HEAD"), cancellable = true)
-    private void renderCustomSkyboxes2(FrameGraphBuilder frameGraphBuilder, CameraRenderState cameraState, GpuBufferSlice skyFog, CallbackInfo ci) {
-        if (cameraState.fogType != FogType.POWDER_SNOW && cameraState.fogType != FogType.LAVA && !cameraState.entityRenderState.doesMobEffectBlockSky) {
+    private void renderCustomSkyboxes(FrameGraphBuilder frameGraphBuilder, Camera camera, GpuBufferSlice shaderFog, CallbackInfo ci) {
+        FogType fogType = camera.getFluidInCamera();
+        if (fogType != FogType.POWDER_SNOW && fogType != FogType.LAVA && !this.doesMobEffectBlockSky(camera)) {
             SkyRenderState skyRenderState = this.levelRenderState.skyRenderState;
             if (skyRenderState.skybox != DimensionType.Skybox.NONE) {
                 SkyRenderer skyRenderer = this.skyRenderer;
@@ -59,13 +61,8 @@ public abstract class LevelRendererMixin {
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                         framePass.executes(() -> {
-                            RenderSystem.setShaderFog(skyFog);
-                            planetSky.toDimensionRenderer().render(
-                                    level,
-                                    skyRenderState,
-                                    skyRenderer
-                            );
-
+                            RenderSystem.setShaderFog(shaderFog);
+                            planetSky.toDimensionRenderer().render(skyRenderState, skyRenderer);
                         });
                         ci.cancel();
                     }));
@@ -76,7 +73,7 @@ public abstract class LevelRendererMixin {
     }
 
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelCloudRenderer(FrameGraphBuilder frame, CloudStatus cloudStatus, Vec3 cameraPosition, long gameTime, float partialTicks, int cloudColor, float cloudHeight, int cloudRange, CallbackInfo ci) {
+    private void cancelCloudRenderer(FrameGraphBuilder frameGraphBuilder, CloudStatus cloudStatus, Vec3 vec3, long l, float f, int i, float g, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
             if(!planetSky.renderClouds()) {
                 //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds

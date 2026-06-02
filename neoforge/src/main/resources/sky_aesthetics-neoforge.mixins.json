@@ -3,8 +3,8 @@
   "package": "fr.tathan.sky_aesthetics.mixin",
   "compatibilityLevel": "JAVA_21",
   "minVersion": "0.8",
-  "mixins": [
-    "AttributeSystemMixin"
+  "client": [
+    "client.LevelRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

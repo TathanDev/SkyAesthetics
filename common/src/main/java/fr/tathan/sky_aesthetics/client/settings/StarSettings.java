@@ -13,7 +13,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.level.SkyRenderState;
+import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
@@ -84,9 +84,9 @@ public record StarSettings(
                 float l = Mth.lengthSquared(g, h, j);
                 if (!(l <= 0.010000001F) && !(l >= 1.0F)) {
 
-                    int color1 = this.color().x == -1 ? i : this.color().x;
-                    int color2 = this.color().y == -1 ? i : this.color().y;
-                    int color3 = this.color().z == -1 ? i : this.color().z;
+                    int color1 = this.color().x == -1 ? i : this.color().x / 255;
+                    int color2 = this.color().y == -1 ? i : this.color().y / 255;
+                    int color3 = this.color().z == -1 ? i : this.color().z / 255;
 
 
                     Vector3f vector3f = (new Vector3f(g, h, j)).normalize(100.0F);
@@ -129,9 +129,9 @@ public record StarSettings(
             poseStack.mulPose(Axis.XP.rotation(starsAngle));
 
             if(this.allDaysVisible()) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1, this.color);
             } else if (isNightTime) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness, this.color);
             }
             poseStack.popPose();
 
@@ -140,7 +140,7 @@ public record StarSettings(
     }
 
     public record BufferHolder(GpuBuffer gpuBuffer, int indexCount) {
-        public void render(PoseStack poseStack, RenderSystem.AutoStorageIndexBuffer quadIndices, float starBrightness) {
+        public void render(PoseStack poseStack, RenderSystem.AutoStorageIndexBuffer quadIndices, float starBrightness, Vector3i color) {
             Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
             matrix4fStack.pushMatrix();
             matrix4fStack.mul(poseStack.last().pose());
@@ -148,7 +148,10 @@ public record StarSettings(
             GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
             GpuTextureView gpuTextureView2 = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
             GpuBuffer gpuBuffer = quadIndices.getBuffer(this.indexCount);
-            GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(starBrightness, starBrightness, starBrightness, starBrightness), new Vector3f(), new Matrix4f());
+
+            Vector4f veColor = new Vector4f(color.x / 255f, color.y / 255f, color.z / 255f, starBrightness);
+
+            GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, veColor, new Vector3f(), new Matrix4f());
 
             try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Stars", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
                 renderPass.setPipeline(renderPipeline);

@@ -8,9 +8,8 @@ import fr.tathan.sky_aesthetics.client.settings.SkyObject;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.client.settings.StarSettings;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SkyRenderer;
-import net.minecraft.client.renderer.state.level.SkyRenderState;
+import net.minecraft.client.renderer.state.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;
@@ -71,7 +70,7 @@ public class DimensionRenderer {
         return this.renderCondition.isSkyRendered(this.getServerLevel());
     }
 
-    public void render(ClientLevel level, SkyRenderState skyRenderState, SkyRenderer skyRenderer) {
+    public void render(SkyRenderState skyRenderState, SkyRenderer skyRenderer) {
        PoseStack poseStack = new PoseStack();
 
        skyRenderer.renderSkyDisc(skyRenderState.skyColor);
