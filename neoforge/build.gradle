@@ -4,11 +4,13 @@ plugins {
 
 architectury {
     platformSetupLoomIde()
-    neoForge()
+    neoForge {
+        platformPackage = "forge"
+    }
 }
 
 loom {
-    accessWidenerPath.set(project(":common").loom.accessWidenerPath)
+    accessWidenerPath = project(":common").loom.accessWidenerPath
 
     runs {
         data {
@@ -21,30 +23,12 @@ loom {
 }
 
 configurations {
-    common {
-        canBeResolved = true
-        canBeConsumed = false
-    }
+    common
+    shadowCommon
 
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentNeoForge.extendsFrom common
-
-    // Files in this configuration will be bundled into your mod using the Shadow plugin.
-    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
-    shadowCommon {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
 }
 
 repositories {
@@ -75,18 +59,50 @@ processResources {
     }
 }
 
+shadowJar {
+    exclude "fabric.mod.json"
+    exclude "sky_aesthetics.accessWidener"
+    exclude "architectury.common.json"
+
+    dependsOn jar
+    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
+    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
+    configurations = [project.configurations.shadowCommon]
+    archiveClassifier = null           // shadowJar becomes the main artifact
+}
+
 jar {
     archiveClassifier = "raw"
 }
 
-shadowJar {
-    dependsOn(jar)
-    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
-    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
+assemble.dependsOn shadowJar
 
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null           // shadowJar becomes the main artifact
-    from rootProject.file("LICENSE.md")
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+}
 
-    exclude "architectury.common.json"
+sourcesJar {
+    afterEvaluate {
+        [":common"].forEach {
+            def depSources = project(it).sourcesJar
+            dependsOn depSources
+            from(depSources.archiveFile.map { zipTree(it) }) {
+                exclude "architectury.accessWidener"
+            }
+        }
+    }
+}
+
+components.java {
+    addVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {}
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
 }

@@ -2,6 +2,7 @@ package fr.tathan;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.Strictness;
 import com.google.gson.ToNumberPolicy;
 import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
@@ -23,7 +24,7 @@ public final class SkyAesthetics {
     public static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .setObjectToNumberStrategy(ToNumberPolicy.LONG_OR_DOUBLE)
-            .setLenient()
+            .setStrictness(Strictness.LENIENT)
             .create();
 
     public static void init() {

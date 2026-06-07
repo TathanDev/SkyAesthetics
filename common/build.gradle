@@ -1,9 +1,9 @@
 architectury {
-    common rootProject.enabled_platforms.split(',')
+    common("fabric", "neoforge")
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/sky_aesthetics.accesswidener")
+    accessWidenerPath = file("src/main/resources/sky_aesthetics.accessWidener")
 }
 
 dependencies {

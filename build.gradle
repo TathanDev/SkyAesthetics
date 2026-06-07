@@ -1,7 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id 'dev.architectury.loom-no-remap' version '1.14-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.5-SNAPSHOT'
-    id 'com.gradleup.shadow' version '9.4.1' apply false
+    id 'com.gradleup.shadow' version '9.4.2'
     id 'me.modmuss50.mod-publish-plugin' version '1.1.0' apply false
 }
 
@@ -10,13 +12,19 @@ architectury {
 }
 
 allprojects {
+    apply plugin: "java-library"
+    apply plugin: "architectury-plugin"
+
     group = rootProject.maven_group
     version = rootProject.mod_version
+
+    java {
+        withSourcesJar()
+    }
 }
 
 subprojects {
     apply plugin: 'dev.architectury.loom-no-remap'
-    apply plugin: 'architectury-plugin'
     apply plugin: 'maven-publish'
     apply plugin: 'me.modmuss50.mod-publish-plugin'
 
@@ -58,7 +66,12 @@ subprojects {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
 
         implementation "fr.tathan.exoconfig:exoconfig-$modLoader-$rootProject.minecraft_version:${rootProject.exoconfig_version}"
+    }
 
+    afterEvaluate {
+        tasks.withType(ShadowJar).configureEach {
+            zip64 = true
+        }
     }
 
     java {

@@ -12,29 +12,11 @@ architectury {
 }
 
 configurations {
-    common {
-        canBeResolved = true
-        canBeConsumed = false
-    }
+    common
+    shadowCommon
     compileClasspath.extendsFrom common
     runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
-
-    // Files in this configuration will be bundled into your mod using the Shadow plugin.
-    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
-    shadowCommon {
-        canBeResolved = true
-        canBeConsumed = false
-    }
-
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
 }
 
 dependencies {
@@ -58,10 +40,6 @@ processResources {
     }
 }
 
-jar {
-    archiveClassifier = "raw"
-}
-
 shadowJar {
     dependsOn(jar)
     mainSpec.sourcePaths.clear()       // Remove default source set inclusion
@@ -69,5 +47,40 @@ shadowJar {
 
     configurations = [project.configurations.shadowCommon]
     archiveClassifier = null           // shadowJar becomes the main artifact
-    from rootProject.file("LICENSE.md")
+}
+
+jar {
+    archiveClassifier = "raw"
+}
+
+assemble.dependsOn shadowJar
+
+configurations {
+    apiElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+    runtimeElements {
+        outgoing.artifacts.clear()
+        outgoing.artifact(shadowJar)
+    }
+}
+
+sourcesJar {
+    afterEvaluate {
+        [":common"].forEach {
+            def depSources = project(it).sourcesJar
+            dependsOn depSources
+            from(depSources.archiveFile.map { zipTree(it) }) {
+                exclude "architectury.accessWidener"
+            }
+        }
+    }
+}
+
+components.java {
+    addVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {}
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
 }
