@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.ConstellationRenderer;
 import fr.tathan.sky_aesthetics.client.settings.Constellation;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -35,5 +36,6 @@ public class ConstellationsData extends SimpleJsonResourceReloadListener<JsonEle
             CONSTELLATIONS.putIfAbsent(constellation.id(), constellation);
         });
 
+        ConstellationRenderer.invalidate();
     }
 }

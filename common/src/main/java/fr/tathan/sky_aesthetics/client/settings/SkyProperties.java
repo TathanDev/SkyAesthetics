@@ -23,51 +23,50 @@ public record SkyProperties(
         ResourceKey<Level> world,
         Identifier id,
         Optional<Boolean> cloudSettings,
-        //Boolean weather,
+        Boolean weather,
         Optional<CustomVanillaObject> customVanillaObject,
-        //Optional<CustomVanillaObject.Moon> moon,
+        Optional<CustomVanillaObject.Sun> sun,
+        Optional<CustomVanillaObject.Moon> moon,
         Optional<StarSettings> stars,
-
+        Optional<SkyColorSettings> skyColorSettings,
         List<SkyObject> skyObjects,
         Optional<RenderCondition> renderCondition,
-        Optional<EnvironmentAttributeMap> environmentAttributes
-        //Optional<SkyBoxSetting> skyBoxSetting,
-
+        Optional<EnvironmentAttributeMap> environmentAttributes,
+        Optional<SkyBoxSetting> skyBoxSetting,
+        Optional<LightSettings> lightSettings
 ) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
-
             Codec.BOOL.optionalFieldOf("cloud").forGetter(SkyProperties::cloudSettings),
+            Codec.BOOL.optionalFieldOf("weather", true).forGetter(SkyProperties::weather),
             CustomVanillaObject.CODEC.optionalFieldOf("custom_vanilla_object").forGetter(SkyProperties::customVanillaObject),
-            //Codec.BOOL.fieldOf("weather").forGetter(SkyProperties::weather),
-            //CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
-            //CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
+            CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
+            CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
             StarSettings.CODEC.optionalFieldOf("stars").forGetter(SkyProperties::stars),
-            //SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColor),
+            SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColorSettings),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
-            EnvironmentAttributeMap.CODEC_ONLY_POSITIONAL.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes)
-            //SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
-            //LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
+            EnvironmentAttributeMap.CODEC_ONLY_POSITIONAL.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes),
+            SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
+            LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
     ).apply(instance, SkyProperties::new));
 
 
     public DimensionRenderer toDimensionRenderer() {
-        DimensionRenderer.Builder builder = new DimensionRenderer.Builder();
-                //.setWeather(this.weather);
+        DimensionRenderer.Builder builder = new DimensionRenderer.Builder()
+                .setWeather(this.weather);
 
         this.stars.ifPresent(builder::setStar);
-        //this.moon.ifPresent(builder::addMoon);
-        //this.sun.ifPresent(builder::addSun);
+        this.sun.ifPresent(builder::setCustomSun);
+        this.moon.ifPresent(builder::setCustomMoon);
         this.skyObjects.forEach(builder::addSkyObject);
         this.customVanillaObject.ifPresent(builder::setCustomVanillaObject);
-        //this.cloudSettings.ifPresent(builder::addCloudSettings);
-        //this.fogSettings.ifPresent(builder::setFogSettings);
-        //this.skyColor.ifPresent(builder::setSkyColor);
+        this.skyColorSettings.ifPresent(builder::setSkyColorSettings);
+        this.lightSettings.ifPresent(builder::setLightSettings);
         this.renderCondition.ifPresent(builder::setRenderCondition);
-        //this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
+        this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
 
         return builder.build();
     }
@@ -78,18 +77,17 @@ public record SkyProperties(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                 Identifier.parse("default"),
                 Optional.of(true),
+                true,
                 Optional.of(CustomVanillaObject.createDefaultSettings()),
-                //Optional.of(CloudSettings.createDefaultSettings()),
-                //Optional.of(FogSettings.createDefaultSettings()),
-                //true,
-                //Optional.of(CustomVanillaObject.Sun.createDefaultSun()),
-                //Optional.of(CustomVanillaObject.Moon.createDefaultMoon()),
+                Optional.empty(),
+                Optional.empty(),
                 Optional.of(StarSettings.createDefaultStars()),
-                //Optional.of(SkyColorSettings.createDefaultSettings()),
+                Optional.empty(),
                 List.of(),
                 Optional.empty(),
+                Optional.empty(),
+                Optional.empty(),
                 Optional.empty()
-                //Optional.empty()
         );
     }
 
@@ -128,7 +126,7 @@ public record SkyProperties(
             double playerHeight = player.position().y;
             if(this.heightRange.isPresent()) {
                 Vec2 heightRange = this.heightRange.get();
-                return playerHeight >= heightRange.y && playerHeight <= heightRange.y;
+                return playerHeight >= heightRange.x && playerHeight <= heightRange.y;
             }
 
             return true;

@@ -30,7 +30,7 @@ public class SkyHelper {
                 if(Arrays.stream(SkyAesthetics.CONFIG.disabledDimensions).anyMatch((s)-> s.equals(sky.world().identifier().toString()))) return false;
 
 
-                if (sky.renderCondition().isPresent() && sky.renderCondition().get().isSkyRendered(DimensionRenderer.getServerLevel())) {
+                if (sky.renderCondition().isPresent() && !sky.renderCondition().get().isSkyRendered(DimensionRenderer.getServerLevel())) {
                     return false;
                 }
                 action.accept(sky);

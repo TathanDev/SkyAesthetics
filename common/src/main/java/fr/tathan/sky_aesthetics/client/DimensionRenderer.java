@@ -1,23 +1,34 @@
 package fr.tathan.sky_aesthetics.client;
 
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.buffers.GpuBuffer;
+import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.systems.RenderPass;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.textures.GpuTextureView;
+import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import fr.tathan.sky_aesthetics.client.settings.CustomVanillaObject;
-import fr.tathan.sky_aesthetics.client.settings.SkyObject;
-import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
-import fr.tathan.sky_aesthetics.client.settings.StarSettings;
+import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
+import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.MoonPhase;
+import java.lang.Math;
+import net.minecraft.world.phys.Vec3;
+import org.joml.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  * The class handling the rendering of a custom sky
@@ -26,94 +37,525 @@ public class DimensionRenderer {
 
     public final List<SkyObject> skyObjects;
     public final TextureAtlas celestialsAtlas;
-//    public final CloudSettings cloudSettings;
-
-//    public final CustomVanillaObject.Sun sun;
-//    public final CustomVanillaObject.Moon moon;
-//    public final SkyColorSettings skyColor;
-//    public final FogSettings fogSettings;
     public final StarSettings starSettings;
-//    public final SkyBoxSetting skyBoxSetting;
+    public final boolean weather;
     public final CustomVanillaObject customVanillaObject;
-//    public final boolean weather;
+    public final CustomVanillaObject.Sun customSun;
+    public final CustomVanillaObject.Moon customMoon;
+    public final SkyColorSettings skyColorSettings;
+    public final LightSettings lightSettings;
+    public final SkyBoxSetting skyBoxSetting;
     public final SkyProperties.RenderCondition renderCondition;
     public final StarSettings.BufferHolder gpuBuffer;
 
-//    private final HashMap<UUID, ShootingStar> shootingStars = new HashMap<>();
+    private final GpuBuffer skyboxBuffer;
+    private final int skyboxIndexCount;
+
+    private final List<ActiveShootingStar> activeShootingStars = new ArrayList<>();
+    private final RandomSource shootingStarRng = RandomSource.create();
+    private long lastGameTime = -1;
 
     private DimensionRenderer(List<SkyObject> skyObjects,
+                              boolean weather,
                               CustomVanillaObject customVanillaObject,
-//                              CustomVanillaObject.Moon moon,
-//                              SkyColorSettings skyColor, FogSettings fogSettings,
+                              CustomVanillaObject.Sun customSun,
+                              CustomVanillaObject.Moon customMoon,
+                              SkyColorSettings skyColorSettings,
+                              LightSettings lightSettings,
                               StarSettings starSettings,
-//                              SkyBoxSetting skyBoxSetting, boolean weather
-                              SkyProperties.RenderCondition renderCondition) {
-//
+                              SkyProperties.RenderCondition renderCondition,
+                              SkyBoxSetting skyBoxSetting) {
         this.skyObjects = skyObjects;
+        this.weather = weather;
         this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
-//        this.cloudSettings = cloudSettings;
-//        this.sun = sun;
         this.customVanillaObject = customVanillaObject;
-//        this.skyColor = skyColor;
-//        this.fogSettings = fogSettings;
+        this.customSun = customSun;
+        this.customMoon = customMoon;
+        this.skyColorSettings = skyColorSettings;
+        this.lightSettings = lightSettings;
         this.starSettings = starSettings;
         this.gpuBuffer = starSettings.buildCustomStars();
-//        this.skyBoxSetting = skyBoxSetting;
-//        this.weather = weather;
         this.renderCondition = renderCondition;
+        this.skyBoxSetting = skyBoxSetting;
+        if (skyBoxSetting != null) {
+            SkyboxMesh mesh = buildSkyboxMesh(skyBoxSetting, this.celestialsAtlas);
+            this.skyboxBuffer = mesh.buffer();
+            this.skyboxIndexCount = mesh.indexCount();
+        } else {
+            this.skyboxBuffer = null;
+            this.skyboxIndexCount = 0;
+        }
     }
 
     public boolean canRenderSky() {
         if(this.renderCondition == null) {
-            return true; // No condition set, render by default
+            return true;
         }
-        return this.renderCondition.isSkyRendered(this.getServerLevel());
+        return this.renderCondition.isSkyRendered(getServerLevel());
     }
 
     public void render(SkyRenderState skyRenderState, SkyRenderer skyRenderer) {
        PoseStack poseStack = new PoseStack();
 
-       skyRenderer.renderSkyDisc(skyRenderState.skyColor);
+       tickShootingStars(skyRenderState.starBrightness);
 
-       skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
+       renderSkybox(poseStack, skyRenderState.sunAngle);
 
-        this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
+       // Sky disc — use custom color if configured
+       if (skyColorSettings != null && skyColorSettings.color().isPresent()) {
+           Vector4f c = skyColorSettings.color().get();
+           int packed = packArgb((int)(c.w * 255), (int)(c.x * 255), (int)(c.y * 255), (int)(c.z * 255));
+           skyRenderer.renderSkyDisc(packed);
+       } else {
+           skyRenderer.renderSkyDisc(skyRenderState.skyColor);
+       }
 
-        this.renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
+       // Sunrise/sunset — use custom sunset color if configured
+       if (skyColorSettings != null && skyColorSettings.sunsetColor().isPresent()) {
+           Vector3i s = skyColorSettings.sunsetColor().get();
+           int alpha = skyColorSettings.sunriseAlphaModifier().orElse(255);
+           int packed = packArgb(alpha, s.x, s.y, s.z);
+           skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, packed);
+       } else {
+           skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
+       }
+
+       this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
+
+       ConstellationRenderer.renderAll(poseStack, skyRenderState);
+
+       renderShootingStars(poseStack, skyRenderState);
+
+       this.renderSkyObjects(poseStack, skyRenderState.sunAngle, skyRenderState.moonAngle, skyRenderState.moonPhase, skyRenderState.rainBrightness, skyRenderer);
 
        if (skyRenderState.shouldRenderDarkDisc) {
            skyRenderer.renderDarkDisc();
        }
-
    }
 
     public void renderSkyObjects(PoseStack poseStack, float sunAngle, float moonAngle, MoonPhase moonPhase, float rainBrightness, SkyRenderer skyRenderer) {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
 
-        if(this.customVanillaObject.sun()) {
+        if (this.customSun != null) {
+            poseStack.pushPose();
+            poseStack.mulPose(Axis.XP.rotation(sunAngle));
+            renderCustomSun(poseStack, rainBrightness);
+            poseStack.popPose();
+        } else if (this.customVanillaObject.sun()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(sunAngle));
             skyRenderer.renderSun(rainBrightness, poseStack);
             poseStack.popPose();
         }
 
-        if(this.customVanillaObject.moon()) {
+        if (this.customMoon != null) {
+            poseStack.pushPose();
+            poseStack.mulPose(Axis.XP.rotation(moonAngle));
+            renderCustomMoon(poseStack, moonPhase, rainBrightness);
+            poseStack.popPose();
+        } else if(this.customVanillaObject.moon()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(moonAngle));
             skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
             poseStack.popPose();
         }
 
-
-        for( SkyObject skyObject : skyObjects) {
+        for(SkyObject skyObject : skyObjects) {
             skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle);
         }
-
 
         poseStack.popPose();
     }
 
+    // -------------------------------------------------------------------------
+    // Skybox
+    // -------------------------------------------------------------------------
+
+    private void renderSkybox(PoseStack poseStack, float sunAngle) {
+        if (skyBoxSetting == null || skyboxBuffer == null || skyboxIndexCount == 0) return;
+
+        poseStack.pushPose();
+
+        poseStack.mulPose(Axis.XP.rotationDegrees(skyBoxSetting.rotation().x));
+        poseStack.mulPose(Axis.YP.rotationDegrees(skyBoxSetting.rotation().y));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(skyBoxSetting.rotation().z));
+
+        skyBoxSetting.dynamicRotation().ifPresent(r -> r.rotatePoseStack(poseStack.last().pose(), sunAngle));
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        GpuBuffer indexBuffer = quadIndices.getBuffer(skyboxIndexCount);
+
+        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
+                .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, 1f), new Vector3f(), new Matrix4f());
+
+        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
+        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
+                .createRenderPass(() -> "Skybox", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", dynamicSlice);
+            renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
+            renderPass.setVertexBuffer(0, skyboxBuffer);
+            renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
+            renderPass.drawIndexed(0, 0, skyboxIndexCount, 1);
+        }
+
+        matrix4fStack.popMatrix();
+        poseStack.popPose();
+    }
+
+    private record SkyboxMesh(GpuBuffer buffer, int indexCount) {}
+
+    private static SkyboxMesh buildSkyboxMesh(SkyBoxSetting setting, TextureAtlas atlas) {
+        int g = Math.max(4, setting.gradation());
+        int totalCells = g * (g * 2);
+        int totalVertices = totalCells * 4;
+        float PI = (float) Math.PI;
+
+        TextureAtlasSprite sprite = atlas.getSprite(setting.texture());
+
+        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION_TEX.getVertexSize() * totalVertices)) {
+            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+
+            for (int i = 0; i < g; i++) {
+                float alpha1 = i * PI / g;
+                float alpha2 = (i + 1) * PI / g;
+
+                for (int j = 0; j < g * 2; j++) {
+                    float beta1 = j * 2 * PI / (g * 2);
+                    float beta2 = (j + 1) * 2 * PI / (g * 2);
+
+                    float x1 = 100f * (float)(Math.sin(alpha1) * Math.cos(beta1));
+                    float y1 = 100f * (float)(Math.sin(alpha1) * Math.sin(beta1));
+                    float z1 = 100f * (float) Math.cos(alpha1);
+
+                    float x2 = 100f * (float)(Math.sin(alpha1) * Math.cos(beta2));
+                    float y2 = 100f * (float)(Math.sin(alpha1) * Math.sin(beta2));
+
+                    float x3 = 100f * (float)(Math.sin(alpha2) * Math.cos(beta1));
+                    float y3 = 100f * (float)(Math.sin(alpha2) * Math.sin(beta1));
+                    float z3 = 100f * (float) Math.cos(alpha2);
+
+                    float x4 = 100f * (float)(Math.sin(alpha2) * Math.cos(beta2));
+                    float y4 = 100f * (float)(Math.sin(alpha2) * Math.sin(beta2));
+
+                    float u1 = sprite.getU(beta1 / (2 * PI));
+                    float u2 = sprite.getU(beta2 / (2 * PI));
+                    float v1 = sprite.getV(alpha1 / PI);
+                    float v2 = sprite.getV(alpha2 / PI);
+
+                    bb.addVertex(x1, y1, z1).setUv(u1, v1);
+                    bb.addVertex(x2, y2, z1).setUv(u2, v1);
+                    bb.addVertex(x4, y4, z3).setUv(u2, v2);
+                    bb.addVertex(x3, y3, z3).setUv(u1, v2);
+                }
+            }
+
+            try (MeshData mesh = bb.buildOrThrow()) {
+                int indexCount = mesh.drawState().indexCount();
+                GpuBuffer gpuBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Skybox sphere", 40, mesh.vertexBuffer());
+                return new SkyboxMesh(gpuBuffer, indexCount);
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Custom sun
+    // -------------------------------------------------------------------------
+
+    private void renderCustomSun(PoseStack poseStack, float rainBrightness) {
+        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customSun.sunTexture());
+
+        GpuBuffer sunBuffer;
+        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
+            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bb.addVertex(-0.5F, -0.5F, 0.0F).setUv(sprite.getU0(), sprite.getV1());
+            bb.addVertex(-0.5F,  0.5F, 0.0F).setUv(sprite.getU0(), sprite.getV0());
+            bb.addVertex( 0.5F,  0.5F, 0.0F).setUv(sprite.getU1(), sprite.getV0());
+            bb.addVertex( 0.5F, -0.5F, 0.0F).setUv(sprite.getU1(), sprite.getV1());
+            try (MeshData mesh = bb.buildOrThrow()) {
+                sunBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Custom sun", 40, mesh.vertexBuffer());
+            }
+        }
+
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        GpuBuffer indexBuffer = quadIndices.getBuffer(6);
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+        matrix4fStack.translate(0.0F, 100.0F, 0.0F);
+        matrix4fStack.scale(this.customSun.size(), 1.0F, this.customSun.size());
+
+        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
+                .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, rainBrightness), new Vector3f(), new Matrix4f());
+
+        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
+        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
+                .createRenderPass(() -> "Custom sun", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", dynamicSlice);
+            renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
+            renderPass.setVertexBuffer(0, sunBuffer);
+            renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
+            renderPass.drawIndexed(0, 0, 6, 1);
+        }
+
+        matrix4fStack.popMatrix();
+        sunBuffer.close();
+    }
+
+    // -------------------------------------------------------------------------
+    // Custom moon
+    // -------------------------------------------------------------------------
+
+    private void renderCustomMoon(PoseStack poseStack, MoonPhase moonPhase, float rainBrightness) {
+        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customMoon.moonTexture());
+
+        float u0, u1, v0, v1;
+        if (this.customMoon.showPhases()) {
+            int col = moonPhase.ordinal() % 4;
+            int row = moonPhase.ordinal() / 4;
+            u0 = sprite.getU(col / 4.0f);
+            u1 = sprite.getU((col + 1) / 4.0f);
+            v0 = sprite.getV(row / 2.0f);
+            v1 = sprite.getV((row + 1) / 2.0f);
+        } else {
+            u0 = sprite.getU0();
+            u1 = sprite.getU1();
+            v0 = sprite.getV0();
+            v1 = sprite.getV1();
+        }
+
+        GpuBuffer moonBuffer;
+        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
+            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bb.addVertex(-0.5F, -0.5F, 0.0F).setUv(u0, v1);
+            bb.addVertex(-0.5F,  0.5F, 0.0F).setUv(u0, v0);
+            bb.addVertex( 0.5F,  0.5F, 0.0F).setUv(u1, v0);
+            bb.addVertex( 0.5F, -0.5F, 0.0F).setUv(u1, v1);
+            try (MeshData mesh = bb.buildOrThrow()) {
+                moonBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Custom moon", 40, mesh.vertexBuffer());
+            }
+        }
+
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        GpuBuffer indexBuffer = quadIndices.getBuffer(6);
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+        matrix4fStack.translate(0.0F, 100.0F, 0.0F);
+        matrix4fStack.scale(this.customMoon.size(), 1.0F, this.customMoon.size());
+
+        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
+                .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, rainBrightness), new Vector3f(), new Matrix4f());
+
+        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
+        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
+                .createRenderPass(() -> "Custom moon", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", dynamicSlice);
+            renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
+            renderPass.setVertexBuffer(0, moonBuffer);
+            renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
+            renderPass.drawIndexed(0, 0, 6, 1);
+        }
+
+        matrix4fStack.popMatrix();
+        moonBuffer.close();
+    }
+
+    // -------------------------------------------------------------------------
+    // Shooting stars
+    // -------------------------------------------------------------------------
+
+    private void tickShootingStars(float starBrightness) {
+        if (starSettings.shootingStars().isEmpty()) return;
+        if (Minecraft.getInstance().level == null) return;
+
+        long currentTime = Minecraft.getInstance().level.getGameTime();
+        if (currentTime == lastGameTime) return;
+        lastGameTime = currentTime;
+
+        StarSettings.ShootingStars config = starSettings.shootingStars().get();
+
+        activeShootingStars.forEach(star -> {
+            star.remainingTicks--;
+            star.position.add(new Vector3f(star.direction).mul(config.speed() * 0.5f)).normalize(100.0f);
+        });
+        activeShootingStars.removeIf(star -> star.remainingTicks <= 0);
+
+        if (starBrightness > 0 && shootingStarRng.nextInt(100) < config.percentage()) {
+            spawnShootingStar(config);
+        }
+    }
+
+    private void spawnShootingStar(StarSettings.ShootingStars config) {
+        float px = shootingStarRng.nextFloat() * 2 - 1;
+        float py = shootingStarRng.nextFloat() * 2 - 1;
+        float pz = shootingStarRng.nextFloat() * 2 - 1;
+        Vector3f pos = new Vector3f(px, py, pz).normalize(100.0f);
+
+        float dx = shootingStarRng.nextFloat() * 2 - 1;
+        float dy = shootingStarRng.nextFloat() * 2 - 1;
+        float dz = shootingStarRng.nextFloat() * 2 - 1;
+        Vector3f dir = new Vector3f(dx, dy, dz);
+        Vector3f radial = new Vector3f(pos).normalize();
+        float dot = dir.dot(radial);
+        dir.sub(new Vector3f(radial).mul(dot)).normalize();
+
+        if (config.rotation().isPresent() && config.rotation().get() != 0) {
+            float rad = (float) Math.toRadians(config.rotation().get());
+            float cosA = (float) Math.cos(rad);
+            float sinA = (float) Math.sin(rad);
+            Vector3f k = new Vector3f(radial);
+            Vector3f rotated = new Vector3f(dir).mul(cosA)
+                    .add(new Vector3f(k).cross(dir).mul(sinA))
+                    .add(new Vector3f(k).mul(k.dot(dir) * (1 - cosA)));
+            dir.set(rotated);
+        }
+
+        int minLife = (int) config.randomLifetime().x;
+        int maxLife = (int) config.randomLifetime().y;
+        int lifetime = minLife + (maxLife > minLife ? shootingStarRng.nextInt(maxLife - minLife) : 0);
+        if (lifetime <= 0) lifetime = 20;
+
+        activeShootingStars.add(new ActiveShootingStar(pos, dir, lifetime, config));
+    }
+
+    private void renderShootingStars(PoseStack poseStack, SkyRenderState state) {
+        if (activeShootingStars.isEmpty()) return;
+        for (ActiveShootingStar star : activeShootingStars) {
+            renderOneShootingStar(star, poseStack, state);
+        }
+    }
+
+    private void renderOneShootingStar(ActiveShootingStar star, PoseStack poseStack, SkyRenderState state) {
+        float alpha = (star.remainingTicks / (float) star.maxTicks) * state.starBrightness;
+        if (alpha <= 0) return;
+
+        Vec3 c = star.config.color();
+        Vector4f colorUniform = new Vector4f((float) c.x / 255f, (float) c.y / 255f, (float) c.z / 255f, alpha);
+
+        Vector3f pos = star.position;
+        Vector3f dir = star.direction;
+        Vector3f norm = new Vector3f(pos).normalize();
+        Vector3f right = new Vector3f(dir).cross(norm).normalize();
+
+        float halfLen = star.config.scale() * 2.0f;
+        float halfWid = star.config.scale() * 0.25f;
+
+        Vector3f v0 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).add(new Vector3f(right).mul(halfWid));
+        Vector3f v1 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).sub(new Vector3f(right).mul(halfWid));
+        Vector3f v2 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).sub(new Vector3f(right).mul(halfWid));
+        Vector3f v3 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).add(new Vector3f(right).mul(halfWid));
+
+        GpuBuffer shootingStarBuffer;
+        int indexCount;
+        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION.getVertexSize() * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+            bufferBuilder.addVertex(v0.x, v0.y, v0.z);
+            bufferBuilder.addVertex(v1.x, v1.y, v1.z);
+            bufferBuilder.addVertex(v2.x, v2.y, v2.z);
+            bufferBuilder.addVertex(v3.x, v3.y, v3.z);
+            try (MeshData meshData = bufferBuilder.buildOrThrow()) {
+                indexCount = meshData.drawState().indexCount();
+                shootingStarBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Shooting star", 40, meshData.vertexBuffer());
+            }
+        }
+
+        Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
+        matrix4fStack.pushMatrix();
+        matrix4fStack.mul(poseStack.last().pose());
+
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        GpuBuffer indexBuffer = quadIndices.getBuffer(indexCount);
+
+        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
+        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+
+        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
+                .writeTransform(matrix4fStack, colorUniform, new Vector3f(), new Matrix4f());
+
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
+                .createRenderPass(() -> "Shooting star", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+            renderPass.setPipeline(RenderPipelines.STARS);
+            RenderSystem.bindDefaultUniforms(renderPass);
+            renderPass.setUniform("DynamicTransforms", dynamicSlice);
+            renderPass.setVertexBuffer(0, shootingStarBuffer);
+            renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
+            renderPass.drawIndexed(0, 0, indexCount, 1);
+        }
+
+        matrix4fStack.popMatrix();
+        shootingStarBuffer.close();
+    }
+
+    /** Close GPU resources held by this renderer (called when resource packs reload). */
+    public void close() {
+        if (this.gpuBuffer != null) {
+            this.gpuBuffer.gpuBuffer().close();
+        }
+        if (this.skyboxBuffer != null) {
+            this.skyboxBuffer.close();
+        }
+        activeShootingStars.clear();
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    /** Pack ARGB components (each 0-255) into a single int. */
+    private static int packArgb(int a, int r, int g, int b) {
+        return ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+    }
+
+    // -------------------------------------------------------------------------
+    // Inner types
+    // -------------------------------------------------------------------------
+
+    private static class ActiveShootingStar {
+        final Vector3f position;
+        final Vector3f direction;
+        int remainingTicks;
+        final int maxTicks;
+        final StarSettings.ShootingStars config;
+
+        ActiveShootingStar(Vector3f position, Vector3f direction, int lifetime, StarSettings.ShootingStars config) {
+            this.position = position;
+            this.direction = direction;
+            this.remainingTicks = lifetime;
+            this.maxTicks = lifetime;
+            this.config = config;
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Utilities
+    // -------------------------------------------------------------------------
 
     public static ServerLevel getServerLevel() {
         Minecraft minecraft = Minecraft.getInstance();
@@ -121,55 +563,57 @@ public class DimensionRenderer {
         return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
 
+    // -------------------------------------------------------------------------
+    // Builder
+    // -------------------------------------------------------------------------
+
     public static class Builder {
 
         public List<SkyObject> skyObjects = new ArrayList<>();
-        // Default cloud settings: show clouds and set height to 192
-//        public CloudSettings cloudSettings = CloudSettings.createDefaultSettings();
-        //No sun and moon by default
-//        public CustomVanillaObject.Sun sun = null;
+        public boolean weather = true;
         public CustomVanillaObject customVanillaObject = CustomVanillaObject.createDefaultSettings();
-//        public FogSettings fogSettings = FogSettings.createDefaultSettings();
-    //TODO: Default star settings
+        public CustomVanillaObject.Sun customSun = null;
+        public CustomVanillaObject.Moon customMoon = null;
+        public SkyColorSettings skyColorSettings = null;
+        public LightSettings lightSettings = null;
         public StarSettings star = StarSettings.createDefaultStars();
-        //Always render sky by default
         public SkyProperties.RenderCondition renderCondition = null;
-//        public SkyColorSettings skyColor = SkyColorSettings.createDefaultSettings();
-//        public boolean weather = true; // Default to true
-//
-//        public SkyBoxSetting skyBoxSetting = null;
+        public SkyBoxSetting skyBoxSetting = null;
 
-        public Builder() {
-            // Initialize any necessary fields or configurations here
+        public Builder() {}
+
+        public Builder setWeather(boolean weather) {
+            this.weather = weather;
+            return this;
         }
 
-//        public Builder setSkyBoxSetting(SkyBoxSetting skyBoxSetting) {
-//            this.skyBoxSetting = skyBoxSetting;
-//            return this;
-//        }
-//
         public Builder setStar(StarSettings star) {
             this.star = star;
             return this;
         }
-//
-//        public Builder setFogSettings(FogSettings fogSettings) {
-//            this.fogSettings = fogSettings;
-//            return this;
-//        }
-//
-//        public Builder setWeather(boolean weather) {
-//            this.weather = weather;
-//            return this;
-//        }
-//
-//        public Builder setSkyColor(SkyColorSettings skyColor) {
-//            this.skyColor = skyColor;
-//            return this;
-//        }
-//
+
         public Builder setCustomVanillaObject(CustomVanillaObject vanillaObject) {
             this.customVanillaObject = vanillaObject;
+            return this;
+        }
+
+        public Builder setCustomSun(CustomVanillaObject.Sun sun) {
+            this.customSun = sun;
+            return this;
+        }
+
+        public Builder setCustomMoon(CustomVanillaObject.Moon moon) {
+            this.customMoon = moon;
+            return this;
+        }
+
+        public Builder setSkyColorSettings(SkyColorSettings skyColorSettings) {
+            this.skyColorSettings = skyColorSettings;
+            return this;
+        }
+
+        public Builder setLightSettings(LightSettings lightSettings) {
+            this.lightSettings = lightSettings;
             return this;
         }
 
@@ -178,34 +622,28 @@ public class DimensionRenderer {
             return this;
         }
 
-//        public Builder addSun(CustomVanillaObject.Sun sun) {
-//            this.sun = sun;
-//            return this;
-//        }
-
-//        public Builder addCloudSettings(CloudSettings cloudSettings) {
-//            this.cloudSettings = cloudSettings;
-//            return this;
-//        }
-
         public Builder addSkyObject(SkyObject skyObject) {
             this.skyObjects.add(skyObject);
+            return this;
+        }
+
+        public Builder setSkyBoxSetting(SkyBoxSetting skyBoxSetting) {
+            this.skyBoxSetting = skyBoxSetting;
             return this;
         }
 
         public DimensionRenderer build() {
             return new DimensionRenderer(
                     skyObjects,
+                    weather,
                     customVanillaObject,
-//                  cloudSettings,
-//                    sun,
-//                    moon,
-//                    skyColor,
-//                    fogSettings,
+                    customSun,
+                    customMoon,
+                    skyColorSettings,
+                    lightSettings,
                     star,
-//                    skyBoxSetting,
-//                    weather,
-                    renderCondition
+                    renderCondition,
+                    skyBoxSetting
             );
         }
     }

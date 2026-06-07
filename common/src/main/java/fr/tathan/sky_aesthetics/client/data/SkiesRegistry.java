@@ -1,6 +1,7 @@
 package fr.tathan.sky_aesthetics.client.data;
 
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull SkyProperties>  {
 
     public static final Map<Identifier, SkyProperties> SKY_PROPERTIES = new HashMap<>();
+    private static final Map<Identifier, DimensionRenderer> RENDERER_CACHE = new HashMap<>();
 
     /**
      * The default sky used in development, it is not registered in the registry.
@@ -33,6 +35,8 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
 
     @Override
     protected void apply(Map<Identifier, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
+        RENDERER_CACHE.forEach((id, renderer) -> renderer.close());
+        RENDERER_CACHE.clear();
         SKY_PROPERTIES.clear();
         SkyAesthetics.LOG.info("Registering skies...");
         object.forEach((key, skyProperties) -> {
@@ -42,6 +46,14 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
 
         });
 
+    }
+
+    /**
+     * Returns a cached DimensionRenderer for the given sky, building it on first access.
+     * Must be called on the render thread.
+     */
+    public static DimensionRenderer getOrBuildRenderer(SkyProperties sky) {
+        return RENDERER_CACHE.computeIfAbsent(sky.id(), id -> sky.toDimensionRenderer());
     }
 
     /**

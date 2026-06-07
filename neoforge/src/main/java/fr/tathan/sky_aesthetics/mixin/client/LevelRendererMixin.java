@@ -5,6 +5,7 @@ import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.FogType;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4fc;
+import org.joml.Matrix4fStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,14 +42,11 @@ public abstract class LevelRendererMixin {
 
     @Mutable
     @Shadow
-    public SkyRenderer skyRenderer;
-
-    @Shadow
-    protected abstract boolean doesMobEffectBlockSky(Camera camera);
+    private SkyRenderer skyRenderer;
 
     @Mutable
     @Shadow
-    private LevelRenderState levelRenderState;
+    LevelRenderState levelRenderState;
 
 
     @Inject(method = "addSkyPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/renderer/state/level/CameraRenderState;Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lorg/joml/Matrix4fc;)V", at = @At("HEAD"), cancellable = true)
@@ -62,12 +61,12 @@ public abstract class LevelRendererMixin {
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                         framePass.executes(() -> {
+                            Matrix4fStack mvStack = RenderSystem.getModelViewStack();
+                            mvStack.pushMatrix();
+                            mvStack.set(modelViewMatrix);
                             RenderSystem.setShaderFog(skyFog);
-                            planetSky.toDimensionRenderer().render(
-                                    skyRenderState,
-                                    skyRenderer
-                            );
-
+                            SkiesRegistry.getOrBuildRenderer(planetSky).render(skyRenderState, skyRenderer);
+                            mvStack.popMatrix();
                         });
                         ci.cancel();
                     }));
@@ -89,33 +88,4 @@ public abstract class LevelRendererMixin {
             }
         }));
     }
-
-    /*
-//    @Inject(method = "tickParticles", at = @At(value = "HEAD"), cancellable = true)
-//    public void cancelSnowAndRainRenderer(Camera camera, CallbackInfo ci) {
-//        SkyHelper.canRenderSky(level, (planetSky -> {
-//            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-//                ci.cancel();
-//            }
-//        }));
-//    }
-
-
-    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-                ci.cancel();
-            }
-        }));
-    }
-
-    @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
-    private void canRain(Camera camera, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-                ci.cancel();
-            }
-        }));
-    }*/
 }

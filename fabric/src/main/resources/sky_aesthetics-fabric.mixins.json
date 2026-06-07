@@ -4,7 +4,9 @@
   "compatibilityLevel": "JAVA_25",
   "minVersion": "0.8",
   "client": [
-    "client.LevelRendererMixin"
+    "client.LevelRendererMixin",
+    "client.WeatherEffectRendererMixin",
+    "client.LightmapRenderStateExtractorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

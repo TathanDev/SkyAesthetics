@@ -26,7 +26,8 @@
     ]
   },
   "mixins": [
-    "sky_aesthetics.mixins.json"
+    "sky_aesthetics.mixins.json",
+    "sky_aesthetics-fabric.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=0.18.5",

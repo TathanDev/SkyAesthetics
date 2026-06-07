@@ -29,3 +29,5 @@ side = "BOTH"
 
 [[mixins]]
 config = "sky_aesthetics.mixins.json"
+[[mixins]]
+config = "sky_aesthetics-neoforge.mixins.json"
