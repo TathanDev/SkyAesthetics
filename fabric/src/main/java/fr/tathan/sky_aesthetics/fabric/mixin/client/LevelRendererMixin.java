@@ -7,7 +7,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
-import net.minecraft.client.Camera;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
