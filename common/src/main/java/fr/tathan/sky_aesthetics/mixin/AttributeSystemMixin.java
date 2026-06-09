@@ -15,6 +15,4 @@ public class AttributeSystemMixin {
     private static void addDefaultLayers(EnvironmentAttributeSystem.Builder builder, Level level, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> planetSky.environmentAttributes().ifPresent(builder::addConstantLayer)));
     }
-
-
 }

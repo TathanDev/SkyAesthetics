@@ -11,7 +11,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
@@ -110,7 +109,7 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         GpuBuffer gpuBuffer = quadIndices.getBuffer(6);
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sky sun", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
-            renderPass.setPipeline(this.blend ? RenderPipelines.CELESTIAL : RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            renderPass.setPipeline(this.blend ? RenderPipelineRegistry.CELESTIAL_BLEND : RenderPipelineRegistry.CELESTIAL_NO_BLEND);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
             renderPass.bindTexture("Sampler0", celestial.getTextureView(), celestial.getSampler());
