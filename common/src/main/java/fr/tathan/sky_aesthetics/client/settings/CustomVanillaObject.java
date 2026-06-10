@@ -4,48 +4,42 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.Identifier;
 
-/**
- * Custom vanilla objects like sun and moon with custom textures, sizes and heights.
- */
-public record CustomVanillaObject(boolean sun, boolean moon) {
+import java.util.Optional;
 
-    public static final Codec<CustomVanillaObject> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.fieldOf("sun").forGetter(CustomVanillaObject::sun),
-            Codec.BOOL.fieldOf("moon").forGetter(CustomVanillaObject::moon)
-    ).apply(instance, CustomVanillaObject::new));
+public final class CustomVanillaObject {
 
-    public static CustomVanillaObject createDefaultSettings() {
-        return new CustomVanillaObject(true, true);
-    }
+    private CustomVanillaObject() {}
 
     /**
-     * A custom sun that replaces the vanilla sun.
+     * Custom sun. All fields are optional.
      *
-     * @param sunTexture Celestials-atlas identifier for the sun texture.
+     * @param show       Whether to render the sun at all (default true).
+     * @param sunTexture Celestials-atlas identifier for the sun texture. When absent the vanilla sun is rendered.
      * @param size       Size of the sun quad (vanilla ≈ 30).
      */
-    public record Sun(Identifier sunTexture, float size) {
+    public record Sun(boolean show, Optional<Identifier> sunTexture, float size) {
 
         public static final Codec<Sun> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("texture").forGetter(Sun::sunTexture),
+                Codec.BOOL.optionalFieldOf("show", true).forGetter(Sun::show),
+                Identifier.CODEC.optionalFieldOf("texture").forGetter(Sun::sunTexture),
                 Codec.FLOAT.optionalFieldOf("size", 30.0f).forGetter(Sun::size)
         ).apply(instance, Sun::new));
     }
 
     /**
-     * A custom moon that replaces the vanilla moon.
+     * Custom moon. All fields are optional.
      *
-     * @param moonTexture Celestials-atlas identifier for the moon texture.
-     *                    For phase rendering, the texture must be a 4×2 sprite sheet
-     *                    (same layout as vanilla's moon_phases.png).
+     * @param show        Whether to render the moon at all (default true).
+     * @param moonTexture Celestials-atlas identifier for the moon texture. When absent the vanilla moon is rendered.
+     *                    For phase rendering the texture must be a 4×2 sprite sheet (same layout as vanilla).
      * @param size        Size of the moon quad (vanilla ≈ 20).
-     * @param showPhases  If true, render only the current lunar-phase cell of the sprite sheet;
-     *                    if false, render the full texture regardless of phase.
+     * @param showPhases  If true, render only the current lunar-phase cell; if false, render the full texture.
      */
-    public record Moon(Identifier moonTexture, float size, boolean showPhases) {
+    public record Moon(boolean show, Optional<Identifier> moonTexture, float size, boolean showPhases) {
 
         public static final Codec<Moon> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Identifier.CODEC.fieldOf("texture").forGetter(Moon::moonTexture),
+                Codec.BOOL.optionalFieldOf("show", true).forGetter(Moon::show),
+                Identifier.CODEC.optionalFieldOf("texture").forGetter(Moon::moonTexture),
                 Codec.FLOAT.optionalFieldOf("size", 20.0f).forGetter(Moon::size),
                 Codec.BOOL.optionalFieldOf("show_phases", true).forGetter(Moon::showPhases)
         ).apply(instance, Moon::new));

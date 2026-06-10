@@ -24,7 +24,6 @@ public record SkyProperties(
         Identifier id,
         Optional<CloudSettings> cloudSettings,
         Boolean weather,
-        Optional<CustomVanillaObject> customVanillaObject,
         Optional<CustomVanillaObject.Sun> sun,
         Optional<CustomVanillaObject.Moon> moon,
         Optional<StarSettings> stars,
@@ -42,7 +41,6 @@ public record SkyProperties(
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
             CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
             Codec.BOOL.optionalFieldOf("weather", true).forGetter(SkyProperties::weather),
-            CustomVanillaObject.CODEC.optionalFieldOf("custom_vanilla_object").forGetter(SkyProperties::customVanillaObject),
             CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
             CustomVanillaObject.Moon.CODEC.optionalFieldOf("moon").forGetter(SkyProperties::moon),
             StarSettings.CODEC.optionalFieldOf("stars").forGetter(SkyProperties::stars),
@@ -64,7 +62,6 @@ public record SkyProperties(
         this.sun.ifPresent(builder::setCustomSun);
         this.moon.ifPresent(builder::setCustomMoon);
         this.skyObjects.forEach(builder::addSkyObject);
-        this.customVanillaObject.ifPresent(builder::setCustomVanillaObject);
         this.skyColorSettings.ifPresent(builder::setSkyColorSettings);
         this.lightSettings.ifPresent(builder::setLightSettings);
         this.renderCondition.ifPresent(builder::setRenderCondition);
@@ -81,7 +78,6 @@ public record SkyProperties(
                 Identifier.parse("default"),
                 Optional.empty(),
                 true,
-                Optional.of(CustomVanillaObject.createDefaultSettings()),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.of(StarSettings.createDefaultStars()),

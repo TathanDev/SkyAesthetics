@@ -39,7 +39,6 @@ public class DimensionRenderer {
     public final TextureAtlas celestialsAtlas;
     public final StarSettings starSettings;
     public final boolean weather;
-    public final CustomVanillaObject customVanillaObject;
     public final CustomVanillaObject.Sun customSun;
     public final CustomVanillaObject.Moon customMoon;
     public final SkyColorSettings skyColorSettings;
@@ -59,7 +58,6 @@ public class DimensionRenderer {
 
     private DimensionRenderer(List<SkyObject> skyObjects,
                               boolean weather,
-                              CustomVanillaObject customVanillaObject,
                               CustomVanillaObject.Sun customSun,
                               CustomVanillaObject.Moon customMoon,
                               SkyColorSettings skyColorSettings,
@@ -71,7 +69,6 @@ public class DimensionRenderer {
         this.skyObjects = skyObjects;
         this.weather = weather;
         this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
-        this.customVanillaObject = customVanillaObject;
         this.customSun = customSun;
         this.customMoon = customMoon;
         this.skyColorSettings = skyColorSettings;
@@ -152,27 +149,25 @@ public class DimensionRenderer {
         poseStack.pushPose();
         poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
 
-        if (this.customSun != null) {
+        if (this.customSun == null || this.customSun.show()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(sunAngle));
-            renderCustomSun(poseStack, rainBrightness);
-            poseStack.popPose();
-        } else if (this.customVanillaObject.sun()) {
-            poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(sunAngle));
-            skyRenderer.renderSun(rainBrightness, poseStack);
+            if (this.customSun != null && this.customSun.sunTexture().isPresent()) {
+                renderCustomSun(rainBrightness, poseStack);
+            } else {
+                skyRenderer.renderSun(rainBrightness, poseStack);
+            }
             poseStack.popPose();
         }
 
-        if (this.customMoon != null) {
+        if (this.customMoon == null || this.customMoon.show()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(moonAngle));
-            renderCustomMoon(poseStack, moonPhase, rainBrightness);
-            poseStack.popPose();
-        } else if(this.customVanillaObject.moon()) {
-            poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(moonAngle));
-            skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
+            if (this.customMoon != null && this.customMoon.moonTexture().isPresent()) {
+                renderCustomMoon(moonPhase, rainBrightness, poseStack);
+            } else {
+                skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
+            }
             poseStack.popPose();
         }
 
@@ -287,8 +282,8 @@ public class DimensionRenderer {
     // Custom sun
     // -------------------------------------------------------------------------
 
-    private void renderCustomSun(PoseStack poseStack, float rainBrightness) {
-        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customSun.sunTexture());
+    private void renderCustomSun(float rainBrightness, PoseStack poseStack) {
+        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customSun.sunTexture().get());
 
         GpuBuffer sunBuffer;
         try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
@@ -338,8 +333,8 @@ public class DimensionRenderer {
     // Custom moon
     // -------------------------------------------------------------------------
 
-    private void renderCustomMoon(PoseStack poseStack, MoonPhase moonPhase, float rainBrightness) {
-        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customMoon.moonTexture());
+    private void renderCustomMoon(MoonPhase moonPhase, float rainBrightness, PoseStack poseStack) {
+        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customMoon.moonTexture().get());
 
         float u0, u1, v0, v1;
         if (this.customMoon.showPhases()) {
@@ -589,7 +584,6 @@ public class DimensionRenderer {
 
         public List<SkyObject> skyObjects = new ArrayList<>();
         public boolean weather = true;
-        public CustomVanillaObject customVanillaObject = CustomVanillaObject.createDefaultSettings();
         public CustomVanillaObject.Sun customSun = null;
         public CustomVanillaObject.Moon customMoon = null;
         public SkyColorSettings skyColorSettings = null;
@@ -608,11 +602,6 @@ public class DimensionRenderer {
 
         public Builder setStar(StarSettings star) {
             this.star = star;
-            return this;
-        }
-
-        public Builder setCustomVanillaObject(CustomVanillaObject vanillaObject) {
-            this.customVanillaObject = vanillaObject;
             return this;
         }
 
@@ -660,7 +649,6 @@ public class DimensionRenderer {
             return new DimensionRenderer(
                     skyObjects,
                     weather,
-                    customVanillaObject,
                     customSun,
                     customMoon,
                     skyColorSettings,
