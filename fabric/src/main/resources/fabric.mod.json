@@ -17,6 +17,7 @@
   "license": "CC0-1.0",
   "icon": "logo.png",
   "environment": "client",
+  "accessWidener": "sky_aesthetics.accessWidener",
   "entrypoints": {
     "main": [
       "fr.tathan.sky_aesthetics.fabric.SkyAestheticsFabric"

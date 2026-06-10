@@ -1,16 +1,11 @@
 architectury {
-    common("fabric", "neoforge")
+    common('fabric', 'neoforge')
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/sky_aesthetics.accessWidener")
+    accessWidenerPath = file('src/main/resources/sky_aesthetics.accessWidener')
 }
 
 dependencies {
-    // We depend on Fabric Loader here to use the Fabric @Environment annotations,
-    // which get remapped to the correct annotations on each platform.
-    // Do NOT use other classes from Fabric Loader.
     implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-
-    //modImplementation "io.wispforest:owo-lib:${project.owo_version}"
 }

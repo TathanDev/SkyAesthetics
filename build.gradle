@@ -1,134 +1,195 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
-    id 'dev.architectury.loom-no-remap' version '1.14-SNAPSHOT' apply false
+    id 'dev.architectury.loom-no-remap' version '1.17-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.5-SNAPSHOT'
-    id 'com.gradleup.shadow' version '9.4.2'
+    id 'com.gradleup.shadow' version '9.4.2' apply false
     id 'me.modmuss50.mod-publish-plugin' version '1.1.0' apply false
 }
 
 architectury {
-    minecraft = project.minecraft_version
+    minecraft = rootProject.minecraft_version
 }
 
 allprojects {
-    apply plugin: "java-library"
-    apply plugin: "architectury-plugin"
+    apply plugin: 'java-library'
+    apply plugin: 'architectury-plugin'
 
     group = rootProject.maven_group
     version = rootProject.mod_version
 
     java {
         withSourcesJar()
+        sourceCompatibility = JavaVersion.VERSION_25
+        targetCompatibility = JavaVersion.VERSION_25
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.release = 25
     }
 }
 
 subprojects {
     apply plugin: 'dev.architectury.loom-no-remap'
     apply plugin: 'maven-publish'
-    apply plugin: 'me.modmuss50.mod-publish-plugin'
 
-    def modLoader = project.name
-    def isCommon = modLoader == "common"
+    // The `common` project only holds shared sources; `fabric` and `neoforge`
+    // are the loader-specific projects that actually produce shippable jars.
+    def isCommon = project.name == 'common'
 
     base {
-        // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
+        // Suffix each jar with its loader, e.g. `sky_aesthetics-fabric`.
         archivesName = "$rootProject.archives_name-$project.name"
     }
 
     repositories {
-        maven { url "https://maven.terraformersmc.com/releases" }
-        maven { url "https://maven.shedaniel.me/" }
-        maven { url "https://maven.saps.dev/releases" }
+        maven { url 'https://maven.terraformersmc.com/releases' }
+        maven { url 'https://maven.shedaniel.me/' }
+        maven { url 'https://maven.saps.dev/releases' }
         maven { url 'https://maven.wispforest.io/releases/' }
         maven {
-            name = "Sinytra"
-            url = "https://maven.su5ed.dev/releases"
+            name = 'Sinytra'
+            url = 'https://maven.su5ed.dev/releases'
         }
-
         exclusiveContent {
             forRepository {
                 maven {
-                    name = "Modrinth"
-                    url = "https://api.modrinth.com/maven"
+                    name = 'Modrinth'
+                    url = 'https://api.modrinth.com/maven'
                 }
             }
             filter {
-                includeGroup "maven.modrinth"
+                includeGroup 'maven.modrinth'
             }
         }
-        maven { url "https://maven.exodusstudio.org/releases" }
-        maven { url = 'https://maven.blamejared.com' }
-
+        maven { url 'https://maven.exodusstudio.org/releases' }
+        maven { url 'https://maven.blamejared.com' }
     }
 
     dependencies {
         minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
 
-        implementation "fr.tathan.exoconfig:exoconfig-$modLoader-$rootProject.minecraft_version:${rootProject.exoconfig_version}"
+        implementation "fr.tathan.exoconfig:exoconfig-$project.name-$rootProject.minecraft_version:$rootProject.exoconfig_version"
     }
 
-    afterEvaluate {
-        tasks.withType(ShadowJar).configureEach {
+    // ------------------------------------------------------------------------
+    // Loader-only packaging (fabric / neoforge)
+    //
+    // Each loader project compiles against `common` and bundles the
+    // platform-transformed common classes into its own jar through the Shadow
+    // plugin. The shadowed jar (not the raw Loom jar) becomes the project's
+    // primary, published artifact. Platform-specific bits (loader/API deps,
+    // the `transformProduction*` source of `shadowCommon`, resource expansion,
+    // extra jar exclusions, the NeoForge AW -> AT conversion, ...) live in each
+    // subproject's own build.gradle.
+    // ------------------------------------------------------------------------
+    if (!isCommon) {
+        apply plugin: 'com.gradleup.shadow'
+        apply plugin: 'me.modmuss50.mod-publish-plugin'
+
+        configurations {
+            common
+            shadowCommon
+            compileClasspath.extendsFrom common
+            runtimeClasspath.extendsFrom common
+        }
+
+        dependencies {
+            // Compile against common; its classes are shipped via shadowCommon.
+            common(project(path: ':common')) { transitive = false }
+        }
+
+        // The raw Loom jar is only an intermediate; keep it out of the way.
+        jar {
+            archiveClassifier = 'raw'
+        }
+
+        // Repackage the Loom-processed jar so its modifications are preserved,
+        // then merge in the platform-transformed common classes.
+        shadowJar {
+            dependsOn jar
+            mainSpec.sourcePaths.clear()
+            from(zipTree(tasks.jar.archiveFile))
+
+            configurations = [project.configurations.shadowCommon]
+            archiveClassifier = null
             zip64 = true
         }
-    }
 
-    java {
-        sourceCompatibility = JavaVersion.VERSION_25
-        targetCompatibility = JavaVersion.VERSION_25
-    }
+        assemble.dependsOn shadowJar
 
-    tasks.withType(JavaCompile).configureEach {
-        it.options.release = 25
-    }
+        // Expose the shadowed jar as the outgoing artifact instead of the raw jar.
+        configurations {
+            apiElements {
+                outgoing.artifacts.clear()
+                outgoing.artifact(project.tasks.shadowJar)
+            }
+            runtimeElements {
+                outgoing.artifacts.clear()
+                outgoing.artifact(project.tasks.shadowJar)
+            }
+        }
 
-    if (!isCommon) {
+        // Include the common sources in this project's sources jar.
+        sourcesJar {
+            afterEvaluate {
+                def commonSources = project(':common').sourcesJar
+                dependsOn commonSources
+                from(commonSources.archiveFile.map { zipTree(it) }) {
+                    exclude 'architectury.accessWidener'
+                }
+            }
+        }
+
+        // Make the Maven publication publish the shadowed jar.
+        components.java {
+            addVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {}
+            withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+                skip()
+            }
+        }
+
         publishMods {
-            file = file("../${modLoader}/build/libs/sky_aesthetics-${modLoader}-${mod_version}.jar")
-            changelog = file("../changelog.md").getText('UTF-8')
+            file = project.tasks.shadowJar.archiveFile
+            changelog = rootProject.file('changelog.md').getText('UTF-8')
             type = BETA
-            modLoaders.add(modLoader)
-            displayName = "[${modLoader.capitalize()}] Sky Aesthetics ${mod_version}"
+            modLoaders.add(project.name)
+            displayName = "[${project.name.capitalize()}] Sky Aesthetics ${rootProject.mod_version}"
 
             curseforge {
-                projectId = "1096636"
-                projectSlug = "sky-aesthetics" // Required for discord webhook
-                accessToken = providers.environmentVariable("CURSEFORGE_API_KEY")
-                minecraftVersions.add("${minecraft_version}")
+                projectId = '1096636'
+                projectSlug = 'sky-aesthetics' // Required for the Discord webhook.
+                accessToken = providers.environmentVariable('CURSEFORGE_API_KEY')
+                minecraftVersions.add(rootProject.minecraft_version)
                 javaVersions.add(JavaVersion.VERSION_25)
             }
 
             modrinth {
-                projectId = "2zaNpyqY"
-                accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-                minecraftVersions.add("${minecraft_version}")
+                projectId = '2zaNpyqY'
+                accessToken = providers.environmentVariable('MODRINTH_TOKEN')
+                minecraftVersions.add(rootProject.minecraft_version)
             }
         }
     }
 
-    if(modLoader != "quilt") {
-        publishing {
-            publications {
-                mavenJava(MavenPublication) {
-                    groupId "fr.tathan.sky-aesthetics"
-                    artifactId "sky-aesthetics-$modLoader-" + minecraft_version
-                    version project.version
-                    from components.java
-                    pom {
-                        name = "Sky Aesthetics" + modLoader.capitalize()
-                        url = "https://github.com/TathanDev/SkyAesthetics"
-                    }
+    publishing {
+        publications {
+            mavenJava(MavenPublication) {
+                groupId 'fr.tathan.sky-aesthetics'
+                artifactId "sky-aesthetics-$project.name-$rootProject.minecraft_version"
+                version project.version
+                from components.java
+                pom {
+                    name = "Sky Aesthetics ${project.name.capitalize()}"
+                    url = 'https://github.com/TathanDev/SkyAesthetics'
                 }
             }
+        }
 
-            repositories {
-                maven {
-                    url = "https://maven.exodusstudio.org/releases/"
-                    credentials {
-                        username = System.getenv("EXODUS_MAVEN_USERNAME")
-                        password = System.getenv("EXODUS_MAVEN_KEY")
-                    }
+        repositories {
+            maven {
+                url = 'https://maven.exodusstudio.org/releases/'
+                credentials {
+                    username = System.getenv('EXODUS_MAVEN_USERNAME')
+                    password = System.getenv('EXODUS_MAVEN_KEY')
                 }
             }
         }

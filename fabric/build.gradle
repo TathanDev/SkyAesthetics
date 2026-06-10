@@ -1,35 +1,21 @@
-plugins {
-    id 'com.gradleup.shadow'
-}
-
-loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
-}
-
 architectury {
     platformSetupLoomIde()
     fabric()
 }
 
+loom {
+    accessWidenerPath = project(':common').loom.accessWidenerPath
+}
+
 configurations {
-    common
-    shadowCommon
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
     developmentFabric.extendsFrom common
 }
 
 dependencies {
     implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
-
-    // Fabric API. This is technically optional, but you probably want it anyway.
     implementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version+$rootProject.minecraft_version"
-    //implementation "io.wispforest:owo-lib:${project.owo_version}"
 
-    //runtimeOnly "maven.modrinth:astrocraft:vwpsBb3h"
-
-    common(project(path: ':common')) { transitive false }
-    shadowCommon(project(path: ':common', configuration: 'transformProductionFabric')) { transitive false }
+    shadowCommon(project(path: ':common', configuration: 'transformProductionFabric')) { transitive = false }
 }
 
 processResources {
@@ -37,50 +23,5 @@ processResources {
 
     filesMatching('fabric.mod.json') {
         expand version: project.version
-    }
-}
-
-shadowJar {
-    dependsOn(jar)
-    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
-    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
-
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null           // shadowJar becomes the main artifact
-}
-
-jar {
-    archiveClassifier = "raw"
-}
-
-assemble.dependsOn shadowJar
-
-configurations {
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-}
-
-sourcesJar {
-    afterEvaluate {
-        [":common"].forEach {
-            def depSources = project(it).sourcesJar
-            dependsOn depSources
-            from(depSources.archiveFile.map { zipTree(it) }) {
-                exclude "architectury.accessWidener"
-            }
-        }
-    }
-}
-
-components.java {
-    addVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {}
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
     }
 }

@@ -1,6 +1,4 @@
-plugins {
-    id 'com.gradleup.shadow'
-}
+import org.gradle.jvm.tasks.Jar
 
 architectury {
     platformSetupLoomIde()
@@ -8,24 +6,33 @@ architectury {
 }
 
 loom {
-    accessWidenerPath = project(":common").loom.accessWidenerPath
+    // Apply the common access widener in the dev environment.
+    accessWidenerPath = project(':common').loom.accessWidenerPath
+
+    neoForge {
+        // NeoForge has no native access widener support, so Loom 1.17's AW -> AT
+        // conversion rewrites the bundled access widener into an access
+        // transformer at META-INF/accesstransformer.cfg (the path NeoForge loads
+        // by default) and strips the AW from the jar.
+        //
+        // The conversion is wired onto `shadowJar` because that is the task
+        // whose output actually contains `sky_aesthetics.accessWidener` (pulled
+        // in from the common module) and is the published artifact. As this is a
+        // no-remap build, the names are already official, so no remapJar pass is
+        // needed.
+        convertAccessWideners(tasks.named('shadowJar', Jar), 'sky_aesthetics.accessWidener')
+    }
 
     runs {
         data {
             data()
-            programArgs "--all", "--mod", "sky_aesthetics"
-            programArgs "--output", project(":common").file("src/main/generated/resources").absolutePath
+            programArgs '--all', '--mod', 'sky_aesthetics'
+            programArgs '--output', project(':common').file('src/main/generated/resources').absolutePath
         }
     }
-
 }
 
 configurations {
-    common
-    shadowCommon
-
-    compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
     developmentNeoForge.extendsFrom common
 }
 
@@ -35,9 +42,9 @@ repositories {
         url = 'https://maven.neoforged.net/releases'
     }
     maven {
-        url "https://modmaven.dev/"
+        url 'https://modmaven.dev/'
         content {
-            includeGroup "dev.technici4n"
+            includeGroup 'dev.technici4n'
         }
     }
 }
@@ -45,8 +52,7 @@ repositories {
 dependencies {
     neoForge "net.neoforged:neoforge:$rootProject.neoforge_version"
 
-    common(project(path: ':common')) { transitive false }
-    shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive false }
+    shadowCommon(project(path: ':common', configuration: 'transformProductionNeoForge')) { transitive = false }
 }
 
 processResources {
@@ -58,49 +64,6 @@ processResources {
 }
 
 shadowJar {
-    exclude "fabric.mod.json"
-    exclude "sky_aesthetics.accessWidener"
-    exclude "architectury.common.json"
-
-    dependsOn jar
-    mainSpec.sourcePaths.clear()       // Remove default source set inclusion
-    from(zipTree(jar.archiveFile))     // Unpack jar output (preserves Loom modifications)
-    configurations = [project.configurations.shadowCommon]
-    archiveClassifier = null           // shadowJar becomes the main artifact
-}
-
-jar {
-    archiveClassifier = "raw"
-}
-
-assemble.dependsOn shadowJar
-
-configurations {
-    apiElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-    runtimeElements {
-        outgoing.artifacts.clear()
-        outgoing.artifact(shadowJar)
-    }
-}
-
-sourcesJar {
-    afterEvaluate {
-        [":common"].forEach {
-            def depSources = project(it).sourcesJar
-            dependsOn depSources
-            from(depSources.archiveFile.map { zipTree(it) }) {
-                exclude "architectury.accessWidener"
-            }
-        }
-    }
-}
-
-components.java {
-    addVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {}
-    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
-        skip()
-    }
+    exclude 'fabric.mod.json'
+    exclude 'architectury.common.json'
 }
