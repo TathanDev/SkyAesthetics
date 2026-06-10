@@ -152,10 +152,11 @@ public class DimensionRenderer {
         if (this.customSun == null || this.customSun.show()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(sunAngle));
+            float sunBrightness = rainBrightness * (this.customSun != null ? this.customSun.intensity() : 1.0f);
             if (this.customSun != null && this.customSun.sunTexture().isPresent()) {
-                renderCustomSun(rainBrightness, poseStack);
+                renderCustomSun(sunBrightness, poseStack);
             } else {
-                skyRenderer.renderSun(rainBrightness, poseStack);
+                skyRenderer.renderSun(sunBrightness, poseStack);
             }
             poseStack.popPose();
         }
@@ -163,10 +164,11 @@ public class DimensionRenderer {
         if (this.customMoon == null || this.customMoon.show()) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(moonAngle));
+            float moonBrightness = rainBrightness * (this.customMoon != null ? this.customMoon.intensity() : 1.0f);
             if (this.customMoon != null && this.customMoon.moonTexture().isPresent()) {
-                renderCustomMoon(moonPhase, rainBrightness, poseStack);
+                renderCustomMoon(moonPhase, moonBrightness, poseStack);
             } else {
-                skyRenderer.renderMoon(moonPhase, rainBrightness, poseStack);
+                skyRenderer.renderMoon(moonPhase, moonBrightness, poseStack);
             }
             poseStack.popPose();
         }
