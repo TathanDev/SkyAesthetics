@@ -6,7 +6,11 @@
   "mixins": [
     "AttributeSystemMixin"
   ],
-  "client": [],
+  "client": [
+    "client.FogRendererMixin",
+    "client.LightmapRenderStateExtractorMixin",
+    "client.WeatherEffectRendererMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

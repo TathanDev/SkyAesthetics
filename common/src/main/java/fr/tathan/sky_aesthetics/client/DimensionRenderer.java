@@ -47,9 +47,11 @@ public class DimensionRenderer {
     public final SkyBoxSetting skyBoxSetting;
     public final SkyProperties.RenderCondition renderCondition;
     public final StarSettings.BufferHolder gpuBuffer;
+    public final FogSettings fogSettings;
 
     private final GpuBuffer skyboxBuffer;
     private final int skyboxIndexCount;
+    private final GpuBuffer customFogBuffer;
 
     private final List<ActiveShootingStar> activeShootingStars = new ArrayList<>();
     private final RandomSource shootingStarRng = RandomSource.create();
@@ -64,7 +66,8 @@ public class DimensionRenderer {
                               LightSettings lightSettings,
                               StarSettings starSettings,
                               SkyProperties.RenderCondition renderCondition,
-                              SkyBoxSetting skyBoxSetting) {
+                              SkyBoxSetting skyBoxSetting,
+                              FogSettings fogSettings) {
         this.skyObjects = skyObjects;
         this.weather = weather;
         this.celestialsAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
@@ -77,6 +80,7 @@ public class DimensionRenderer {
         this.gpuBuffer = starSettings.buildCustomStars();
         this.renderCondition = renderCondition;
         this.skyBoxSetting = skyBoxSetting;
+        this.fogSettings = fogSettings;
         if (skyBoxSetting != null) {
             SkyboxMesh mesh = buildSkyboxMesh(skyBoxSetting, this.celestialsAtlas);
             this.skyboxBuffer = mesh.buffer();
@@ -85,6 +89,17 @@ public class DimensionRenderer {
             this.skyboxBuffer = null;
             this.skyboxIndexCount = 0;
         }
+        this.customFogBuffer = (fogSettings != null && fogSettings.needsCustomBuffer())
+                ? fogSettings.buildFogBuffer() : null;
+    }
+
+    /**
+     * Returns the fog GpuBufferSlice to use for this sky's render pass.
+     * When fog settings are present and override vanilla, returns a slice of the
+     * pre-built custom fog buffer; otherwise returns the vanilla skyFog slice.
+     */
+    public GpuBufferSlice getCustomFogSlice(GpuBufferSlice vanillaFog) {
+        return customFogBuffer != null ? customFogBuffer.slice() : vanillaFog;
     }
 
     public boolean canRenderSky() {
@@ -521,6 +536,9 @@ public class DimensionRenderer {
         if (this.skyboxBuffer != null) {
             this.skyboxBuffer.close();
         }
+        if (this.customFogBuffer != null) {
+            this.customFogBuffer.close();
+        }
         activeShootingStars.clear();
     }
 
@@ -579,6 +597,7 @@ public class DimensionRenderer {
         public StarSettings star = StarSettings.createDefaultStars();
         public SkyProperties.RenderCondition renderCondition = null;
         public SkyBoxSetting skyBoxSetting = null;
+        public FogSettings fogSettings = null;
 
         public Builder() {}
 
@@ -632,6 +651,11 @@ public class DimensionRenderer {
             return this;
         }
 
+        public Builder setFogSettings(FogSettings fogSettings) {
+            this.fogSettings = fogSettings;
+            return this;
+        }
+
         public DimensionRenderer build() {
             return new DimensionRenderer(
                     skyObjects,
@@ -643,7 +667,8 @@ public class DimensionRenderer {
                     lightSettings,
                     star,
                     renderCondition,
-                    skyBoxSetting
+                    skyBoxSetting,
+                    fogSettings
             );
         }
     }

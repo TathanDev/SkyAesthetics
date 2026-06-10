@@ -33,7 +33,8 @@ public record SkyProperties(
         Optional<RenderCondition> renderCondition,
         Optional<EnvironmentAttributeMap> environmentAttributes,
         Optional<SkyBoxSetting> skyBoxSetting,
-        Optional<LightSettings> lightSettings
+        Optional<LightSettings> lightSettings,
+        Optional<FogSettings> fogSettings
 ) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -50,7 +51,8 @@ public record SkyProperties(
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
             EnvironmentAttributeMap.CODEC_ONLY_POSITIONAL.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes),
             SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
-            LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings)
+            LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings),
+            FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings)
     ).apply(instance, SkyProperties::new));
 
 
@@ -67,6 +69,7 @@ public record SkyProperties(
         this.lightSettings.ifPresent(builder::setLightSettings);
         this.renderCondition.ifPresent(builder::setRenderCondition);
         this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
+        this.fogSettings.ifPresent(builder::setFogSettings);
 
         return builder.build();
     }
@@ -84,6 +87,7 @@ public record SkyProperties(
                 Optional.of(StarSettings.createDefaultStars()),
                 Optional.empty(),
                 List.of(),
+                Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),

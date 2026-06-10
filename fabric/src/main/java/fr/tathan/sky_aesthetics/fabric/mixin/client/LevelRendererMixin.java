@@ -1,12 +1,17 @@
 package fr.tathan.sky_aesthetics.fabric.mixin.client;
 
+import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.DimensionRenderer;
+import fr.tathan.sky_aesthetics.client.FogDataCapture;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
+import fr.tathan.sky_aesthetics.client.settings.FogSettings;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
+import net.minecraft.client.renderer.fog.FogData;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -59,8 +64,21 @@ public abstract class LevelRendererMixin {
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                         framePass.executes(() -> {
-                            RenderSystem.setShaderFog(skyFog);
-                            SkiesRegistry.getOrBuildRenderer(planetSky).render(skyRenderState, skyRenderer);
+                            DimensionRenderer renderer = SkiesRegistry.getOrBuildRenderer(planetSky);
+                            FogSettings fogSettings = renderer.fogSettings;
+                            if (fogSettings != null && fogSettings.needsDynamicBuffer()) {
+                                FogData vanillaFog = FogDataCapture.getLast();
+                                GpuBuffer dynBuf = vanillaFog != null
+                                        ? fogSettings.buildDynamicFogBuffer(vanillaFog)
+                                        : null;
+                                GpuBufferSlice fogSlice = dynBuf != null ? dynBuf.slice() : skyFog;
+                                RenderSystem.setShaderFog(fogSlice);
+                                renderer.render(skyRenderState, skyRenderer);
+                                if (dynBuf != null) dynBuf.close();
+                            } else {
+                                RenderSystem.setShaderFog(renderer.getCustomFogSlice(skyFog));
+                                renderer.render(skyRenderState, skyRenderer);
+                            }
                         });
                         ci.cancel();
                     }));

@@ -70,17 +70,6 @@ subprojects {
         implementation "fr.tathan.exoconfig:exoconfig-$project.name-$rootProject.minecraft_version:$rootProject.exoconfig_version"
     }
 
-    // ------------------------------------------------------------------------
-    // Loader-only packaging (fabric / neoforge)
-    //
-    // Each loader project compiles against `common` and bundles the
-    // platform-transformed common classes into its own jar through the Shadow
-    // plugin. The shadowed jar (not the raw Loom jar) becomes the project's
-    // primary, published artifact. Platform-specific bits (loader/API deps,
-    // the `transformProduction*` source of `shadowCommon`, resource expansion,
-    // extra jar exclusions, the NeoForge AW -> AT conversion, ...) live in each
-    // subproject's own build.gradle.
-    // ------------------------------------------------------------------------
     if (!isCommon) {
         apply plugin: 'com.gradleup.shadow'
         apply plugin: 'me.modmuss50.mod-publish-plugin'
