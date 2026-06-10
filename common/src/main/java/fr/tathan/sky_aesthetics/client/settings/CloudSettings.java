@@ -2,16 +2,20 @@ package fr.tathan.sky_aesthetics.client.settings;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.joml.Vector3i;
 
-public record CloudSettings(boolean showCloud, Integer cloudHeight) {
+import java.util.Optional;
+
+public record CloudSettings(boolean showCloud, Integer cloudHeight, Optional<Vector3i> cloudColor) {
 
     public static CloudSettings createDefaultSettings() {
-        return new CloudSettings(true, 192);
+        return new CloudSettings(true, 192, Optional.empty());
     }
 
     public static final Codec<CloudSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("cloud").forGetter(CloudSettings::showCloud),
-            Codec.INT.optionalFieldOf("cloud_height", 192).forGetter(CloudSettings::cloudHeight)
+            Codec.INT.optionalFieldOf("cloud_height", 192).forGetter(CloudSettings::cloudHeight),
+            SkyColorSettings.VEC3I.optionalFieldOf("cloud_color").forGetter(CloudSettings::cloudColor)
     ).apply(instance, CloudSettings::new));
 
 }

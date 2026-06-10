@@ -12,6 +12,7 @@ import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.settings.FogSettings;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.client.renderer.fog.FogData;
+import java.util.OptionalInt;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -87,6 +88,12 @@ public abstract class LevelRendererMixin {
                 }
             }
         }
+    }
+
+    @ModifyVariable(method = "addCloudsPass", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    private int overrideCloudColor(int cloudColor) {
+        OptionalInt custom = SkyHelper.getActiveCloudColor(level);
+        return custom.isPresent() ? (cloudColor & 0xFF000000) | (custom.getAsInt() & 0x00FFFFFF) : cloudColor;
     }
 
     @ModifyVariable(method = "addCloudsPass", at = @At("HEAD"), argsOnly = true, ordinal = 1)

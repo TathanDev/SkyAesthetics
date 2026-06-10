@@ -2,6 +2,7 @@
 
 ## Additions
 - Add cloud height
+- Add cloud color
 - Add sky object height
 - Add constellation custom textures
 - Add fog settings

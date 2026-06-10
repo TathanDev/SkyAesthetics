@@ -21,13 +21,6 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
     public static final Map<Identifier, SkyProperties> SKY_PROPERTIES = new HashMap<>();
     private static final Map<Identifier, DimensionRenderer> RENDERER_CACHE = new HashMap<>();
 
-    /**
-     * The default sky used in development, it is not registered in the registry.
-     * It is used to test the sky aesthetics without having to load a custom sky.
-     */
-    public static SkyProperties SKY_DEV = null;
-    public static Boolean USE_SKY_DEV = false;
-
 
     public SkiesRegistry() {
         super(SkyProperties.CODEC, FileToIdConverter.json("sky_aesthetics"));
@@ -67,12 +60,5 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);
         }
         SKY_PROPERTIES.put(id, sky);
-    }
-
-    public static void setSkyDev(SkyProperties sky) {
-        if(SKY_DEV != null) {
-            SkyAesthetics.LOG.warn("Sky dev already set, overwriting it");
-        }
-        SKY_DEV = sky;
     }
 }
