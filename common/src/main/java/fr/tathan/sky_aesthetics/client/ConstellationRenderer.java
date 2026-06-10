@@ -8,10 +8,14 @@ import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
+import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.Constellation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.util.RandomSource;
 import org.joml.*;
 
@@ -25,10 +29,11 @@ import java.util.OptionalInt;
 
 public class ConstellationRenderer {
 
-    private record BufferEntry(GpuBuffer gpuBuffer, int indexCount) {}
+    private record BufferEntry(GpuBuffer gpuBuffer, int indexCount, boolean textured) {}
 
     private static final Map<String, BufferEntry> BUFFERS = new HashMap<>();
     private static boolean dirty = true;
+    private static TextureAtlas celestialAtlas;
 
     /** Called from ConstellationsData.apply() — just marks buffers stale, no GPU work. */
     public static void invalidate() {
@@ -56,6 +61,7 @@ public class ConstellationRenderer {
     private static void rebuildBuffers() {
         BUFFERS.values().forEach(e -> e.gpuBuffer().close());
         BUFFERS.clear();
+        celestialAtlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(AtlasIds.CELESTIALS);
 
         for (Constellation c : ConstellationsData.CONSTELLATIONS.values()) {
             BufferEntry entry = buildBuffer(c);
@@ -74,15 +80,19 @@ public class ConstellationRenderer {
 
         int totalPoints = allPoints.size();
         float quadHalf = Math.max(c.scale() * 0.3f, 0.05f);
+        boolean textured = c.starTexture().isPresent();
+        VertexFormat format = textured ? DefaultVertexFormat.POSITION_TEX : DefaultVertexFormat.POSITION;
 
         RandomSource rng = RandomSource.create(c.id().hashCode());
+
+        TextureAtlasSprite sprite = textured ? celestialAtlas.getSprite(c.starTexture().get()) : null;
 
         GpuBuffer gpuBuffer;
         int indexCount;
 
         try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
-                DefaultVertexFormat.POSITION.getVertexSize() * totalPoints * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+                format.getVertexSize() * totalPoints * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, format);
 
             for (net.minecraft.world.phys.Vec3 point : allPoints) {
                 Vector3f pos = new Vector3f((float) point.x, (float) point.y, (float) point.z).normalize(100.0F);
@@ -92,10 +102,22 @@ public class ConstellationRenderer {
                         .rotateTowards(new Vector3f(pos).negate(), new Vector3f(0.0F, 1.0F, 0.0F))
                         .rotateZ(-angle);
 
-                bufferBuilder.addVertex(new Vector3f(k, -k, 0.0F).mul(orient).add(pos));
-                bufferBuilder.addVertex(new Vector3f(k,  k, 0.0F).mul(orient).add(pos));
-                bufferBuilder.addVertex(new Vector3f(-k, k, 0.0F).mul(orient).add(pos));
-                bufferBuilder.addVertex(new Vector3f(-k, -k, 0.0F).mul(orient).add(pos));
+                Vector3f br = new Vector3f(k,  -k, 0.0F).mul(orient).add(pos);
+                Vector3f tr = new Vector3f(k,   k, 0.0F).mul(orient).add(pos);
+                Vector3f tl = new Vector3f(-k,  k, 0.0F).mul(orient).add(pos);
+                Vector3f bl = new Vector3f(-k, -k, 0.0F).mul(orient).add(pos);
+
+                if (textured) {
+                    bufferBuilder.addVertex(br).setUv(sprite.getU1(), sprite.getV1());
+                    bufferBuilder.addVertex(tr).setUv(sprite.getU1(), sprite.getV0());
+                    bufferBuilder.addVertex(tl).setUv(sprite.getU0(), sprite.getV0());
+                    bufferBuilder.addVertex(bl).setUv(sprite.getU0(), sprite.getV1());
+                } else {
+                    bufferBuilder.addVertex(br);
+                    bufferBuilder.addVertex(tr);
+                    bufferBuilder.addVertex(tl);
+                    bufferBuilder.addVertex(bl);
+                }
             }
 
             try (MeshData meshData = bufferBuilder.buildOrThrow()) {
@@ -106,7 +128,7 @@ public class ConstellationRenderer {
             }
         }
 
-        return new BufferEntry(gpuBuffer, indexCount);
+        return new BufferEntry(gpuBuffer, indexCount, textured);
     }
 
     private static void renderOne(Constellation c, PoseStack poseStack, float brightness) {
@@ -135,7 +157,12 @@ public class ConstellationRenderer {
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
                 .createRenderPass(() -> "Constellation " + c.id(), colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
-            renderPass.setPipeline(RenderPipelines.STARS);
+            if (entry.textured()) {
+                renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_BLEND);
+                renderPass.bindTexture("Sampler0", celestialAtlas.getTextureView(), celestialAtlas.getSampler());
+            } else {
+                renderPass.setPipeline(RenderPipelines.STARS);
+            }
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.setVertexBuffer(0, entry.gpuBuffer());

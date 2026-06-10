@@ -22,7 +22,7 @@ import java.util.Optional;
 public record SkyProperties(
         ResourceKey<Level> world,
         Identifier id,
-        Optional<Boolean> cloudSettings,
+        Optional<CloudSettings> cloudSettings,
         Boolean weather,
         Optional<CustomVanillaObject> customVanillaObject,
         Optional<CustomVanillaObject.Sun> sun,
@@ -40,7 +40,7 @@ public record SkyProperties(
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceKey.codec(Registries.DIMENSION).fieldOf("world").forGetter(SkyProperties::world),
             Identifier.CODEC.fieldOf("id").forGetter(SkyProperties::id),
-            Codec.BOOL.optionalFieldOf("cloud").forGetter(SkyProperties::cloudSettings),
+            CloudSettings.CODEC.optionalFieldOf("cloud_settings").forGetter(SkyProperties::cloudSettings),
             Codec.BOOL.optionalFieldOf("weather", true).forGetter(SkyProperties::weather),
             CustomVanillaObject.CODEC.optionalFieldOf("custom_vanilla_object").forGetter(SkyProperties::customVanillaObject),
             CustomVanillaObject.Sun.CODEC.optionalFieldOf("sun").forGetter(SkyProperties::sun),
@@ -79,7 +79,7 @@ public record SkyProperties(
         return new SkyProperties(
                 ResourceKey.create(Registries.DIMENSION, Identifier.parse("overworld")),
                 Identifier.parse("default"),
-                Optional.of(true),
+                Optional.empty(),
                 true,
                 Optional.of(CustomVanillaObject.createDefaultSettings()),
                 Optional.empty(),
@@ -97,7 +97,13 @@ public record SkyProperties(
 
 
     public boolean renderClouds() {
-        return this.cloudSettings.orElse(true);
+        return this.cloudSettings.map(CloudSettings::showCloud).orElse(true);
+    }
+
+    public java.util.OptionalInt cloudHeight() {
+        return this.cloudSettings
+                .map(cs -> java.util.OptionalInt.of(cs.cloudHeight()))
+                .orElse(java.util.OptionalInt.empty());
     }
 
 

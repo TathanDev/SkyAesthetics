@@ -11,7 +11,7 @@ public record CloudSettings(boolean showCloud, Integer cloudHeight) {
 
     public static final Codec<CloudSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.BOOL.fieldOf("cloud").forGetter(CloudSettings::showCloud),
-            Codec.INT.fieldOf("cloud_height").forGetter(CloudSettings::cloudHeight)
+            Codec.INT.optionalFieldOf("cloud_height", 192).forGetter(CloudSettings::cloudHeight)
     ).apply(instance, CloudSettings::new));
 
 }

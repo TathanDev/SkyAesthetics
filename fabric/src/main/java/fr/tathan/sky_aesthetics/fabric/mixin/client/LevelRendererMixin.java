@@ -28,6 +28,7 @@ import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = LevelRenderer.class, priority = 900)
@@ -88,6 +89,11 @@ public abstract class LevelRendererMixin {
         }
     }
 
+    @ModifyVariable(method = "addCloudsPass", at = @At("HEAD"), argsOnly = true, ordinal = 1)
+    private float overrideCloudHeight(float cloudHeight) {
+        return (float) SkyHelper.getActiveCloudHeight(level).orElse((int) cloudHeight);
+    }
+
     @Inject(method = "addCloudsPass", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(FrameGraphBuilder frame, CloudStatus cloudStatus, Vec3 cameraPosition, long gameTime, float partialTicks, int cloudColor, float cloudHeight, int cloudRange, CallbackInfo ci) {
         SkyHelper.canRenderSky(level, (planetSky -> {
@@ -101,32 +107,4 @@ public abstract class LevelRendererMixin {
         }));
     }
 
-    /*
-//    @Inject(method = "tickParticles", at = @At(value = "HEAD"), cancellable = true)
-//    public void cancelSnowAndRainRenderer(Camera camera, CallbackInfo ci) {
-//        SkyHelper.canRenderSky(level, (planetSky -> {
-//            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-//                ci.cancel();
-//            }
-//        }));
-//    }
-
-
-    @Inject(method = "renderSnowAndRain", at = @At(value = "HEAD"), cancellable = true)
-    private void cancelSnowAndRainRenderer(LightTexture lightTexture, float partialTick, double camX, double camY, double camZ, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-                ci.cancel();
-            }
-        }));
-    }
-
-    @Inject(method = "tickRain", at = @At(value = "HEAD"), cancellable = true)
-    private void canRain(Camera camera, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
-            if(!planetSky.getRenderer().weather && !(SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather) || SkyAesthetics.CONFIG.disableCustomWeather)) {
-                ci.cancel();
-            }
-        }));
-    }*/
 }

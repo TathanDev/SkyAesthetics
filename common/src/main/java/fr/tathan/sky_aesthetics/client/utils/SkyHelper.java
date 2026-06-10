@@ -8,6 +8,7 @@ import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.world.level.Level;
 
 import java.util.Arrays;
+import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 public class SkyHelper {
@@ -38,6 +39,22 @@ public class SkyHelper {
             }
         }
         return false;
+    }
+
+    public static OptionalInt getActiveCloudHeight(Level level) {
+        if (SkiesRegistry.SKY_DEV != null && SkiesRegistry.USE_SKY_DEV
+                && level.dimension().equals(SkiesRegistry.SKY_DEV.world())) {
+            return SkiesRegistry.SKY_DEV.cloudHeight();
+        }
+        for (SkyProperties sky : SkiesRegistry.SKY_PROPERTIES.values()) {
+            if (sky.world().equals(level.dimension())) {
+                if (Arrays.stream(SkyAesthetics.CONFIG.disabledSkies).anyMatch(s -> s.equals(sky.id().toString()))) continue;
+                if (Arrays.stream(SkyAesthetics.CONFIG.disabledDimensions).anyMatch(s -> s.equals(sky.world().identifier().toString()))) continue;
+                if (sky.renderCondition().isPresent() && !sky.renderCondition().get().isSkyRendered(DimensionRenderer.getServerLevel())) continue;
+                return sky.cloudHeight();
+            }
+        }
+        return OptionalInt.empty();
     }
 
     public static boolean isAModCancelRendering(String[] modIds) {
