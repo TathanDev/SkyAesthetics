@@ -1,6 +1,7 @@
-# Sky Aesthetics 2.1 Changelog
+# Sky Aesthetics 2.1.0 for MC 26.1.x changelog
 
 ## Additions
+- Add a brand new in-game resource pack builder (no longer require owolib) 
 - Add cloud height setting
 - Add cloud color setting
 - Add sky object height setting
@@ -13,4 +14,5 @@
 - Enabling/disabling sun and moon is now done in their own section
 
 ## Fixes
-- Fixed celestial bodies blending
+- Fix celestial bodies blending
+- Fix moon/sun size setting

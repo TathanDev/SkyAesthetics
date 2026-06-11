@@ -10,16 +10,22 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * The registry handling the loading of custom skies from data packs
  */
 public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull SkyProperties>  {
 
-    public static final Map<Identifier, SkyProperties> SKY_PROPERTIES = new HashMap<>();
-    private static final Map<Identifier, DimensionRenderer> RENDERER_CACHE = new HashMap<>();
+    public static final Map<Identifier, SkyProperties> SKY_PROPERTIES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, DimensionRenderer> RENDERER_CACHE = new ConcurrentHashMap<>();
+
+    /**
+     * A live-preview sky pushed from the in-game editor. When set it takes priority over the
+     * loaded skies for its dimension (see {@link fr.tathan.sky_aesthetics.client.utils.SkyHelper}).
+     */
+    private static volatile SkyProperties previewSky;
 
 
     public SkiesRegistry() {
@@ -31,6 +37,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
         RENDERER_CACHE.forEach((id, renderer) -> renderer.close());
         RENDERER_CACHE.clear();
         SKY_PROPERTIES.clear();
+        previewSky = null;
         SkyAesthetics.LOG.info("Registering skies...");
         object.forEach((key, skyProperties) -> {
 
@@ -47,6 +54,34 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
      */
     public static DimensionRenderer getOrBuildRenderer(SkyProperties sky) {
         return RENDERER_CACHE.computeIfAbsent(sky.id(), id -> sky.toDimensionRenderer());
+    }
+
+    /** The current live-preview sky, or {@code null} when preview is inactive. */
+    public static SkyProperties getPreviewSky() {
+        return previewSky;
+    }
+
+    /**
+     * Sets (or replaces) the live-preview sky. Drops any cached renderer for its id so the edited
+     * version is rebuilt on the next frame.
+     */
+    public static void setPreviewSky(SkyProperties sky) {
+        if (previewSky != null) invalidate(previewSky.id()); // close renderer for the old preview id
+        invalidate(sky.id()); // force rebuild for the new sky
+        previewSky = sky;
+    }
+
+    /** Clears the live-preview sky and drops its cached renderer. */
+    public static void clearPreviewSky() {
+        if (previewSky != null) {
+            invalidate(previewSky.id());
+            previewSky = null;
+        }
+    }
+
+    private static void invalidate(Identifier id) {
+        DimensionRenderer old = RENDERER_CACHE.remove(id);
+        if (old != null) old.close();
     }
 
     /**

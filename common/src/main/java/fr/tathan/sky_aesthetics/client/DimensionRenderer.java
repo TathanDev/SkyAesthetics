@@ -35,6 +35,9 @@ import java.util.OptionalInt;
  */
 public class DimensionRenderer {
 
+    private static final float VANILLA_SUN_SIZE = 30.0f;
+    private static final float VANILLA_MOON_SIZE = 20.0f;
+
     public final List<SkyObject> skyObjects;
     public final TextureAtlas celestialsAtlas;
     public final StarSettings starSettings;
@@ -156,6 +159,10 @@ public class DimensionRenderer {
             if (this.customSun != null && this.customSun.sunTexture().isPresent()) {
                 renderCustomSun(sunBrightness, poseStack);
             } else {
+                if (this.customSun != null && this.customSun.size() != VANILLA_SUN_SIZE) {
+                    float factor = this.customSun.size() / VANILLA_SUN_SIZE;
+                    poseStack.scale(factor, 1.0f, factor);
+                }
                 skyRenderer.renderSun(sunBrightness, poseStack);
             }
             poseStack.popPose();
@@ -168,6 +175,10 @@ public class DimensionRenderer {
             if (this.customMoon != null && this.customMoon.moonTexture().isPresent()) {
                 renderCustomMoon(moonPhase, moonBrightness, poseStack);
             } else {
+                if (this.customMoon != null && this.customMoon.size() != VANILLA_MOON_SIZE) {
+                    float factor = this.customMoon.size() / VANILLA_MOON_SIZE;
+                    poseStack.scale(factor, 1.0f, factor);
+                }
                 skyRenderer.renderMoon(moonPhase, moonBrightness, poseStack);
             }
             poseStack.popPose();
