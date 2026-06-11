@@ -478,7 +478,9 @@ public class DimensionRenderer {
         if (alpha <= 0) return;
 
         Vec3 c = star.config.color();
-        Vector4f colorUniform = new Vector4f((float) c.x / 255f, (float) c.y / 255f, (float) c.z / 255f, alpha);
+        int cr = (int)(c.x * 255);
+        int cg = (int)(c.y * 255);
+        int cb = (int)(c.z * 255);
 
         Vector3f pos = star.position;
         Vector3f dir = star.direction;
@@ -496,12 +498,12 @@ public class DimensionRenderer {
         GpuBuffer shootingStarBuffer;
         int indexCount;
         try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
-                DefaultVertexFormat.POSITION.getVertexSize() * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
-            bufferBuilder.addVertex(v0.x, v0.y, v0.z);
-            bufferBuilder.addVertex(v1.x, v1.y, v1.z);
-            bufferBuilder.addVertex(v2.x, v2.y, v2.z);
-            bufferBuilder.addVertex(v3.x, v3.y, v3.z);
+                DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            bufferBuilder.addVertex(v1.x, v1.y, v1.z).setColor(cr, cg, cb, 255);
+            bufferBuilder.addVertex(v0.x, v0.y, v0.z).setColor(cr, cg, cb, 255);
+            bufferBuilder.addVertex(v3.x, v3.y, v3.z).setColor(cr, cg, cb, 255);
+            bufferBuilder.addVertex(v2.x, v2.y, v2.z).setColor(cr, cg, cb, 255);
             try (MeshData meshData = bufferBuilder.buildOrThrow()) {
                 indexCount = meshData.drawState().indexCount();
                 shootingStarBuffer = RenderSystem.getDevice().createBuffer(
@@ -519,12 +521,13 @@ public class DimensionRenderer {
         GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
         GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
 
+        // Color is in vertex attributes; DynamicTransforms alpha carries the fade
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
-                .writeTransform(matrix4fStack, colorUniform, new Vector3f(), new Matrix4f());
+                .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, alpha), new Vector3f(), new Matrix4f());
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
                 .createRenderPass(() -> "Shooting star", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
-            renderPass.setPipeline(RenderPipelines.STARS);
+            renderPass.setPipeline(RenderPipelineRegistry.COLORED_STARS);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.setVertexBuffer(0, shootingStarBuffer);

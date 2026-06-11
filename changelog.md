@@ -16,3 +16,5 @@
 ## Fixes
 - Fix celestial bodies blending
 - Fix moon/sun size setting
+- Fix colored star
+- Fix shooting star

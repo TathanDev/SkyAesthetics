@@ -212,14 +212,16 @@ public class SkyEditorScreen extends Screen {
     private void populateStars(FormBuilder f, EditableSky sky) {
         f.wide(section("Enable stars", sky.stars.enabled, b -> sky.stars.enabled = b));
         if (!sky.stars.enabled) return;
-        f.wide(EditorWidgets.check(font, lit("Vanilla stars"), sky.stars.vanilla, b -> sky.stars.vanilla = b));
-        f.wide(EditorWidgets.check(font, lit("Moving stars"), sky.stars.movingStars, b -> sky.stars.movingStars = b));
-        f.labelled(lit("Count"), EditorWidgets.number(font, String.valueOf(sky.stars.count),
-                s -> sky.stars.count = EditorWidgets.parseInt(s, sky.stars.count)));
-        f.wide(EditorWidgets.check(font, lit("Visible all day"), sky.stars.allDaysVisible, b -> sky.stars.allDaysVisible = b));
-        f.labelled(lit("Scale"), EditorWidgets.number(font, String.valueOf(sky.stars.scale),
-                s -> sky.stars.scale = EditorWidgets.parseFloat(s, sky.stars.scale)));
-        f.labelled(lit("Color"), ColorButton.forVec3i(this, sky.stars.color));
+        f.wide(section("Vanilla stars", sky.stars.vanilla, b -> sky.stars.vanilla = b));
+        if (!sky.stars.vanilla) {
+            f.wide(EditorWidgets.check(font, lit("Moving stars"), sky.stars.movingStars, b -> sky.stars.movingStars = b));
+            f.labelled(lit("Count"), EditorWidgets.number(font, String.valueOf(sky.stars.count),
+                    s -> sky.stars.count = EditorWidgets.parseInt(s, sky.stars.count)));
+            f.wide(EditorWidgets.check(font, lit("Visible all day"), sky.stars.allDaysVisible, b -> sky.stars.allDaysVisible = b));
+            f.labelled(lit("Scale"), EditorWidgets.number(font, String.valueOf(sky.stars.scale),
+                    s -> sky.stars.scale = EditorWidgets.parseFloat(s, sky.stars.scale)));
+            f.labelled(lit("Color"), ColorButton.forVec3i(this, sky.stars.color));
+        }
 
         f.wide(section("Shooting stars", sky.stars.shootingEnabled, b -> sky.stars.shootingEnabled = b));
         if (sky.stars.shootingEnabled) {

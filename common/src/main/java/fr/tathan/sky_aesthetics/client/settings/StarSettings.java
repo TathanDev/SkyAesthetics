@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
@@ -72,9 +73,8 @@ public record StarSettings(
         int indexCount = 0;
 
         GpuBuffer var19;
-        // Create a ByteBufferBuilder with an estimated size
-        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION.getVertexSize() * this.count() * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION);
+        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION_COLOR.getVertexSize() * this.count() * 4)) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
             for(int i = 0; i < this.count(); ++i) {
                 float g = randomSource.nextFloat() * 2.0F - 1.0F;
@@ -84,18 +84,17 @@ public record StarSettings(
                 float l = Mth.lengthSquared(g, h, j);
                 if (!(l <= 0.010000001F) && !(l >= 1.0F)) {
 
-                    int color1 = this.color().x == -1 ? i : this.color().x / 255;
-                    int color2 = this.color().y == -1 ? i : this.color().y / 255;
-                    int color3 = this.color().z == -1 ? i : this.color().z / 255;
-
+                    int color1 = this.color().x == -1 ? (i & 0xFF) : this.color().x;
+                    int color2 = this.color().y == -1 ? (i & 0xFF) : this.color().y;
+                    int color3 = this.color().z == -1 ? (i & 0xFF) : this.color().z;
 
                     Vector3f vector3f = (new Vector3f(g, h, j)).normalize(100.0F);
                     float m = (float)(randomSource.nextDouble() * (double)(float)Math.PI * (double)2.0F);
                     Matrix3f matrix3f = (new Matrix3f()).rotateTowards((new Vector3f(vector3f)).negate(), new Vector3f(0.0F, 1.0F, 0.0F)).rotateZ(-m);
-                    bufferBuilder.addVertex((new Vector3f(k, -k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 1);
-                    bufferBuilder.addVertex((new Vector3f(k, k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 1);
-                    bufferBuilder.addVertex((new Vector3f(-k, k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 1);
-                    bufferBuilder.addVertex((new Vector3f(-k, -k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 1);
+                    bufferBuilder.addVertex((new Vector3f(k, -k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 255);
+                    bufferBuilder.addVertex((new Vector3f(k, k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 255);
+                    bufferBuilder.addVertex((new Vector3f(-k, k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 255);
+                    bufferBuilder.addVertex((new Vector3f(-k, -k, 0.0F)).mul(matrix3f).add(vector3f)).setColor(color1, color2, color3, 255);
                 }
             }
 
@@ -129,9 +128,9 @@ public record StarSettings(
             poseStack.mulPose(Axis.XP.rotation(starsAngle));
 
             if(this.allDaysVisible()) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1, this.color);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1f);
             } else if (isNightTime) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness, this.color);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness);
             }
             poseStack.popPose();
 
@@ -140,21 +139,21 @@ public record StarSettings(
     }
 
     public record BufferHolder(GpuBuffer gpuBuffer, int indexCount) {
-        public void render(PoseStack poseStack, RenderSystem.AutoStorageIndexBuffer quadIndices, float starBrightness, Vector3i color) {
+        public void render(PoseStack poseStack, RenderSystem.AutoStorageIndexBuffer quadIndices, float starBrightness) {
             Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
             matrix4fStack.pushMatrix();
             matrix4fStack.mul(poseStack.last().pose());
-            RenderPipeline renderPipeline = RenderPipelines.STARS;
             GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
             GpuTextureView gpuTextureView2 = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
             GpuBuffer gpuBuffer = quadIndices.getBuffer(this.indexCount);
 
-            Vector4f veColor = new Vector4f(color.x / 255f, color.y / 255f, color.z / 255f, starBrightness);
+            // Color is baked into vertex attributes; DynamicTransforms alpha controls brightness
+            Vector4f veColor = new Vector4f(1f, 1f, 1f, starBrightness);
 
             GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, veColor, new Vector3f(), new Matrix4f());
 
             try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Stars", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
-                renderPass.setPipeline(renderPipeline);
+                renderPass.setPipeline(RenderPipelineRegistry.COLORED_STARS);
                 RenderSystem.bindDefaultUniforms(renderPass);
                 renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
                 renderPass.setVertexBuffer(0, this.gpuBuffer);
