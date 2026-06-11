@@ -37,8 +37,7 @@
   "sky_aesthetics.editor.confirm.title": "Discard changes?",
   "sky_aesthetics.editor.confirm.message": "You have unsaved changes to this sky pack. Export it to keep them. Close the editor anyway?",
 
-  "config.sky_aesthetics.disableCustomSkies": "Disable Custom Skies",
   "config.sky_aesthetics.disableCustomCloud": "Disable Custom Clouds",
-  "config.sky_aesthetics.disableCustomWeather": "Disable Custom Skies",
+  "config.sky_aesthetics.disableCustomWeather": "Disable Custom Weather",
   "config.sky_aesthetics.disabledSkies": "Disabled Skies"
 }

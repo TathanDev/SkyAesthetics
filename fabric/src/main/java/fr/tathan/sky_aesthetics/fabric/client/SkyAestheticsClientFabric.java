@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.fabric;
+package fr.tathan.sky_aesthetics.fabric.client;
 
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.screens.editor.SkyEditorEntry;

@@ -12,9 +12,12 @@
 
 ## Changes
 - Enabling/disabling sun and moon is now done in their own section
+- Update Exo Config to 0.3.2
 
 ## Fixes
 - Fix celestial bodies blending
 - Fix moon/sun size setting
 - Fix colored star
 - Fix shooting star
+- Fix modmenu compat
+- Fix config
