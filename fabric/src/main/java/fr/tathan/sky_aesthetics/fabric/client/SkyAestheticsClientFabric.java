@@ -3,6 +3,8 @@ package fr.tathan.sky_aesthetics.fabric.client;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.screens.editor.SkyEditorEntry;
 import fr.tathan.exoconfig.platform.PlatformClientHelper;
+import fr.tathan.sky_aesthetics.client.SkyAestheticClients;
+
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
@@ -21,6 +23,7 @@ public final class SkyAestheticsClientFabric implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        SkyAestheticClients.init();
         PlatformClientHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
 
         onAddReloadListener();

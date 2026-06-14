@@ -29,7 +29,6 @@ public final class SkyAesthetics {
 
     public static void init() {
         CONFIG = ConfigsRegistry.getInstance().registerConfig(new SkyConfig(), CONFIG);
-        RenderPipelineRegistry.init();
     }
 
 

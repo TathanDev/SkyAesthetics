@@ -1,6 +1,8 @@
 package fr.tathan.sky_aesthetics.neoforge;
 
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.SkyAestheticClients;
+
 import fr.tathan.sky_aesthetics.client.screens.editor.SkyEditorEntry;
 import fr.tathan.exoconfig.platform.PlatformClientHelper;
 import net.minecraft.commands.Commands;
@@ -32,6 +34,8 @@ public final class SkyAestheticsNeoForge {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
+            SkyAestheticClients.init();
+
             PlatformClientHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
         }
 
