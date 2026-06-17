@@ -36,8 +36,5 @@
     "minecraft": "~26.1",
     "java": ">=25",
     "fabric-api": "*"
-  },
-  "suggests": {
-    "owo": "*"
   }
 }

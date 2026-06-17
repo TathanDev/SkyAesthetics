@@ -11,7 +11,6 @@ import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
