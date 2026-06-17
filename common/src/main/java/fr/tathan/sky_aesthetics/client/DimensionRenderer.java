@@ -588,7 +588,7 @@ public class DimensionRenderer {
     public static ServerLevel getServerLevel() {
         Minecraft minecraft = Minecraft.getInstance();
         IntegratedServer integratedServer = minecraft.getSingleplayerServer();
-        return integratedServer != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
+        return integratedServer != null && minecraft.level != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
 
     // -------------------------------------------------------------------------
