@@ -42,7 +42,7 @@ public final class SkyAestheticsClientFabric implements ClientModInitializer {
     }
 
     public static void onAddReloadListener() {
-        SkyAesthetics.onAddReloadListenerEvent((id, listener) -> ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
+        SkyAestheticClients.onAddReloadListenerEvent((id, listener) -> ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(new IdentifiableResourceReloadListener() {
             @Override
             public CompletableFuture<Void> reload(SharedState sharedState, Executor exectutor, PreparationBarrier barrier, Executor applyExectutor) {
                 return listener.reload(sharedState, exectutor, barrier, applyExectutor);

@@ -5,15 +5,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.Strictness;
 import com.google.gson.ToNumberPolicy;
 import fr.tathan.exoconfig.common.loader.ConfigsRegistry;
-import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
-import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.config.SkyConfig;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.PreparableReloadListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.BiConsumer;
 
 public final class SkyAesthetics {
     public static final String MODID = "sky_aesthetics";
@@ -31,8 +25,4 @@ public final class SkyAesthetics {
     }
 
 
-    public static void onAddReloadListenerEvent(BiConsumer<Identifier, PreparableReloadListener> registry) {
-        registry.accept(Identifier.fromNamespaceAndPath(MODID, "constellation"), new ConstellationsData());
-        registry.accept(Identifier.fromNamespaceAndPath(MODID, "sky_aesthetics"), new SkiesRegistry());
-    }
 }
