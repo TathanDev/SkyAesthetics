@@ -58,9 +58,9 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
 
         poseStack.mulPose(Axis.YP.rotationDegrees(this.rotation().y));
         if(Objects.equals(this.rotationType(), "DAY")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle));
+            poseStack.mulPose(Axis.XP.rotation(dayAngle));
         } else if(Objects.equals(this.rotationType(), "NIGHT")) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(dayAngle + 180));
+            poseStack.mulPose(Axis.XP.rotation(dayAngle + (float) Math.PI));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(this.rotation().x));
         }
@@ -86,7 +86,6 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
 
     public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotation(sunAngle));
 
         this.setObjectRotation(poseStack);
         this.setObjectPosition(poseStack, sunAngle);
@@ -119,6 +118,8 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         }
 
         matrix4fStack.popMatrix();
+
+        objectBuffer.close();
 
         poseStack.popPose();
 
