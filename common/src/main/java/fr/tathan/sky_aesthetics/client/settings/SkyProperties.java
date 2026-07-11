@@ -8,7 +8,6 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Util;
 import net.minecraft.world.attribute.EnvironmentAttributeMap;
@@ -114,8 +113,10 @@ public record SkyProperties(
 
 
 
-        public boolean isSkyRendered(ServerLevel level) {
-            LocalPlayer player = Minecraft.getInstance().player;
+        public boolean isSkyRendered() {
+            Minecraft minecraft = Minecraft.getInstance();
+            LocalPlayer player = minecraft.player;
+            Level level = minecraft.level;
 
             if (player == null || level == null) return false;
 

@@ -63,7 +63,7 @@ public record StarSettings(
 
     public BufferHolder buildCustomStars() {
 
-        if(this.vanilla || this.count() < 100) {
+        if(this.vanilla || this.count() <= 0) {
             return null;
         }
 
@@ -107,7 +107,7 @@ public record StarSettings(
 
 
 
-    public void renderStars(PoseStack poseStack, SkyRenderState skyRenderState, SkyRenderer skyRenderer, float nightAngle, @Nullable BufferHolder customStarBuffer) {
+    public void renderStars(PoseStack poseStack, SkyRenderState skyRenderState, SkyRenderer skyRenderer, @Nullable BufferHolder customStarBuffer) {
 
         boolean isNightTime = skyRenderState.starBrightness > 0.0F;
 
@@ -119,7 +119,7 @@ public record StarSettings(
             return;
         }
 
-        float starsAngle = !this.movingStars() ? skyRenderState.starAngle : nightAngle;
+        float starsAngle = this.movingStars() ? skyRenderState.starAngle : 0.0f;
 
         if(customStarBuffer != null) {
             poseStack.pushPose();
