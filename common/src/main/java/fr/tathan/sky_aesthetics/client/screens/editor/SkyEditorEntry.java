@@ -2,6 +2,7 @@ package fr.tathan.sky_aesthetics.client.screens.editor;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
@@ -58,6 +59,10 @@ public final class SkyEditorEntry {
      * the key reopens the existing editor (preserving edits) instead of spawning a fresh one.
      */
     public static void handleKeyInput() {
+        if (Minecraft.getInstance().level == null) {
+            peekingScreen = null;
+            SkiesRegistry.clearPreviewSky();
+        }
         while (OPEN_EDITOR.consumeClick()) {
             openEditor();
         }
