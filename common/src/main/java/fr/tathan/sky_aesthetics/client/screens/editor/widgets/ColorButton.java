@@ -48,7 +48,7 @@ public class ColorButton extends AbstractButton {
 
     @Override
     public void onPress(InputWithModifiers input) {
-        Minecraft.getInstance().setScreen(new ColorPickerScreen(parent, getter.get(), hasAlpha, setter));
+        Minecraft.getInstance().gui.setScreen(new ColorPickerScreen(parent, getter.get(), hasAlpha, setter));
     }
 
     @Override

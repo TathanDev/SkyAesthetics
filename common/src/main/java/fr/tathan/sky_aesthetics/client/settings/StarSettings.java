@@ -1,7 +1,9 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -72,7 +74,7 @@ public record StarSettings(
 
         GpuBuffer var19;
         try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(DefaultVertexFormat.POSITION_COLOR.getVertexSize() * this.count() * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
             for(int i = 0; i < this.count(); ++i) {
                 float g = randomSource.nextFloat() * 2.0F - 1.0F;
@@ -126,9 +128,9 @@ public record StarSettings(
             poseStack.mulPose(Axis.XP.rotation(starsAngle));
 
             if(this.allDaysVisible()) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1f);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS), 1f);
             } else if (isNightTime) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS), skyRenderState.starBrightness);
             }
             poseStack.popPose();
 
@@ -141,8 +143,9 @@ public record StarSettings(
             Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
             matrix4fStack.pushMatrix();
             matrix4fStack.mul(poseStack.last().pose());
-            GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-            GpuTextureView gpuTextureView2 = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+            RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+            GpuTextureView gpuTextureView = mainRenderTarget.getColorTextureView();
+            GpuTextureView gpuTextureView2 = mainRenderTarget.getDepthTextureView();
             GpuBuffer gpuBuffer = quadIndices.getBuffer(this.indexCount);
 
             // Color is baked into vertex attributes; DynamicTransforms alpha controls brightness
@@ -150,19 +153,17 @@ public record StarSettings(
 
             GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, veColor, new Vector3f(), new Matrix4f());
 
-            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Stars", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
+            try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Stars", gpuTextureView, Optional.empty(), gpuTextureView2, OptionalDouble.empty())) {
                 renderPass.setPipeline(RenderPipelineRegistry.COLORED_STARS);
                 RenderSystem.bindDefaultUniforms(renderPass);
                 renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
-                renderPass.setVertexBuffer(0, this.gpuBuffer);
+                renderPass.setVertexBuffer(0, this.gpuBuffer.slice());
                 renderPass.setIndexBuffer(gpuBuffer, quadIndices.type());
-                renderPass.drawIndexed(0, 0, indexCount, 1);
+                renderPass.drawIndexed(indexCount, 1, 0, 0, 0);
             }
 
             matrix4fStack.popMatrix();
-
         }
-
     }
 
     /**

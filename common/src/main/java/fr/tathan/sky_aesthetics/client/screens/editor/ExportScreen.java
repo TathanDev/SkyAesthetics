@@ -56,13 +56,13 @@ public class ExportScreen extends Screen {
                 .bounds(bx, y, bw, 20).build());
         this.addRenderableWidget(Button.builder(
                 Component.translatable("sky_aesthetics.editor.action.export"), b -> {
-                    this.minecraft.setScreen(parent);
+                    this.minecraft.gui.setScreen(parent);
                     onConfirm.run();
                 }).bounds(bx + bw + gap, y, bw, 20).build());
     }
 
     @Override
     public void onClose() {
-        this.minecraft.setScreen(parent);
+        this.minecraft.gui.setScreen(parent);
     }
 }

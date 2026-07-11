@@ -1,4 +1,4 @@
-package fr.tathan.sky_aesthetics.mixin;
+package fr.tathan.sky_aesthetics.mixin.client;
 
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import net.minecraft.world.attribute.EnvironmentAttributeSystem;

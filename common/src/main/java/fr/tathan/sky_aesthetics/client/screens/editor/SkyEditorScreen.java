@@ -8,6 +8,7 @@ import fr.tathan.sky_aesthetics.client.screens.editor.tabs.EditorTab;
 import fr.tathan.sky_aesthetics.client.screens.editor.export.SkyPackExporter;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.serialization.JsonOps;
+import net.minecraft.client.gui.components.tabs.MenuTabBar;
 import net.minecraft.client.input.KeyEvent;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.ColorButton;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.EditorWidgets;
@@ -96,11 +97,11 @@ public class SkyEditorScreen extends Screen {
         });
 
         tabs = buildTabs();
-        tabNavigationBar = TabNavigationBar.builder(tabManager, this.width)
+        tabNavigationBar = MenuTabBar.builder(tabManager, this.width)
                 .addTabs(tabs.toArray(new Tab[0]))
                 .build();
         this.addRenderableWidget(tabNavigationBar);
-        tabNavigationBar.arrangeElements();
+        tabNavigationBar.arrangeElements(this.width);
 
         int contentTop = tabNavigationBar.getRectangle().bottom();
         int footerTop = this.height - FOOTER_HEIGHT;
@@ -375,7 +376,7 @@ public class SkyEditorScreen extends Screen {
         Button peek = Button.builder(Component.translatable("sky_aesthetics.editor.action.peek"),
                 b -> togglePeek()).width(80).build();
         Button export = Button.builder(Component.translatable("sky_aesthetics.editor.action.export"),
-                b -> this.minecraft.setScreen(new ExportScreen(this, pack, this::onExport))).width(110).build();
+                b -> this.minecraft.gui.setScreen(new ExportScreen(this, pack, this::onExport))).width(110).build();
         Button docs = Button.builder(Component.translatable("sky_aesthetics.editor.action.docs"),
                 b -> Util.getPlatform().openUri(DOCS_URL)).width(110).build();
 
@@ -435,11 +436,9 @@ public class SkyEditorScreen extends Screen {
             pushPreview();
         }
         SkyEditorEntry.beginPeek(this);
-        if (this.minecraft.gui != null) {
-            this.minecraft.gui.setOverlayMessage(Component.translatable(
-                    "sky_aesthetics.editor.peek.hint", SkyEditorEntry.OPEN_EDITOR.getTranslatedKeyMessage()), false);
-        }
-        this.minecraft.setScreen(null);
+        this.minecraft.gui.hud.setOverlayMessage(Component.translatable(
+                "sky_aesthetics.editor.peek.hint", SkyEditorEntry.OPEN_EDITOR.getTranslatedKeyMessage()), false);
+        this.minecraft.gui.setScreen(null);
     }
 
     /** Reopens the editor from peek mode; called by {@link SkyEditorEntry} when the editor key fires. */
@@ -451,7 +450,7 @@ public class SkyEditorScreen extends Screen {
             SkiesRegistry.clearPreviewSky();
             lastPreviewSnapshot = "";
         }
-        this.minecraft.setScreen(this);
+        this.minecraft.gui.setScreen(this);
     }
 
     @Override
@@ -568,20 +567,20 @@ public class SkyEditorScreen extends Screen {
     }
 
     private void toast(SystemToast.SystemToastId id, Component title, Component description) {
-        SystemToast.add(this.minecraft.getToastManager(), id, title, description);
+        SystemToast.add(this.minecraft.gui.toastManager(), id, title, description);
     }
 
     @Override
     public void onClose() {
         if (!hasUnsavedChanges()) {
             SkiesRegistry.clearPreviewSky();
-            this.minecraft.setScreen(null);
+            this.minecraft.gui.setScreen(null);
             return;
         }
         if (previewing) pushPreview();
-        this.minecraft.setScreen(new ConfirmScreen(
+        this.minecraft.gui.setScreen(new ConfirmScreen(
                 confirmed -> {
-                    this.minecraft.setScreen(confirmed ? null : this);
+                    this.minecraft.gui.setScreen(confirmed ? null : this);
                     if (confirmed) SkiesRegistry.clearPreviewSky();
                 },
                 Component.translatable("sky_aesthetics.editor.confirm.title"),

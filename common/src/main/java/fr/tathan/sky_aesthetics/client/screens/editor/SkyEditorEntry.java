@@ -40,7 +40,7 @@ public final class SkyEditorEntry {
             SkyEditorScreen screen = peekingScreen;
             mc.execute(screen::resumePeek);
         } else {
-            mc.execute(() -> mc.setScreen(new SkyEditorScreen()));
+            mc.execute(() -> mc.gui.setScreen(new SkyEditorScreen()));
         }
     }
 

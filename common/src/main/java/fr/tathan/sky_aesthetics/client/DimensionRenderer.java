@@ -1,8 +1,10 @@
 package fr.tathan.sky_aesthetics.client;
 
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -24,10 +26,7 @@ import java.lang.Math;
 import net.minecraft.world.phys.Vec3;
 import org.joml.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  * The class handling the rendering of a custom sky
@@ -215,24 +214,25 @@ public class DimensionRenderer {
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
 
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(skyboxIndexCount);
 
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, 1f), new Vector3f(), new Matrix4f());
 
-        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
+        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Skybox", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Skybox", colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
             renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
-            renderPass.setVertexBuffer(0, skyboxBuffer);
+            renderPass.setVertexBuffer(0, skyboxBuffer.slice());
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, skyboxIndexCount, 1);
+            renderPass.drawIndexed(skyboxIndexCount, 1, 0, 0, 0);
         }
 
         matrix4fStack.popMatrix();
@@ -251,7 +251,7 @@ public class DimensionRenderer {
 
         try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
                 DefaultVertexFormat.POSITION_TEX.getVertexSize() * totalVertices)) {
-            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            BufferBuilder bb = new BufferBuilder(bbb, PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
 
             for (int i = 0; i < g; i++) {
                 float alpha1 = i * PI / g;
@@ -306,7 +306,7 @@ public class DimensionRenderer {
             customSunBuffer = SkyRenderer.buildCelestialQuad(texture.getPath(), this.celestialsAtlas.getSprite(texture));
         }
 
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(6);
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
@@ -318,18 +318,19 @@ public class DimensionRenderer {
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, rainBrightness), new Vector3f(), new Matrix4f());
 
-        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
+        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Custom sun", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Custom sun", colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
             renderPass.setPipeline(RenderPipelines.CELESTIAL);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
-            renderPass.setVertexBuffer(0, customSunBuffer);
+            renderPass.setVertexBuffer(0, customSunBuffer.slice());
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, 6, 1);
+            renderPass.drawIndexed(6, 1, 0, 0, 0);
         }
 
         matrix4fStack.popMatrix();
@@ -342,7 +343,7 @@ public class DimensionRenderer {
     private void renderCustomMoon(MoonPhase moonPhase, float rainBrightness, PoseStack poseStack) {
         GpuBuffer moonBuffer = getCustomMoonBuffer(moonPhase);
 
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(6);
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
@@ -354,18 +355,19 @@ public class DimensionRenderer {
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, rainBrightness), new Vector3f(), new Matrix4f());
 
-        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
+        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Custom moon", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Custom moon", colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
             renderPass.setPipeline(RenderPipelines.CELESTIAL);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
-            renderPass.setVertexBuffer(0, moonBuffer);
+            renderPass.setVertexBuffer(0, moonBuffer.slice());
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, 6, 1);
+            renderPass.drawIndexed(6, 1, 0, 0, 0);
         }
 
         matrix4fStack.popMatrix();
@@ -404,7 +406,7 @@ public class DimensionRenderer {
         float v1 = sprite.getV((row + 1) / 2.0f);
         try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
                 DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
-            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            BufferBuilder bb = new BufferBuilder(bbb, PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_TEX);
             bb.addVertex(-1.0F, 0.0F, -1.0F).setUv(u0, v0);
             bb.addVertex( 1.0F, 0.0F, -1.0F).setUv(u1, v0);
             bb.addVertex( 1.0F, 0.0F,  1.0F).setUv(u1, v1);
@@ -506,7 +508,7 @@ public class DimensionRenderer {
         int indexCount;
         try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
                 DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.QUADS, DefaultVertexFormat.POSITION_COLOR);
             bufferBuilder.addVertex(v1.x, v1.y, v1.z).setColor(cr, cg, cb, 255);
             bufferBuilder.addVertex(v0.x, v0.y, v0.z).setColor(cr, cg, cb, 255);
             bufferBuilder.addVertex(v3.x, v3.y, v3.z).setColor(cr, cg, cb, 255);
@@ -522,24 +524,25 @@ public class DimensionRenderer {
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
 
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(indexCount);
 
-        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
+        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
 
         // Color is in vertex attributes; DynamicTransforms alpha carries the fade
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, alpha), new Vector3f(), new Matrix4f());
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Shooting star", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Shooting star", colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
             renderPass.setPipeline(RenderPipelineRegistry.COLORED_STARS);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
-            renderPass.setVertexBuffer(0, shootingStarBuffer);
+            renderPass.setVertexBuffer(0, shootingStarBuffer.slice());
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, indexCount, 1);
+            renderPass.drawIndexed(indexCount, 1, 0, 0, 0);
         }
 
         matrix4fStack.popMatrix();

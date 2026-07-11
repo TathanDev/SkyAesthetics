@@ -3,6 +3,8 @@ package fr.tathan.sky_aesthetics.client.screens.editor.tabs;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.FormList;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.tabs.Tab;
+import net.minecraft.client.gui.layouts.Layout;
+import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.navigation.ScreenRectangle;
 import net.minecraft.network.chat.Component;
 
@@ -44,5 +46,10 @@ public class EditorTab implements Tab {
     @Override
     public void doLayout(ScreenRectangle rectangle) {
         list.updateSizeAndPosition(rectangle.width(), rectangle.height(), rectangle.left(), rectangle.top());
+    }
+
+    @Override
+    public Layout getLayout() {
+        return LinearLayout.horizontal();
     }
 }

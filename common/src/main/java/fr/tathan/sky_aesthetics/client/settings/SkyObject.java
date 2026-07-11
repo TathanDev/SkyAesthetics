@@ -1,7 +1,9 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -20,10 +22,7 @@ import org.joml.Matrix4fStack;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
+import java.util.*;
 
 /**
  *
@@ -90,8 +89,7 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         this.setObjectRotation(poseStack);
         this.setObjectPosition(poseStack, sunAngle);
 
-
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
 
         GpuBuffer objectBuffer = this.buildSkyObject(celestial);
 
@@ -103,18 +101,19 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         matrix4fStack.scale(this.size, 1.0F, this.size);
 
         GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(1.0F, 1.0F, 1.0F, alpha), new Vector3f(), new Matrix4f());
-        GpuTextureView gpuTextureView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView gpuTextureView2 = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView gpuTextureView = mainRenderTarget.getColorTextureView();
+        GpuTextureView gpuTextureView2 = mainRenderTarget.getDepthTextureView();
         GpuBuffer gpuBuffer = quadIndices.getBuffer(6);
 
-        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sky sun", gpuTextureView, OptionalInt.empty(), gpuTextureView2, OptionalDouble.empty())) {
+        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sky sun", gpuTextureView, Optional.empty(), gpuTextureView2, OptionalDouble.empty())) {
             renderPass.setPipeline(this.blend ? RenderPipelineRegistry.CELESTIAL_BLEND : RenderPipelineRegistry.CELESTIAL_NO_BLEND);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
             renderPass.bindTexture("Sampler0", celestial.getTextureView(), celestial.getSampler());
-            renderPass.setVertexBuffer(0, objectBuffer);
+            renderPass.setVertexBuffer(0, objectBuffer.slice());
             renderPass.setIndexBuffer(gpuBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, 6, 1);
+            renderPass.drawIndexed(6, 1,0, 0, 0);
         }
 
         matrix4fStack.popMatrix();

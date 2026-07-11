@@ -11,6 +11,7 @@ import fr.tathan.sky_aesthetics.client.FogDataCapture;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.settings.FogSettings;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.fog.FogData;
 import java.util.OptionalInt;
 import net.minecraft.client.CloudStatus;
@@ -36,11 +37,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = LevelRenderer.class, priority = 900)
 public abstract class LevelRendererMixin {
-
-    @Mutable
-    @Shadow
-    private ClientLevel level;
-
     @Mutable
     @Shadow
     private LevelTargetBundle targets;
@@ -62,7 +58,7 @@ public abstract class LevelRendererMixin {
             if (skyRenderState.skybox != DimensionType.Skybox.NONE) {
                 SkyRenderer skyRenderer = this.skyRenderer;
                 if (skyRenderer != null) {
-                    SkyHelper.canRenderSky(level, (planetSky -> {
+                    SkyHelper.canRenderSky(Minecraft.getInstance().level, (planetSky -> {
                         FramePass framePass = frame.addPass("sky");
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
@@ -99,7 +95,7 @@ public abstract class LevelRendererMixin {
         method = "addCloudsPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/CloudStatus;Lnet/minecraft/world/phys/Vec3;JFIFILorg/joml/Matrix4fc;)V",
         at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private int overrideCloudColor(int cloudColor) {
-        OptionalInt custom = SkyHelper.getActiveCloudColor(level);
+        OptionalInt custom = SkyHelper.getActiveCloudColor(Minecraft.getInstance().level);
         return custom.isPresent() ? (cloudColor & 0xFF000000) | (custom.getAsInt() & 0x00FFFFFF) : cloudColor;
     }
 
@@ -107,12 +103,12 @@ public abstract class LevelRendererMixin {
         method = "addCloudsPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/CloudStatus;Lnet/minecraft/world/phys/Vec3;JFIFILorg/joml/Matrix4fc;)V",
         at = @At("HEAD"), argsOnly = true, ordinal = 1)
     private float overrideCloudHeight(float cloudHeight) {
-        return (float) SkyHelper.getActiveCloudHeight(level).orElse((int) cloudHeight);
+        return (float) SkyHelper.getActiveCloudHeight(Minecraft.getInstance().level).orElse((int) cloudHeight);
     }
 
     @Inject(method = "addCloudsPass(Lcom/mojang/blaze3d/framegraph/FrameGraphBuilder;Lnet/minecraft/client/CloudStatus;Lnet/minecraft/world/phys/Vec3;JFIFILorg/joml/Matrix4fc;)V", at = @At(value = "HEAD"), cancellable = true)
     private void cancelCloudRenderer(FrameGraphBuilder frame, CloudStatus cloudStatus, Vec3 cameraPosition, long gameTime, float partialTicks, int cloudColor, float cloudHeight, int cloudRange, Matrix4fc modelViewMatrix, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> {
+        SkyHelper.canRenderSky(Minecraft.getInstance().level, (planetSky -> {
             if(!planetSky.renderClouds()) {
                 //Only cancel if the sky set remvove clouds but don't cancel if the config said we don't touch clouds
                 if(!(SkyAesthetics.CONFIG.disableCustomCloud || SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingCloudRender))) {

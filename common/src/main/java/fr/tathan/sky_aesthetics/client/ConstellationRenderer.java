@@ -1,7 +1,9 @@
 package fr.tathan.sky_aesthetics.client;
 
+import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
+import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
@@ -20,12 +22,7 @@ import net.minecraft.util.RandomSource;
 import org.joml.*;
 
 import java.lang.Math;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
+import java.util.*;
 
 public class ConstellationRenderer {
 
@@ -92,7 +89,7 @@ public class ConstellationRenderer {
 
         try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
                 format.getVertexSize() * totalPoints * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, format);
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, PrimitiveTopology.QUADS, format);
 
             for (net.minecraft.world.phys.Vec3 point : allPoints) {
                 Vector3f pos = new Vector3f((float) point.x, (float) point.y, (float) point.z).normalize(100.0F);
@@ -146,17 +143,18 @@ public class ConstellationRenderer {
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
 
-        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
+        RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(entry.indexCount());
 
-        GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
-        GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
+        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
+        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
+        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
 
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, colorUniform, new Vector3f(), new Matrix4f());
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Constellation " + c.id(), colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Constellation " + c.id(), colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
             if (entry.textured()) {
                 renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_BLEND);
                 renderPass.bindTexture("Sampler0", celestialAtlas.getTextureView(), celestialAtlas.getSampler());
@@ -165,9 +163,9 @@ public class ConstellationRenderer {
             }
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
-            renderPass.setVertexBuffer(0, entry.gpuBuffer());
+            renderPass.setVertexBuffer(0, entry.gpuBuffer().slice());
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, entry.indexCount(), 1);
+            renderPass.drawIndexed(entry.indexCount(), 1, 0, 0, 0);
         }
 
         matrix4fStack.popMatrix();

@@ -1,10 +1,12 @@
 package fr.tathan.sky_aesthetics.client.registry;
 
+import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.blaze3d.pipeline.BindGroupLayout;
 import com.mojang.blaze3d.pipeline.BlendFunction;
 import com.mojang.blaze3d.pipeline.ColorTargetState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 
 public class RenderPipelineRegistry {
@@ -17,29 +19,34 @@ public class RenderPipelineRegistry {
     }
 
     static {
-        CELESTIAL_NO_BLEND = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+        CELESTIAL_NO_BLEND = RenderPipelines.register(RenderPipeline.builder()
                 .withLocation("pipeline/skyaesthetics_celestial")
                 .withVertexShader("core/position_tex")
                 .withFragmentShader("core/position_tex")
-                .withSampler("Sampler0")
-                .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
+                .withBindGroupLayout(BindGroupLayout.builder().withSampler("Sampler0").build())
+                .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
                 .build());
 
-        CELESTIAL_BLEND = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+        CELESTIAL_BLEND = RenderPipelines.register(RenderPipeline.builder()
                 .withLocation("pipeline/skyaesthetics_celestial_blend")
                 .withVertexShader("core/position_tex")
                 .withFragmentShader("core/position_tex")
-                .withSampler("Sampler0")
+                .withBindGroupLayout(BindGroupLayout.builder().withSampler("Sampler0").build())
                 .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
-                .withVertexFormat(DefaultVertexFormat.POSITION_TEX, VertexFormat.Mode.QUADS)
+                .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
+                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
                 .build());
 
-        COLORED_STARS = RenderPipelines.register(RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET)
+        COLORED_STARS = RenderPipelines.register(RenderPipeline.builder()
                 .withLocation("pipeline/skyaesthetics_colored_stars")
                 .withVertexShader("core/position_color")
                 .withFragmentShader("core/position_color")
                 .withColorTargetState(new ColorTargetState(BlendFunction.OVERLAY))
-                .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.QUADS)
+                .withPrimitiveTopology(PrimitiveTopology.QUADS)
+                .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
+                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
                 .build());
     }
 }

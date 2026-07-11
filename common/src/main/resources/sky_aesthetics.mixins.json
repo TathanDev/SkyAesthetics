@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_25",
   "minVersion": "0.8",
   "client": [
-    "AttributeSystemMixin",
+    "client.AttributeSystemMixin",
+    "client.ClientLevelMixin",
     "client.FogRendererMixin",
     "client.LightmapRenderStateExtractorMixin",
     "client.WeatherEffectRendererMixin"
