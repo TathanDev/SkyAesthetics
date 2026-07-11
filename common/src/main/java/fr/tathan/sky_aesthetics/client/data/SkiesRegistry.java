@@ -3,6 +3,7 @@ package fr.tathan.sky_aesthetics.client.data;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -10,6 +11,8 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,8 +37,11 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
 
     @Override
     protected void apply(Map<Identifier, SkyProperties> object, ResourceManager resourceManager, ProfilerFiller profiler) {
-        RENDERER_CACHE.forEach((id, renderer) -> renderer.close());
+        List<DimensionRenderer> stale = new ArrayList<>(RENDERER_CACHE.values());
         RENDERER_CACHE.clear();
+        if (!stale.isEmpty()) {
+            Minecraft.getInstance().execute(() -> stale.forEach(DimensionRenderer::close));
+        }
         SKY_PROPERTIES.clear();
         previewSky = null;
         SkyAesthetics.LOG.info("Registering skies...");
