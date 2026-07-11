@@ -25,7 +25,7 @@ public class SkyAestheticsClientNeoforge {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        SkyAestheticClients.init();
+        event.enqueueWork(SkyAestheticClients::init);
 
         PlatformClientHelper.registerConfigScreen(SkyAesthetics.MODID, SkyAesthetics.CONFIG);
     }
