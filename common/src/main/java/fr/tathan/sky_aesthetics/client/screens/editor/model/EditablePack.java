@@ -42,7 +42,7 @@ public class EditablePack {
     }
 
     public EditableSky duplicate(EditableSky source) {
-        EditableSky copy = EditableSky.fromProperties(source.toProperties());
+        EditableSky copy = source.copy();
         copy.skyId = uniqueId(stripTrailingNumber(copy.skyId));
         skies.add(copy);
         return copy;
@@ -107,17 +107,26 @@ public class EditablePack {
                 seenDimensions.add(sky.dimension);
             }
 
-            if (sky.sun.enabled && sky.sun.textureEnabled && !isBlank(sky.sun.texture)
-                    && Identifier.tryParse(sky.sun.texture) == null) {
-                errors.add(label + ": invalid sun texture '" + sky.sun.texture + "'.");
+            if (sky.sun.enabled && sky.sun.textureEnabled) {
+                if (isBlank(sky.sun.texture)) {
+                    errors.add(label + ": sun custom texture is enabled but empty.");
+                } else if (Identifier.tryParse(sky.sun.texture) == null) {
+                    errors.add(label + ": invalid sun texture '" + sky.sun.texture + "'.");
+                }
             }
-            if (sky.moon.enabled && sky.moon.textureEnabled && !isBlank(sky.moon.texture)
-                    && Identifier.tryParse(sky.moon.texture) == null) {
-                errors.add(label + ": invalid moon texture '" + sky.moon.texture + "'.");
+            if (sky.moon.enabled && sky.moon.textureEnabled) {
+                if (isBlank(sky.moon.texture)) {
+                    errors.add(label + ": moon custom texture is enabled but empty.");
+                } else if (Identifier.tryParse(sky.moon.texture) == null) {
+                    errors.add(label + ": invalid moon texture '" + sky.moon.texture + "'.");
+                }
             }
-            if (sky.skyBox.enabled && !isBlank(sky.skyBox.texture)
-                    && Identifier.tryParse(sky.skyBox.texture) == null) {
-                errors.add(label + ": invalid skybox texture '" + sky.skyBox.texture + "'.");
+            if (sky.skyBox.enabled) {
+                if (isBlank(sky.skyBox.texture)) {
+                    errors.add(label + ": skybox is enabled but has no texture.");
+                } else if (Identifier.tryParse(sky.skyBox.texture) == null) {
+                    errors.add(label + ": invalid skybox texture '" + sky.skyBox.texture + "'.");
+                }
             }
             for (int i = 0; i < sky.skyObjects.size(); i++) {
                 String tex = sky.skyObjects.get(i).texture;

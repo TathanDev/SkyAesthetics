@@ -267,6 +267,94 @@ public class EditableSky {
         return e;
     }
 
+
+    public EditableSky copy() {
+        EditableSky e = new EditableSky();
+        e.skyId = this.skyId;
+        e.dimension = this.dimension;
+        e.weather = this.weather;
+
+        e.cloud.enabled = cloud.enabled;
+        e.cloud.showCloud = cloud.showCloud;
+        e.cloud.cloudHeight = cloud.cloudHeight;
+        e.cloud.colorEnabled = cloud.colorEnabled;
+        e.cloud.color = new Vector3i(cloud.color);
+
+        e.sun.enabled = sun.enabled;
+        e.sun.show = sun.show;
+        e.sun.textureEnabled = sun.textureEnabled;
+        e.sun.texture = sun.texture;
+        e.sun.size = sun.size;
+        e.sun.intensity = sun.intensity;
+
+        e.moon.enabled = moon.enabled;
+        e.moon.show = moon.show;
+        e.moon.textureEnabled = moon.textureEnabled;
+        e.moon.texture = moon.texture;
+        e.moon.size = moon.size;
+        e.moon.showPhases = moon.showPhases;
+        e.moon.intensity = moon.intensity;
+
+        e.stars.enabled = stars.enabled;
+        e.stars.vanilla = stars.vanilla;
+        e.stars.movingStars = stars.movingStars;
+        e.stars.count = stars.count;
+        e.stars.allDaysVisible = stars.allDaysVisible;
+        e.stars.scale = stars.scale;
+        e.stars.color = new Vector3i(stars.color);
+        e.stars.shootingEnabled = stars.shootingEnabled;
+        e.stars.shootingPercentage = stars.shootingPercentage;
+        e.stars.shootingLifetime = new Vector2f(stars.shootingLifetime);
+        e.stars.shootingScale = stars.shootingScale;
+        e.stars.shootingSpeed = stars.shootingSpeed;
+        e.stars.shootingColor = new Vector3f(stars.shootingColor);
+        e.stars.shootingRotationEnabled = stars.shootingRotationEnabled;
+        e.stars.shootingRotation = stars.shootingRotation;
+
+        e.skyColor.enabled = skyColor.enabled;
+        e.skyColor.skyColorEnabled = skyColor.skyColorEnabled;
+        e.skyColor.skyColor = new Vector4f(skyColor.skyColor);
+        e.skyColor.sunsetColorEnabled = skyColor.sunsetColorEnabled;
+        e.skyColor.sunsetColor = new Vector3i(skyColor.sunsetColor);
+        e.skyColor.alphaModifierEnabled = skyColor.alphaModifierEnabled;
+        e.skyColor.alphaModifier = skyColor.alphaModifier;
+
+        e.skyBox.enabled = skyBox.enabled;
+        e.skyBox.gradation = skyBox.gradation;
+        e.skyBox.texture = skyBox.texture;
+        e.skyBox.rotation = new Vector3f(skyBox.rotation);
+        e.skyBox.dynamicEnabled = skyBox.dynamicEnabled;
+        e.skyBox.dynamicAxis = skyBox.dynamicAxis;
+        e.skyBox.dynamicRotationType = skyBox.dynamicRotationType;
+
+        e.light.enabled = light.enabled;
+        e.light.forceBrightLightmap = light.forceBrightLightmap;
+        e.light.constantAmbientLight = light.constantAmbientLight;
+
+        e.fog.enabled = fog.enabled;
+        e.fog.fog = fog.fog;
+        e.fog.colorEnabled = fog.colorEnabled;
+        e.fog.color = new Vector3i(fog.color);
+        e.fog.densityEnabled = fog.densityEnabled;
+        e.fog.density = new Vector2f(fog.density);
+
+        for (Obj o : skyObjects) {
+            Obj c = new Obj();
+            c.texture = o.texture;
+            c.blend = o.blend;
+            c.size = o.size;
+            c.rotation = new Vector3f(o.rotation);
+            c.objectRotation = new Vector3f(o.objectRotation);
+            c.height = o.height;
+            c.rotationType = o.rotationType;
+            e.skyObjects.add(c);
+        }
+
+        e.renderCondition = this.renderCondition;
+        e.environmentAttributes = this.environmentAttributes;
+        return e;
+    }
+
     public SkyProperties toProperties() {
         Identifier worldId = Identifier.tryParse(dimension == null ? "" : dimension);
         if (worldId == null) throw new IllegalStateException("Invalid dimension: '" + dimension + "'");
