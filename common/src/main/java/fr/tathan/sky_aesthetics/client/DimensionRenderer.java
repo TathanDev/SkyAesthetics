@@ -11,13 +11,13 @@ import com.mojang.math.Axis;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.data.AtlasIds;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.MoonPhase;
 import java.lang.Math;
@@ -53,6 +53,12 @@ public class DimensionRenderer {
     private final GpuBuffer skyboxBuffer;
     private final int skyboxIndexCount;
     private final GpuBuffer customFogBuffer;
+
+    // Cached custom sun/moon quads (static geometry) so we don't re-upload a GpuBuffer every frame.
+    // The moon quad is rebuilt only when the lunar phase changes (its UVs are phase-dependent).
+    private GpuBuffer customSunBuffer;
+    private GpuBuffer customMoonBuffer;
+    private int customMoonBufferPhase = -1;
 
     private final List<ActiveShootingStar> activeShootingStars = new ArrayList<>();
     private final RandomSource shootingStarRng = RandomSource.create();
@@ -105,7 +111,7 @@ public class DimensionRenderer {
         if(this.renderCondition == null) {
             return true;
         }
-        return this.renderCondition.isSkyRendered(getServerLevel());
+        return this.renderCondition.isSkyRendered();
     }
 
     public void render(SkyRenderState skyRenderState, SkyRenderer skyRenderer) {
@@ -134,7 +140,7 @@ public class DimensionRenderer {
            skyRenderer.renderSunriseAndSunset(poseStack, skyRenderState.sunAngle, skyRenderState.sunriseAndSunsetColor);
        }
 
-       this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, skyRenderState.starAngle, this.gpuBuffer);
+       this.starSettings.renderStars(poseStack, skyRenderState, skyRenderer, this.gpuBuffer);
 
        ConstellationRenderer.renderAll(poseStack, skyRenderState);
 
@@ -295,20 +301,9 @@ public class DimensionRenderer {
     // -------------------------------------------------------------------------
 
     private void renderCustomSun(float rainBrightness, PoseStack poseStack) {
-        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customSun.sunTexture().get());
-
-        GpuBuffer sunBuffer;
-        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
-                DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
-            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            bb.addVertex(-0.5F, -0.5F, 0.0F).setUv(sprite.getU0(), sprite.getV1());
-            bb.addVertex(-0.5F,  0.5F, 0.0F).setUv(sprite.getU0(), sprite.getV0());
-            bb.addVertex( 0.5F,  0.5F, 0.0F).setUv(sprite.getU1(), sprite.getV0());
-            bb.addVertex( 0.5F, -0.5F, 0.0F).setUv(sprite.getU1(), sprite.getV1());
-            try (MeshData mesh = bb.buildOrThrow()) {
-                sunBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "Custom sun", 40, mesh.vertexBuffer());
-            }
+        if (customSunBuffer == null) {
+            Identifier texture = this.customSun.sunTexture().get();
+            customSunBuffer = SkyRenderer.buildCelestialQuad(texture.getPath(), this.celestialsAtlas.getSprite(texture));
         }
 
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
@@ -328,17 +323,16 @@ public class DimensionRenderer {
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
                 .createRenderPass(() -> "Custom sun", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
-            renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            renderPass.setPipeline(RenderPipelines.CELESTIAL);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
-            renderPass.setVertexBuffer(0, sunBuffer);
+            renderPass.setVertexBuffer(0, customSunBuffer);
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
             renderPass.drawIndexed(0, 0, 6, 1);
         }
 
         matrix4fStack.popMatrix();
-        sunBuffer.close();
     }
 
     // -------------------------------------------------------------------------
@@ -346,36 +340,7 @@ public class DimensionRenderer {
     // -------------------------------------------------------------------------
 
     private void renderCustomMoon(MoonPhase moonPhase, float rainBrightness, PoseStack poseStack) {
-        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customMoon.moonTexture().get());
-
-        float u0, u1, v0, v1;
-        if (this.customMoon.showPhases()) {
-            int col = moonPhase.ordinal() % 4;
-            int row = moonPhase.ordinal() / 4;
-            u0 = sprite.getU(col / 4.0f);
-            u1 = sprite.getU((col + 1) / 4.0f);
-            v0 = sprite.getV(row / 2.0f);
-            v1 = sprite.getV((row + 1) / 2.0f);
-        } else {
-            u0 = sprite.getU0();
-            u1 = sprite.getU1();
-            v0 = sprite.getV0();
-            v1 = sprite.getV1();
-        }
-
-        GpuBuffer moonBuffer;
-        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
-                DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
-            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-            bb.addVertex(-0.5F, -0.5F, 0.0F).setUv(u0, v1);
-            bb.addVertex(-0.5F,  0.5F, 0.0F).setUv(u0, v0);
-            bb.addVertex( 0.5F,  0.5F, 0.0F).setUv(u1, v0);
-            bb.addVertex( 0.5F, -0.5F, 0.0F).setUv(u1, v1);
-            try (MeshData mesh = bb.buildOrThrow()) {
-                moonBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "Custom moon", 40, mesh.vertexBuffer());
-            }
-        }
+        GpuBuffer moonBuffer = getCustomMoonBuffer(moonPhase);
 
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(6);
@@ -394,7 +359,7 @@ public class DimensionRenderer {
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
                 .createRenderPass(() -> "Custom moon", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
-            renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND);
+            renderPass.setPipeline(RenderPipelines.CELESTIAL);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
             renderPass.bindTexture("Sampler0", this.celestialsAtlas.getTextureView(), this.celestialsAtlas.getSampler());
@@ -404,7 +369,50 @@ public class DimensionRenderer {
         }
 
         matrix4fStack.popMatrix();
-        moonBuffer.close();
+    }
+
+    /**
+     * Returns the cached custom-moon quad, (re)building it only when needed. With phases off the full
+     * texture is used and the quad is built once; with phases on, the quad carries the current phase's
+     * atlas cell UVs and is rebuilt only when the phase changes.
+     */
+    private GpuBuffer getCustomMoonBuffer(MoonPhase moonPhase) {
+        if (!this.customMoon.showPhases()) {
+            if (customMoonBuffer == null) {
+                Identifier texture = this.customMoon.moonTexture().get();
+                customMoonBuffer = SkyRenderer.buildCelestialQuad(texture.getPath(), this.celestialsAtlas.getSprite(texture));
+                customMoonBufferPhase = -2;
+            }
+            return customMoonBuffer;
+        }
+        int ordinal = moonPhase.ordinal();
+        if (customMoonBuffer == null || customMoonBufferPhase != ordinal) {
+            if (customMoonBuffer != null) customMoonBuffer.close();
+            customMoonBuffer = buildPhasedMoonQuad(moonPhase);
+            customMoonBufferPhase = ordinal;
+        }
+        return customMoonBuffer;
+    }
+
+    private GpuBuffer buildPhasedMoonQuad(MoonPhase moonPhase) {
+        TextureAtlasSprite sprite = this.celestialsAtlas.getSprite(this.customMoon.moonTexture().get());
+        int col = moonPhase.ordinal() % 4;
+        int row = moonPhase.ordinal() / 4;
+        float u0 = sprite.getU(col / 4.0f);
+        float u1 = sprite.getU((col + 1) / 4.0f);
+        float v0 = sprite.getV(row / 2.0f);
+        float v1 = sprite.getV((row + 1) / 2.0f);
+        try (ByteBufferBuilder bbb = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION_TEX.getVertexSize() * 4)) {
+            BufferBuilder bb = new BufferBuilder(bbb, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            bb.addVertex(-1.0F, 0.0F, -1.0F).setUv(u0, v0);
+            bb.addVertex( 1.0F, 0.0F, -1.0F).setUv(u1, v0);
+            bb.addVertex( 1.0F, 0.0F,  1.0F).setUv(u1, v1);
+            bb.addVertex(-1.0F, 0.0F,  1.0F).setUv(u0, v1);
+            try (MeshData mesh = bb.buildOrThrow()) {
+                return RenderSystem.getDevice().createBuffer(() -> "Custom moon", 40, mesh.vertexBuffer());
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -549,6 +557,12 @@ public class DimensionRenderer {
         if (this.customFogBuffer != null) {
             this.customFogBuffer.close();
         }
+        if (this.customSunBuffer != null) {
+            this.customSunBuffer.close();
+        }
+        if (this.customMoonBuffer != null) {
+            this.customMoonBuffer.close();
+        }
         activeShootingStars.clear();
     }
 
@@ -579,16 +593,6 @@ public class DimensionRenderer {
             this.maxTicks = lifetime;
             this.config = config;
         }
-    }
-
-    // -------------------------------------------------------------------------
-    // Utilities
-    // -------------------------------------------------------------------------
-
-    public static ServerLevel getServerLevel() {
-        Minecraft minecraft = Minecraft.getInstance();
-        IntegratedServer integratedServer = minecraft.getSingleplayerServer();
-        return integratedServer != null && minecraft.level != null ? integratedServer.getLevel(minecraft.level.dimension()) : null;
     }
 
     // -------------------------------------------------------------------------
