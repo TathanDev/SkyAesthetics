@@ -13,6 +13,7 @@ public class AttributeSystemMixin {
 
     @Inject(method = "addDefaultLayers", at = @At("TAIL"))
     private static void addDefaultLayers(EnvironmentAttributeSystem.Builder builder, Level level, CallbackInfo ci) {
-        SkyHelper.canRenderSky(level, (planetSky -> planetSky.environmentAttributes().ifPresent(builder::addConstantLayer)));
+        if (!level.isClientSide()) return;
+        SkyHelper.canApplyAttributes(level, (planetSky -> planetSky.environmentAttributes().ifPresent(builder::addConstantLayer)));
     }
 }

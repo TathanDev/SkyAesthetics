@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.1.3 for MC 26.2 changelog
+# Sky Aesthetics 2.1.4 for MC 26.1.x changelog
 
-## Changes
-- Port to Minecraft 26.2
+## Fixes
+- Fixed `environment_attributes` and `light_settings` being silently ignored or rejected

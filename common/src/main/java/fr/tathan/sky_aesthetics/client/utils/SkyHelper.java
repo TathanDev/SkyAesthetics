@@ -12,7 +12,21 @@ import java.util.function.Consumer;
 public class SkyHelper {
 
     public static boolean canRenderSky(Level level, Consumer<SkyProperties> action) {
-        SkyProperties sky = selectSky(level);
+        SkyProperties sky = selectSky(level, true);
+        if (sky == null) return false;
+        action.accept(sky);
+        return true;
+    }
+
+    /**
+     * Like {@link #canRenderSky} but ignores {@link SkyProperties.RenderCondition}. The vanilla
+     * environment-attribute system is baked once, inside the level constructor, so the player does not
+     * exist yet and {@code RenderCondition.isSkyRendered()} would always answer {@code false} — which
+     * silently dropped {@code environment_attributes} for every sky that declares a {@code condition}.
+     * A per-tick biome/height condition could not be expressed in a layer baked once per level anyway.
+     */
+    public static boolean canApplyAttributes(Level level, Consumer<SkyProperties> action) {
+        SkyProperties sky = selectSky(level, false);
         if (sky == null) return false;
         action.accept(sky);
         return true;
@@ -20,13 +34,13 @@ public class SkyHelper {
 
     public static OptionalInt getActiveCloudHeight(Level level) {
         if (cloudsHandledExternally()) return OptionalInt.empty();
-        SkyProperties sky = selectSky(level);
+        SkyProperties sky = selectSky(level, true);
         return sky != null ? sky.cloudHeight() : OptionalInt.empty();
     }
 
     public static OptionalInt getActiveCloudColor(Level level) {
         if (cloudsHandledExternally()) return OptionalInt.empty();
-        SkyProperties sky = selectSky(level);
+        SkyProperties sky = selectSky(level, true);
         return sky != null ? toPackedColor(sky) : OptionalInt.empty();
     }
 
@@ -37,9 +51,11 @@ public class SkyHelper {
      * disables, then (3) each sky's render condition. When several skies target the same dimension,
      * the one with the lowest id wins so selection is deterministic across reloads/JVM runs.
      *
+     * @param honorRenderCondition {@code false} for callers that run before the player exists; see
+     *                             {@link #canApplyAttributes}.
      * @return the chosen sky, or {@code null} when none applies.
      */
-    private static SkyProperties selectSky(Level level) {
+    private static SkyProperties selectSky(Level level, boolean honorRenderCondition) {
         SkyProperties preview = SkiesRegistry.getPreviewSky();
         if (preview != null && preview.world().equals(level.dimension())) {
             return preview;
@@ -49,7 +65,7 @@ public class SkyHelper {
             if (!sky.world().equals(level.dimension())) continue;
             if (containsString(SkyAesthetics.CONFIG.disabledSkies, sky.id().toString())) continue;
             if (containsString(SkyAesthetics.CONFIG.disabledDimensions, sky.world().identifier().toString())) continue;
-            if (sky.renderCondition().isPresent() && !sky.renderCondition().get().isSkyRendered()) continue;
+            if (honorRenderCondition && sky.renderCondition().isPresent() && !sky.renderCondition().get().isSkyRendered()) continue;
             if (best == null || sky.id().toString().compareTo(best.id().toString()) < 0) {
                 best = sky;
             }
