@@ -2,7 +2,7 @@
 
 This Setting allow you to configure how light works in the dimension when the sky is on.
 
-```json
+```json5
 {
    //other sky settings ...
   "light_settings": {
@@ -13,6 +13,5 @@ This Setting allow you to configure how light works in the dimension when the sk
 ```
 
 ## Fields
-- `forceBrightLightmap`: A Boolean value that define if the Brigh Lightmap should be used (Idk why you would you use it).
-- `constantAmbientLight`: A Boolean value that define if the world should have a constant ambient light (like in the end)
-
+- `forceBrightLightmap`: A Boolean value that define if the Brigh Lightmap should be used (Idk why you would you use it). Optional, defaults to `false`.
+- `constantAmbientLight`: A Boolean value that define if the world should have a constant ambient light (like in the end). Optional, defaults to `false`.

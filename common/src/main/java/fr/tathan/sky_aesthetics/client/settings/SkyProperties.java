@@ -46,7 +46,7 @@ public record SkyProperties(
             SkyColorSettings.CODEC.optionalFieldOf("sky_color").forGetter(SkyProperties::skyColorSettings),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition),
-            EnvironmentAttributeMap.CODEC_ONLY_POSITIONAL.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes),
+            EnvironmentAttributeMap.CODEC.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes),
             SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
             LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings),
             FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings)

@@ -14,8 +14,8 @@ public record LightSettings(
         boolean constantAmbientLight) {
 
     public static final Codec<LightSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.BOOL.fieldOf("forceBrightLightmap").forGetter(LightSettings::forceBrightLightmap),
-            Codec.BOOL.fieldOf("constantAmbientLight").forGetter(LightSettings::constantAmbientLight)
+            Codec.BOOL.optionalFieldOf("forceBrightLightmap", false).forGetter(LightSettings::forceBrightLightmap),
+            Codec.BOOL.optionalFieldOf("constantAmbientLight", false).forGetter(LightSettings::constantAmbientLight)
     ).apply(instance, LightSettings::new));
 
     public static LightSettings createDefaultSettings() {
