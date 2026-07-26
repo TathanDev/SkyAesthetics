@@ -2,7 +2,7 @@ plugins {
     id 'dev.architectury.loom-no-remap' version '1.17-SNAPSHOT' apply false
     id 'architectury-plugin' version '3.5-SNAPSHOT'
     id 'com.gradleup.shadow' version '9.4.2' apply false
-    id 'me.modmuss50.mod-publish-plugin' version '1.1.0' apply false
+    id 'me.modmuss50.mod-publish-plugin' version '2.1.1' apply false
 }
 
 architectury {
@@ -149,6 +149,8 @@ subprojects {
                 accessToken = providers.environmentVariable('CURSEFORGE_API_KEY')
                 minecraftVersions.add(rootProject.minecraft_version)
                 javaVersions.add(JavaVersion.VERSION_25)
+                client = true
+                server = true
             }
 
             modrinth {
