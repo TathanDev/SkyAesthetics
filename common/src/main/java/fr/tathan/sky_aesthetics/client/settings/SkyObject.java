@@ -52,15 +52,17 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
     /**
      * Set the position of the object in the sky
      * @param poseStack
-     * @param dayAngle
+     * @param sunAngle
+     * @param moonAngle
      */
-    public void setObjectPosition(PoseStack poseStack, float dayAngle) {
+    public void setObjectPosition(PoseStack poseStack, float sunAngle, float moonAngle) {
 
+        //TODO to change in the next version of the mod because it's a breaking change
         poseStack.mulPose(Axis.YP.rotationDegrees(this.rotation().y));
-        if(Objects.equals(this.rotationType(), "DAY")) {
-            poseStack.mulPose(Axis.XP.rotation(dayAngle));
-        } else if(Objects.equals(this.rotationType(), "NIGHT")) {
-            poseStack.mulPose(Axis.XP.rotation(dayAngle + (float) Math.PI));
+        if(this.rotationType().equals("SUN") || Objects.equals(this.rotationType(), "DAY")) {
+            poseStack.mulPose(Axis.XP.rotation(sunAngle));
+        } else if(this.rotationType().equals("MOON") ||Objects.equals(this.rotationType(), "NIGHT")) {
+            poseStack.mulPose(Axis.XP.rotation(moonAngle));
         } else {
             poseStack.mulPose(Axis.XP.rotationDegrees(this.rotation().x));
         }
@@ -84,11 +86,11 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         return SkyRenderer.buildCelestialQuad(this.texture.getPath(), textureAtlas.getSprite(this.texture));
     }
 
-    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle) {
+    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle, float moonAngle) {
         poseStack.pushPose();
 
         this.setObjectRotation(poseStack);
-        this.setObjectPosition(poseStack, sunAngle);
+        this.setObjectPosition(poseStack, sunAngle, moonAngle);
 
 
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);

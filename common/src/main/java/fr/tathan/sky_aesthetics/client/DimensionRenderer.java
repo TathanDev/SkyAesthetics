@@ -190,7 +190,7 @@ public class DimensionRenderer {
         }
 
         for(SkyObject skyObject : skyObjects) {
-            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle);
+            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, moonAngle);
         }
 
         poseStack.popPose();
