@@ -1,14 +1,15 @@
 package fr.tathan.sky_aesthetics.client;
 
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
+import com.mojang.renderpearl.api.vertex.VertexFormat;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.Constellation;
@@ -46,7 +47,7 @@ public class ConstellationRenderer {
         if (BUFFERS.isEmpty() || state.starBrightness <= 0.0F) return;
 
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotation(state.starAngle));
+        poseStack.rotate(Axis.XP.rotation(state.starAngle));
 
         for (Constellation c : ConstellationsData.CONSTELLATIONS.values()) {
             renderOne(c, poseStack, state.starBrightness);

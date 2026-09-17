@@ -1,14 +1,14 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
@@ -115,7 +115,7 @@ public record StarSettings(
 
         if (this.vanilla && isNightTime) {
             poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(skyRenderState.starAngle));
+            poseStack.rotate(Axis.XP.rotation(skyRenderState.starAngle));
             skyRenderer.renderStars(skyRenderState.starBrightness, poseStack);
             poseStack.popPose();
             return;
@@ -125,7 +125,7 @@ public record StarSettings(
 
         if(customStarBuffer != null) {
             poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(starsAngle));
+            poseStack.rotate(Axis.XP.rotation(starsAngle));
 
             if(this.allDaysVisible()) {
                 customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS), 1f);

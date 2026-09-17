@@ -1,15 +1,15 @@
 package fr.tathan.sky_aesthetics.client;
 
 
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.client.Minecraft;
@@ -154,11 +154,11 @@ public class DimensionRenderer {
 
     public void renderSkyObjects(PoseStack poseStack, float sunAngle, float moonAngle, MoonPhase moonPhase, float rainBrightness, SkyRenderer skyRenderer) {
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
+        poseStack.rotate(Axis.YP.rotationDegrees(-90.0F));
 
         if (this.customSun == null || this.customSun.show()) {
             poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(sunAngle));
+            poseStack.rotate(Axis.XP.rotation(sunAngle));
             float sunBrightness = rainBrightness * (this.customSun != null ? this.customSun.intensity() : 1.0f);
             if (this.customSun != null && this.customSun.sunTexture().isPresent()) {
                 renderCustomSun(sunBrightness, poseStack);
@@ -174,7 +174,7 @@ public class DimensionRenderer {
 
         if (this.customMoon == null || this.customMoon.show()) {
             poseStack.pushPose();
-            poseStack.mulPose(Axis.XP.rotation(moonAngle));
+            poseStack.rotate(Axis.XP.rotation(moonAngle));
             float moonBrightness = rainBrightness * (this.customMoon != null ? this.customMoon.intensity() : 1.0f);
             if (this.customMoon != null && this.customMoon.moonTexture().isPresent()) {
                 renderCustomMoon(moonPhase, moonBrightness, poseStack);
@@ -204,9 +204,9 @@ public class DimensionRenderer {
 
         poseStack.pushPose();
 
-        poseStack.mulPose(Axis.XP.rotationDegrees(skyBoxSetting.rotation().x));
-        poseStack.mulPose(Axis.YP.rotationDegrees(skyBoxSetting.rotation().y));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(skyBoxSetting.rotation().z));
+        poseStack.rotate(Axis.XP.rotationDegrees(skyBoxSetting.rotation().x));
+        poseStack.rotate(Axis.YP.rotationDegrees(skyBoxSetting.rotation().y));
+        poseStack.rotate(Axis.ZP.rotationDegrees(skyBoxSetting.rotation().z));
 
         skyBoxSetting.dynamicRotation().ifPresent(r -> r.rotatePoseStack(poseStack.last().pose(), sunAngle));
 

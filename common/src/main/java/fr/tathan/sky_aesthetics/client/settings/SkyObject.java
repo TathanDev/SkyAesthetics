@@ -1,14 +1,14 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.PrimitiveTopology;
-import com.mojang.blaze3d.buffers.GpuBuffer;
-import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.systems.RenderPass;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import com.mojang.renderpearl.api.buffers.GpuBuffer;
+import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
+import com.mojang.renderpearl.api.commands.RenderPass;
+import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
+import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
@@ -55,15 +55,15 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
      */
     public void setObjectPosition(PoseStack poseStack, float dayAngle) {
 
-        poseStack.mulPose(Axis.YP.rotationDegrees(this.rotation().y));
+        poseStack.rotate(Axis.YP.rotationDegrees(this.rotation().y));
         if(Objects.equals(this.rotationType(), "DAY")) {
-            poseStack.mulPose(Axis.XP.rotation(dayAngle));
+            poseStack.rotate(Axis.XP.rotation(dayAngle));
         } else if(Objects.equals(this.rotationType(), "NIGHT")) {
-            poseStack.mulPose(Axis.XP.rotation(dayAngle + (float) Math.PI));
+            poseStack.rotate(Axis.XP.rotation(dayAngle + (float) Math.PI));
         } else {
-            poseStack.mulPose(Axis.XP.rotationDegrees(this.rotation().x));
+            poseStack.rotate(Axis.XP.rotationDegrees(this.rotation().x));
         }
-        poseStack.mulPose(Axis.ZP.rotationDegrees(this.rotation().z));
+        poseStack.rotate(Axis.ZP.rotationDegrees(this.rotation().z));
     }
 
     /**
@@ -73,9 +73,9 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
      */
     public void setObjectRotation(PoseStack poseStack) {
         poseStack.translate(0, this.height, 0);
-        poseStack.mulPose(Axis.XP.rotationDegrees(objectRotation.x));
-        poseStack.mulPose(Axis.YP.rotationDegrees(objectRotation.y));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(objectRotation.z));
+        poseStack.rotate(Axis.XP.rotationDegrees(objectRotation.x));
+        poseStack.rotate(Axis.YP.rotationDegrees(objectRotation.y));
+        poseStack.rotate(Axis.ZP.rotationDegrees(objectRotation.z));
         poseStack.translate(0, -this.height, 0);
     }
 
