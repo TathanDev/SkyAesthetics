@@ -10,27 +10,24 @@ import net.minecraft.network.chat.Component;
 import java.util.function.Consumer;
 
 /**
- * A simple RGB(A) color picker: one slider per channel plus a live swatch. Components are edited in
+ * A simple RGB color picker: one slider per channel plus a live swatch. Components are edited in
  * the 0-1 range; every change is reported to {@code onChange} so callers (and the live preview) can
  * react immediately. Closing returns to the parent screen.
  */
 public class ColorPickerScreen extends Screen {
 
-    private static final String[] CHANNELS = {"R", "G", "B", "A"};
+    private static final String[] CHANNELS = {"R", "G", "B"};
 
     private final Screen parent;
-    private final boolean hasAlpha;
     private final float[] working;
     private final Consumer<float[]> onChange;
 
-    public ColorPickerScreen(Screen parent, float[] initial, boolean hasAlpha, Consumer<float[]> onChange) {
+    public ColorPickerScreen(Screen parent, float[] initial, Consumer<float[]> onChange) {
         super(Component.translatable("sky_aesthetics.editor.color.title"));
         this.parent = parent;
-        this.hasAlpha = hasAlpha;
         this.onChange = onChange;
-        int channels = hasAlpha ? 4 : 3;
-        this.working = new float[channels];
-        for (int i = 0; i < channels && i < initial.length; i++) {
+        this.working = new float[CHANNELS.length];
+        for (int i = 0; i < CHANNELS.length && i < initial.length; i++) {
             this.working[i] = initial[i];
         }
     }
@@ -44,11 +41,10 @@ public class ColorPickerScreen extends Screen {
         this.addRenderableWidget(new StringWidget(x, y, width, 12, this.title, this.font));
         y += 18;
 
-        this.addRenderableWidget(new ColorSwatchWidget(x, y, width, 22, this::argb));
+        this.addRenderableWidget(new ColorSwatchWidget(x, y, width, 22, () -> argb(working)));
         y += 30;
 
-        int channels = hasAlpha ? 4 : 3;
-        for (int i = 0; i < channels; i++) {
+        for (int i = 0; i < CHANNELS.length; i++) {
             this.addRenderableWidget(new ChannelSlider(x, y, width, i));
             y += 22;
         }
@@ -58,12 +54,8 @@ public class ColorPickerScreen extends Screen {
                 .bounds(x, y, width, 20).build());
     }
 
-    private int argb() {
-        int a = hasAlpha ? to255(working[3]) : 255;
-        int r = to255(working[0]);
-        int g = to255(working[1]);
-        int b = to255(working[2]);
-        return (a << 24) | (r << 16) | (g << 8) | b;
+    public static int argb(float[] rgb) {
+        return 0xFF000000 | (to255(rgb[0]) << 16) | (to255(rgb[1]) << 8) | to255(rgb[2]);
     }
 
     private static int to255(float v) {

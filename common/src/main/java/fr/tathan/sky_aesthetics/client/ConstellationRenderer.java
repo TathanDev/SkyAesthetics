@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.client;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -8,7 +7,6 @@ import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.renderpearl.api.vertex.VertexFormat;
 import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
@@ -39,7 +37,7 @@ public class ConstellationRenderer {
     }
 
     /** Renders all loaded constellations. Must be called on the render thread. */
-    public static void renderAll(PoseStack poseStack, SkyRenderState state) {
+    public static void renderAll(RenderPass renderPass, PoseStack poseStack, SkyRenderState state) {
         if (dirty) {
             rebuildBuffers();
             dirty = false;
@@ -50,7 +48,7 @@ public class ConstellationRenderer {
         poseStack.rotate(Axis.XP.rotation(state.starAngle));
 
         for (Constellation c : ConstellationsData.CONSTELLATIONS.values()) {
-            renderOne(c, poseStack, state.starBrightness);
+            renderOne(renderPass, c, poseStack, state.starBrightness);
         }
 
         poseStack.popPose();
@@ -129,7 +127,7 @@ public class ConstellationRenderer {
         return new BufferEntry(gpuBuffer, indexCount, textured);
     }
 
-    private static void renderOne(Constellation c, PoseStack poseStack, float brightness) {
+    private static void renderOne(RenderPass renderPass, Constellation c, PoseStack poseStack, float brightness) {
         BufferEntry entry = BUFFERS.get(c.id());
         if (entry == null) return;
 
@@ -147,27 +145,22 @@ public class ConstellationRenderer {
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(PrimitiveTopology.QUADS);
         GpuBuffer indexBuffer = quadIndices.getBuffer(entry.indexCount());
 
-        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
-        GpuTextureView colorView = mainRenderTarget.getColorTextureView();
-        GpuTextureView depthView = mainRenderTarget.getDepthTextureView();
-
         GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
                 .writeTransform(matrix4fStack, colorUniform, new Vector3f(), new Matrix4f());
 
-        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Constellation " + c.id(), colorView, Optional.empty(), depthView, OptionalDouble.empty())) {
-            if (entry.textured()) {
-                renderPass.setPipeline(RenderPipelineRegistry.CELESTIAL_BLEND);
-                renderPass.bindTexture("Sampler0", celestialAtlas.getTextureView(), celestialAtlas.getSampler());
-            } else {
-                renderPass.setPipeline(RenderPipelines.STARS);
-            }
-            RenderSystem.bindDefaultUniforms(renderPass);
-            renderPass.setUniform("DynamicTransforms", dynamicSlice);
-            renderPass.setVertexBuffer(0, entry.gpuBuffer().slice());
-            renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(entry.indexCount(), 1, 0, 0, 0);
+        renderPass.pushDebugGroup(() -> "Constellation " + c.id());
+        if (entry.textured()) {
+            renderPass.setPipeline(RenderSystem.getCompiledPipeline(RenderPipelineRegistry.CELESTIAL_BLEND));
+            renderPass.setUniform("Sampler0", celestialAtlas.getTextureView(), celestialAtlas.getSampler());
+        } else {
+            renderPass.setPipeline(RenderSystem.getCompiledPipeline(RenderPipelines.STARS));
         }
+        RenderSystem.bindDefaultUniforms(renderPass);
+        renderPass.setUniform("DynamicTransforms", dynamicSlice);
+        renderPass.setVertexBuffer(0, entry.gpuBuffer().slice());
+        renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
+        renderPass.drawIndexed(entry.indexCount(), 1, 0, 0, 0);
+        renderPass.popDebugGroup();
 
         matrix4fStack.popMatrix();
     }

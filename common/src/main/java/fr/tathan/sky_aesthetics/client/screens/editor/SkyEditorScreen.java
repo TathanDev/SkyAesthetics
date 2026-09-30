@@ -6,6 +6,7 @@ import fr.tathan.sky_aesthetics.client.screens.editor.model.EditablePack;
 import fr.tathan.sky_aesthetics.client.screens.editor.model.EditableSky;
 import fr.tathan.sky_aesthetics.client.screens.editor.tabs.EditorTab;
 import fr.tathan.sky_aesthetics.client.screens.editor.export.SkyPackExporter;
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.serialization.JsonOps;
 import net.minecraft.client.gui.components.tabs.MenuTabBar;
@@ -19,7 +20,6 @@ import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.server.packs.repository.PackRepository;
-import net.minecraft.util.Util;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.components.tabs.Tab;
@@ -30,6 +30,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -289,12 +290,12 @@ public class SkyEditorScreen extends Screen {
         if (!sky.skyColor.enabled) return;
         f.wide(section("Sky disc color", sky.skyColor.skyColorEnabled, b -> sky.skyColor.skyColorEnabled = b));
         if (sky.skyColor.skyColorEnabled) {
-            f.labelled(lit("Sky color"), ColorButton.forVec4f(this, sky.skyColor.skyColor));
+            f.labelled(lit("Sky color"), ColorButton.forVec3f(this, sky.skyColor.skyColor));
         }
         f.wide(section("Sunset color", sky.skyColor.sunsetColorEnabled, b -> sky.skyColor.sunsetColorEnabled = b));
-        if (sky.skyColor.sunsetColorEnabled) {
-            f.labelled(lit("Sunset color"), ColorButton.forVec3i(this, sky.skyColor.sunsetColor));
-        }
+        if (!sky.skyColor.sunsetColorEnabled) return;
+        f.labelled(lit("Sunset color"), ColorButton.forVec3i(this, sky.skyColor.sunsetColor));
+
         f.wide(section("Sunrise alpha modifier", sky.skyColor.alphaModifierEnabled, b -> sky.skyColor.alphaModifierEnabled = b));
         if (sky.skyColor.alphaModifierEnabled) {
             f.labelled(lit("Alpha modifier"), EditorWidgets.number(font, String.valueOf(sky.skyColor.alphaModifier),
@@ -378,7 +379,7 @@ public class SkyEditorScreen extends Screen {
         Button export = Button.builder(Component.translatable("sky_aesthetics.editor.action.export"),
                 b -> this.minecraft.gui.setScreen(new ExportScreen(this, pack, this::onExport))).width(110).build();
         Button docs = Button.builder(Component.translatable("sky_aesthetics.editor.action.docs"),
-                b -> Util.getPlatform().openUri(DOCS_URL)).width(110).build();
+                b -> Blaze3D.openUri(URI.create(DOCS_URL))).width(110).build();
 
         int gap = 6;
         List<Button> buttons = List.of(preview, peek, export, docs);
@@ -543,7 +544,7 @@ public class SkyEditorScreen extends Screen {
         toast(SystemToast.SystemToastId.PERIODIC_NOTIFICATION,
                 Component.translatable("sky_aesthetics.toast.success.title"),
                 Component.translatable("sky_aesthetics.toast.success.description", pack.skies.size()));
-        if (result.packPath() != null) Util.getPlatform().openPath(result.packPath());
+        if (result.packPath() != null) Blaze3D.openPath(result.packPath());
     }
 
     /** Adds the exported pack to the repository, enables it, and triggers a resource reload. */

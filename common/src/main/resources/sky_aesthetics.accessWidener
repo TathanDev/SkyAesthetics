@@ -1,7 +1,10 @@
 accessWidener v2 official
 
-accessible method net/minecraft/client/renderer/SkyRenderer buildCelestialQuad (Ljava/lang/String;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)Lcom/mojang/blaze3d/buffers/GpuBuffer;
-accessible method net/minecraft/client/renderer/SkyRenderer renderSun (FLcom/mojang/blaze3d/vertex/PoseStack;)V
-accessible method net/minecraft/client/renderer/SkyRenderer renderMoon (Lnet/minecraft/world/level/MoonPhase;FLcom/mojang/blaze3d/vertex/PoseStack;)V
-accessible method net/minecraft/client/renderer/SkyRenderer renderStars (FLcom/mojang/blaze3d/vertex/PoseStack;)V
-accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/blaze3d/pipeline/RenderPipeline;)Lcom/mojang/blaze3d/pipeline/RenderPipeline;
+accessible method net/minecraft/client/renderer/SkyRenderer buildCelestialQuad (Ljava/lang/String;Lnet/minecraft/client/renderer/texture/TextureAtlasSprite;)Lcom/mojang/renderpearl/api/buffers/GpuBuffer;
+accessible method net/minecraft/client/renderer/SkyRenderer renderSkyDisc (Lcom/mojang/renderpearl/api/commands/RenderPass;Lorg/joml/Vector3fc;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderDarkDisc (Lcom/mojang/renderpearl/api/commands/RenderPass;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderSunriseAndSunset (Lcom/mojang/renderpearl/api/commands/RenderPass;Lcom/mojang/blaze3d/vertex/PoseStack;FLorg/joml/Vector4fc;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderSun (Lcom/mojang/renderpearl/api/commands/RenderPass;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderMoon (Lcom/mojang/renderpearl/api/commands/RenderPass;Lnet/minecraft/world/level/MoonPhase;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+accessible method net/minecraft/client/renderer/SkyRenderer renderStars (Lcom/mojang/renderpearl/api/commands/RenderPass;FLcom/mojang/blaze3d/vertex/PoseStack;)V
+accessible method net/minecraft/client/renderer/RenderPipelines register (Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;)Lcom/mojang/renderpearl/api/pipeline/RenderPipeline;

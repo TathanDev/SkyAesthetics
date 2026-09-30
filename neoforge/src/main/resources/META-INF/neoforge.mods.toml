@@ -11,19 +11,19 @@ authors = "The Stellaris Team"
 description = '''
 Change the skybox of Minecraft like you want !
 '''
-logoFile = "logo.png"
+iconFile = "logo.png"
 
 [[dependencies.sky_aesthetics]]
 modId = "neoforge"
 type = "required"
-versionRange = "[26.2,)"
+versionRange = "[26.3,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.sky_aesthetics]]
 modId = "minecraft"
 type = "required"
-versionRange = "[26.2,)"
+versionRange = "[26.3,)"
 ordering = "NONE"
 side = "BOTH"
 

@@ -16,17 +16,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class WeatherEffectRendererMixin {
 
     @Inject(
-        method = "render(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/client/renderer/state/level/WeatherRenderState;)V",
+        method = "prepare(Lnet/minecraft/world/phys/Vec3;Lnet/minecraft/client/renderer/state/level/WeatherRenderState;)V",
         at = @At("HEAD"),
         cancellable = true
     )
-    private void cancelWeatherRender(Vec3 cameraPos, WeatherRenderState weatherState, CallbackInfo ci) {
+    private void cancelWeatherPrepare(Vec3 cameraPos, WeatherRenderState weatherState, CallbackInfo ci) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         SkyHelper.canRenderSky(level, sky -> {
             if (!sky.weather()
                     && !SkyHelper.isAModCancelRendering(SkyAesthetics.CONFIG.modDisablingWeather)
                     && !SkyAesthetics.CONFIG.disableCustomWeather) {
+                weatherState.rainColumns.clear();
+                weatherState.snowColumns.clear();
                 ci.cancel();
             }
         });

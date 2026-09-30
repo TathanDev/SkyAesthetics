@@ -28,7 +28,7 @@ public class ColorSwatchWidget extends AbstractWidget {
         int right = x + getWidth();
         int bottom = y + getHeight();
         graphics.fill(x, y, right, bottom, 0xFF000000);                 // border
-        graphics.fill(x + 1, y + 1, right - 1, bottom - 1, 0xFF000000 | (argb.getAsInt() & 0xFFFFFF));
+        graphics.fill(x + 1, y + 1, right - 1, bottom - 1, argb.getAsInt());
     }
 
     @Override

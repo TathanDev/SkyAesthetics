@@ -21,7 +21,7 @@ public final class SkyEditorEntry {
             Identifier.fromNamespaceAndPath(SkyAesthetics.MODID, "editor"));
 
     public static final KeyMapping OPEN_EDITOR = new KeyMapping(
-            KEY_OPEN, InputConstants.KEY_O, CATEGORY);
+            KEY_OPEN, InputConstants.KEY_K, CATEGORY);
 
     /** The editor instance currently in "peek" mode (screen closed so the player can move), if any. */
     private static SkyEditorScreen peekingScreen;

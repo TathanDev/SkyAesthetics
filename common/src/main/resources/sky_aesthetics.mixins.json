@@ -7,6 +7,7 @@
     "client.AttributeSystemMixin",
     "client.ClientLevelMixin",
     "client.FogRendererMixin",
+    "client.LevelExtractorMixin",
     "client.LightmapRenderStateExtractorMixin",
     "client.WeatherEffectRendererMixin"
   ],

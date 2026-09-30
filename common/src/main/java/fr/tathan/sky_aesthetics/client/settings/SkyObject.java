@@ -1,6 +1,5 @@
 package fr.tathan.sky_aesthetics.client.settings;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
@@ -8,11 +7,9 @@ import com.mojang.renderpearl.api.buffers.GpuBuffer;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.renderpearl.api.commands.RenderPass;
 import com.mojang.renderpearl.api.pipeline.PrimitiveTopology;
-import com.mojang.renderpearl.api.textures.GpuTextureView;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.SkyRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.Identifier;
@@ -83,7 +80,7 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         return SkyRenderer.buildCelestialQuad(this.texture.getPath(), textureAtlas.getSprite(this.texture));
     }
 
-    public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle) {
+    public void renderObject(RenderPass renderPass, List<GpuBuffer> scratchBuffers, float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle) {
         poseStack.pushPose();
 
         this.setObjectRotation(poseStack);
@@ -101,24 +98,21 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         matrix4fStack.scale(this.size, 1.0F, this.size);
 
         GpuBufferSlice gpuBufferSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(1.0F, 1.0F, 1.0F, alpha), new Vector3f(), new Matrix4f());
-        RenderTarget mainRenderTarget = Minecraft.getInstance().gameRenderer.mainRenderTarget();
-        GpuTextureView gpuTextureView = mainRenderTarget.getColorTextureView();
-        GpuTextureView gpuTextureView2 = mainRenderTarget.getDepthTextureView();
         GpuBuffer gpuBuffer = quadIndices.getBuffer(6);
 
-        try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder().createRenderPass(() -> "Sky sun", gpuTextureView, Optional.empty(), gpuTextureView2, OptionalDouble.empty())) {
-            renderPass.setPipeline(this.blend ? RenderPipelineRegistry.CELESTIAL_BLEND : RenderPipelineRegistry.CELESTIAL_NO_BLEND);
-            RenderSystem.bindDefaultUniforms(renderPass);
-            renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
-            renderPass.bindTexture("Sampler0", celestial.getTextureView(), celestial.getSampler());
-            renderPass.setVertexBuffer(0, objectBuffer.slice());
-            renderPass.setIndexBuffer(gpuBuffer, quadIndices.type());
-            renderPass.drawIndexed(6, 1,0, 0, 0);
-        }
+        renderPass.pushDebugGroup(() -> "Sky sun");
+        renderPass.setPipeline(RenderSystem.getCompiledPipeline(this.blend ? RenderPipelineRegistry.CELESTIAL_BLEND : RenderPipelineRegistry.CELESTIAL_NO_BLEND));
+        RenderSystem.bindDefaultUniforms(renderPass);
+        renderPass.setUniform("DynamicTransforms", gpuBufferSlice);
+        renderPass.setUniform("Sampler0", celestial.getTextureView(), celestial.getSampler());
+        renderPass.setVertexBuffer(0, objectBuffer.slice());
+        renderPass.setIndexBuffer(gpuBuffer, quadIndices.type());
+        renderPass.drawIndexed(6, 1,0, 0, 0);
+        renderPass.popDebugGroup();
 
         matrix4fStack.popMatrix();
 
-        objectBuffer.close();
+        scratchBuffers.add(objectBuffer);
 
         poseStack.popPose();
 

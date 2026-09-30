@@ -7,8 +7,6 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector3i;
-import org.joml.Vector4f;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -69,26 +67,6 @@ public final class EditorWidgets {
         return box;
     }
 
-    public static EditBox vec3i(Font font, Vector3i v) {
-        EditBox box = new EditBox(font, CONTROL_WIDTH, CONTROL_HEIGHT, Component.empty());
-        box.setValue(v.x + ", " + v.y + ", " + v.z);
-        box.setResponder(s -> {
-            int[] p = parseInts(s, 3);
-            if (p != null) v.set(p[0], p[1], p[2]);
-        });
-        return box;
-    }
-
-    public static EditBox vec4f(Font font, Vector4f v) {
-        EditBox box = new EditBox(font, CONTROL_WIDTH, CONTROL_HEIGHT, Component.empty());
-        box.setValue(fmt(v.x) + ", " + fmt(v.y) + ", " + fmt(v.z) + ", " + fmt(v.w));
-        box.setResponder(s -> {
-            float[] p = parseFloats(s, 4);
-            if (p != null) v.set(p[0], p[1], p[2], p[3]);
-        });
-        return box;
-    }
-
     public static EditBox vec2f(Font font, Vector2f v) {
         EditBox box = new EditBox(font, CONTROL_WIDTH, CONTROL_HEIGHT, Component.empty());
         box.setValue(fmt(v.x) + ", " + fmt(v.y));
@@ -124,20 +102,6 @@ public final class EditorWidgets {
         for (int i = 0; i < n; i++) {
             try {
                 out[i] = Float.parseFloat(parts[i].trim());
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return out;
-    }
-
-    private static int[] parseInts(String s, int n) {
-        String[] parts = s.split(",");
-        if (parts.length != n) return null;
-        int[] out = new int[n];
-        for (int i = 0; i < n; i++) {
-            try {
-                out[i] = Integer.parseInt(parts[i].trim());
             } catch (Exception e) {
                 return null;
             }

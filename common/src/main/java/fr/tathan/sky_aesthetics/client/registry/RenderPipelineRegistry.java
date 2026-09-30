@@ -16,33 +16,41 @@ public class RenderPipelineRegistry {
 
     static {
         CELESTIAL_NO_BLEND = RenderPipelines.register(RenderPipeline.builder()
+                .withBindGroupLayout(BindGroupLayouts.GLOBALS)
+                .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+                .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
                 .withLocation("pipeline/skyaesthetics_celestial")
                 .withVertexShader("core/position_tex")
                 .withFragmentShader("core/position_tex")
-                .withBindGroupLayout(BindGroupLayout.builder().withSampler("Sampler0").build())
+                .withBindGroupLayout(BindGroupLayouts.SAMPLER0)
+                .withColorTargetState(ColorTargetState.DEFAULT)
                 .withPrimitiveTopology(PrimitiveTopology.QUADS)
                 .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
                 .build());
 
         CELESTIAL_BLEND = RenderPipelines.register(RenderPipeline.builder()
+                .withBindGroupLayout(BindGroupLayouts.GLOBALS)
+                .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+                .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
                 .withLocation("pipeline/skyaesthetics_celestial_blend")
                 .withVertexShader("core/position_tex")
                 .withFragmentShader("core/position_tex")
-                .withBindGroupLayout(BindGroupLayout.builder().withSampler("Sampler0").build())
+                .withBindGroupLayout(BindGroupLayouts.SAMPLER0)
                 .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
                 .withPrimitiveTopology(PrimitiveTopology.QUADS)
                 .withVertexBinding(0, DefaultVertexFormat.POSITION_TEX)
-                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
                 .build());
 
         COLORED_STARS = RenderPipelines.register(RenderPipeline.builder()
+                .withBindGroupLayout(BindGroupLayouts.GLOBALS)
+                .withBindGroupLayout(BindGroupLayouts.PROJECTION)
+                .withBindGroupLayout(BindGroupLayouts.DYNAMIC_TRANSFORMS)
                 .withLocation("pipeline/skyaesthetics_colored_stars")
                 .withVertexShader("core/position_color")
                 .withFragmentShader("core/position_color")
                 .withColorTargetState(new ColorTargetState(BlendFunction.OVERLAY))
                 .withPrimitiveTopology(PrimitiveTopology.QUADS)
                 .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR)
-                .withBindGroupLayout(BindGroupLayouts.MATRICES_PROJECTION)
                 .build());
     }
 }
