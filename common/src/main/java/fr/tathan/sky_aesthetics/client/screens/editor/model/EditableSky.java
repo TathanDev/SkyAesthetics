@@ -98,6 +98,8 @@ public class EditableSky {
         public boolean enabled = false;
         public boolean skyColorEnabled = false;
         public Vector3f skyColor = new Vector3f(0.5f, 0.7f, 1.0f); // normalised 0-1
+        public boolean nightSkyColorEnabled = false;
+        public Vector3f nightSkyColor = new Vector3f(0.02f, 0.04f, 0.12f); // normalised 0-1
         public boolean sunsetColorEnabled = false;
         public Vector3i sunsetColor = new Vector3i(255, 100, 0);
         public boolean alphaModifierEnabled = false;
@@ -208,6 +210,10 @@ public class EditableSky {
                 e.skyColor.skyColorEnabled = true;
                 e.skyColor.skyColor = new Vector3f(c);
             });
+            sc.nightColor().ifPresent(c -> {
+                e.skyColor.nightSkyColorEnabled = true;
+                e.skyColor.nightSkyColor = new Vector3f(c);
+            });
             sc.sunsetColor().ifPresent(c -> {
                 e.skyColor.sunsetColorEnabled = true;
                 e.skyColor.sunsetColor = new Vector3i(c);
@@ -313,6 +319,8 @@ public class EditableSky {
         e.skyColor.enabled = skyColor.enabled;
         e.skyColor.skyColorEnabled = skyColor.skyColorEnabled;
         e.skyColor.skyColor = new Vector3f(skyColor.skyColor);
+        e.skyColor.nightSkyColorEnabled = skyColor.nightSkyColorEnabled;
+        e.skyColor.nightSkyColor = new Vector3f(skyColor.nightSkyColor);
         e.skyColor.sunsetColorEnabled = skyColor.sunsetColorEnabled;
         e.skyColor.sunsetColor = new Vector3i(skyColor.sunsetColor);
         e.skyColor.alphaModifierEnabled = skyColor.alphaModifierEnabled;
@@ -383,6 +391,7 @@ public class EditableSky {
         Optional<SkyColorSettings> colorOpt = skyColor.enabled
                 ? Optional.of(new SkyColorSettings(
                         skyColor.skyColorEnabled ? Optional.of(new Vector3f(skyColor.skyColor)) : Optional.empty(),
+                        skyColor.nightSkyColorEnabled ? Optional.of(new Vector3f(skyColor.nightSkyColor)) : Optional.empty(),
                         skyColor.sunsetColorEnabled ? Optional.of(new Vector3i(skyColor.sunsetColor)) : Optional.empty(),
                         skyColor.sunsetColorEnabled && skyColor.alphaModifierEnabled ? Optional.of(skyColor.alphaModifier) : Optional.empty()))
                 : Optional.empty();
