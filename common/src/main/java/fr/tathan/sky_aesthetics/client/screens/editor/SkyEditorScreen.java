@@ -292,6 +292,10 @@ public class SkyEditorScreen extends Screen {
         if (sky.skyColor.skyColorEnabled) {
             f.labelled(lit("Sky color"), ColorButton.forVec3f(this, sky.skyColor.skyColor));
         }
+        f.wide(section("Night sky color", sky.skyColor.nightSkyColorEnabled, b -> sky.skyColor.nightSkyColorEnabled = b));
+        if (sky.skyColor.nightSkyColorEnabled) {
+            f.labelled(lit("Night color"), ColorButton.forVec3f(this, sky.skyColor.nightSkyColor));
+        }
         f.wide(section("Sunset color", sky.skyColor.sunsetColorEnabled, b -> sky.skyColor.sunsetColorEnabled = b));
         if (!sky.skyColor.sunsetColorEnabled) return;
         f.labelled(lit("Sunset color"), ColorButton.forVec3i(this, sky.skyColor.sunsetColor));
