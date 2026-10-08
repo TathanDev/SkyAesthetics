@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.1.4 for MC 26.1.x changelog
+# Sky Aesthetics 2.1.5 for MC 26.1.x changelog
 
 ## Fixes
-- Fixed `environment_attributes` and `light_settings` being silently ignored or rejected
+- Fix skybox rotation using degrees instead of radians

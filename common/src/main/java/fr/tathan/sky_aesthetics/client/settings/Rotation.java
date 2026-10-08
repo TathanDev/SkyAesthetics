@@ -19,6 +19,7 @@ public record Rotation(Axis axis, String rotationType) {
         return new Rotation(Axis.XP, "NIGHT");
     }
 
+    /** @param dayAngle the sun angle in radians */
     public void rotatePoseStack(Matrix4f modelMatrix, float dayAngle){
         if(Objects.equals(rotationType, "NIGHT")){
             dayAngle = -dayAngle;
@@ -42,11 +43,12 @@ public record Rotation(Axis axis, String rotationType) {
 
         public static final Codec<Axis> CODEC = StringRepresentable.fromEnum(Axis::values);
 
+        /** @param rotation angle in radians (e.g. {@code SkyRenderState.sunAngle}) */
         public Quaternionf toQuaternion(float rotation) {
             return switch (this) {
-                case XP -> com.mojang.math.Axis.XN.rotationDegrees(rotation);
-                case YP -> com.mojang.math.Axis.YN.rotationDegrees(rotation);
-                case ZP -> com.mojang.math.Axis.ZN.rotationDegrees(rotation);
+                case XP -> com.mojang.math.Axis.XN.rotation(rotation);
+                case YP -> com.mojang.math.Axis.YN.rotation(rotation);
+                case ZP -> com.mojang.math.Axis.ZN.rotation(rotation);
             };
         }
 
