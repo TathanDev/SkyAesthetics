@@ -130,7 +130,9 @@ public class DimensionRenderer {
 
            renderSkybox(renderPass, poseStack, skyRenderState.sunAngle);
 
-           if (skyColorSettings != null && skyColorSettings.color().isPresent()) {
+           if (skyColorSettings != null && skyColorSettings.nightColor().isPresent() && skyRenderState.starBrightness > 0.0F) {
+               skyRenderer.renderSkyDisc(renderPass, skyColorSettings.nightColor().get());
+           } else if (skyColorSettings != null && skyColorSettings.color().isPresent()) {
                skyRenderer.renderSkyDisc(renderPass, skyColorSettings.color().get());
            } else {
                skyRenderer.renderSkyDisc(renderPass, skyRenderState.skyColor);
