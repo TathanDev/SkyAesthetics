@@ -1,17 +1,13 @@
 package fr.tathan.sky_aesthetics.neoforge.mixin.client;
 
-import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
 import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.DimensionRenderer;
-import fr.tathan.sky_aesthetics.client.FogDataCapture;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
-import fr.tathan.sky_aesthetics.client.settings.FogSettings;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
-import net.minecraft.client.renderer.fog.FogData;
 import java.util.OptionalInt;
 import net.minecraft.client.CloudStatus;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -71,20 +67,8 @@ public abstract class LevelRendererMixin {
                             mvStack.pushMatrix();
                             mvStack.set(modelViewMatrix);
                             DimensionRenderer renderer = SkiesRegistry.getOrBuildRenderer(planetSky);
-                            FogSettings fogSettings = renderer.fogSettings;
-                            if (fogSettings != null && fogSettings.needsDynamicBuffer()) {
-                                FogData vanillaFog = FogDataCapture.getLast();
-                                GpuBuffer dynBuf = vanillaFog != null
-                                        ? fogSettings.buildDynamicFogBuffer(vanillaFog)
-                                        : null;
-                                GpuBufferSlice fogSlice = dynBuf != null ? dynBuf.slice() : skyFog;
-                                RenderSystem.setShaderFog(fogSlice);
-                                renderer.render(skyRenderState, skyRenderer);
-                                if (dynBuf != null) dynBuf.close();
-                            } else {
-                                RenderSystem.setShaderFog(renderer.getCustomFogSlice(skyFog));
-                                renderer.render(skyRenderState, skyRenderer);
-                            }
+                            RenderSystem.setShaderFog(skyFog);
+                            renderer.render(skyRenderState, skyRenderer);
                             mvStack.popMatrix();
                         });
                         ci.cancel();

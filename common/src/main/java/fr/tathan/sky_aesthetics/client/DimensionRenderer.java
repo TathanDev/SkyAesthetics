@@ -52,7 +52,6 @@ public class DimensionRenderer {
 
     private final GpuBuffer skyboxBuffer;
     private final int skyboxIndexCount;
-    private final GpuBuffer customFogBuffer;
 
     // Cached custom sun/moon quads (static geometry) so we don't re-upload a GpuBuffer every frame.
     // The moon quad is rebuilt only when the lunar phase changes (its UVs are phase-dependent).
@@ -94,17 +93,6 @@ public class DimensionRenderer {
             this.skyboxBuffer = null;
             this.skyboxIndexCount = 0;
         }
-        this.customFogBuffer = (fogSettings != null && fogSettings.needsCustomBuffer())
-                ? fogSettings.buildFogBuffer() : null;
-    }
-
-    /**
-     * Returns the fog GpuBufferSlice to use for this sky's render pass.
-     * When fog settings are present and override vanilla, returns a slice of the
-     * pre-built custom fog buffer; otherwise returns the vanilla skyFog slice.
-     */
-    public GpuBufferSlice getCustomFogSlice(GpuBufferSlice vanillaFog) {
-        return customFogBuffer != null ? customFogBuffer.slice() : vanillaFog;
     }
 
     public boolean canRenderSky() {
@@ -553,9 +541,6 @@ public class DimensionRenderer {
         }
         if (this.skyboxBuffer != null) {
             this.skyboxBuffer.close();
-        }
-        if (this.customFogBuffer != null) {
-            this.customFogBuffer.close();
         }
         if (this.customSunBuffer != null) {
             this.customSunBuffer.close();
