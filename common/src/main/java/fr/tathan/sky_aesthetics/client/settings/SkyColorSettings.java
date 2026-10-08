@@ -16,9 +16,16 @@ import java.util.Optional;
  * @param sunriseAlphaModifier The alpha modifier for the sunrise/sunset
  */
 public record SkyColorSettings(Optional<Vector4f> color,
+                               Optional<Vector4f> nightColor,
                                Optional<Vector3i> sunsetColor,
                                Optional<Integer> sunriseAlphaModifier
 ) {
+
+    public SkyColorSettings(Optional<Vector4f> color,
+                            Optional<Vector3i> sunsetColor,
+                            Optional<Integer> sunriseAlphaModifier) {
+        this(color, Optional.empty(), sunsetColor, sunriseAlphaModifier);
+    }
 
     public static Codec<Vector4f> VEC4F = Codec.FLOAT.listOf().comapFlatMap((list) -> Util.fixedSize(list, 4).map((listx) -> new Vector4f(listx.getFirst(), listx.get(1), listx.get(2), listx.getLast())), (vector4f) -> List.of(vector4f.x, vector4f.y, vector4f.z, vector4f.w));
     public static Codec<Vector3i> VEC3I = Codec.INT.listOf()
@@ -28,11 +35,12 @@ public record SkyColorSettings(Optional<Vector4f> color,
 
     public static final Codec<SkyColorSettings> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             VEC4F.optionalFieldOf("sky_color").forGetter(SkyColorSettings::color),
+            VEC4F.optionalFieldOf("night_sky_color").forGetter(SkyColorSettings::nightColor),
             VEC3I.optionalFieldOf("sunset_color").forGetter(SkyColorSettings::sunsetColor),
             Codec.INT.optionalFieldOf("sunset_alpha_modifier").forGetter(SkyColorSettings::sunriseAlphaModifier)
     ).apply(instance, SkyColorSettings::new));
 
     public static SkyColorSettings createDefaultSettings() {
-        return new SkyColorSettings(Optional.empty(), Optional.empty(), Optional.of(1));
+        return new SkyColorSettings(Optional.empty(), Optional.empty(), Optional.empty(), Optional.of(1));
     }
 }
