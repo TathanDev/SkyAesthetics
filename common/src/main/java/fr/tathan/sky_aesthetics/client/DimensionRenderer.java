@@ -110,7 +110,11 @@ public class DimensionRenderer {
        renderSkybox(poseStack, skyRenderState.sunAngle);
 
        // Sky disc — use custom color if configured
-       if (skyColorSettings != null && skyColorSettings.color().isPresent()) {
+       if (skyColorSettings != null && skyColorSettings.nightColor().isPresent() && skyRenderState.starBrightness > 0.0F) {
+           Vector4f c = skyColorSettings.nightColor().get();
+           int packed = packArgb((int)(c.w * 255), (int)(c.x * 255), (int)(c.y * 255), (int)(c.z * 255));
+           skyRenderer.renderSkyDisc(packed);
+       } else if (skyColorSettings != null && skyColorSettings.color().isPresent()) {
            Vector4f c = skyColorSettings.color().get();
            int packed = packArgb((int)(c.w * 255), (int)(c.x * 255), (int)(c.y * 255), (int)(c.z * 255));
            skyRenderer.renderSkyDisc(packed);
