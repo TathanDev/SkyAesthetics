@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.server.IntegratedServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
@@ -63,6 +64,20 @@ public class SkyRenderer {
 
         if (properties.skyColor().customColor() && properties.skyColor().color().isPresent()) {
             vec4 = properties.skyColor().color().get();
+        }
+
+        float nightBrightness = level.getStarBrightness(partialTick);
+        if (nightBrightness > 0.0f
+                && properties.nightSkyColor().isPresent()
+                && properties.nightSkyColor().get().customColor()
+                && properties.nightSkyColor().get().color().isPresent()) {
+            Vector4f nightColor = properties.nightSkyColor().get().color().get();
+            vec4 = new Vector4f(
+                    Mth.lerp(nightBrightness, vec4.x, nightColor.x),
+                    Mth.lerp(nightBrightness, vec4.y, nightColor.y),
+                    Mth.lerp(nightBrightness, vec4.z, nightColor.z),
+                    Mth.lerp(nightBrightness, vec4.w, nightColor.w)
+            );
         }
 
         FogRenderer.levelFogColor();
