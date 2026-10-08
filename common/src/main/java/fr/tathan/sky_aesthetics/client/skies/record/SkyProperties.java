@@ -25,6 +25,7 @@ public record SkyProperties(
         Optional<Float> sunriseModifier,
         String skyType,
         SkyColor skyColor,
+        Optional<SkyColor> nightSkyColor,
         List<SkyObject> skyObjects,
         Optional<List<String>> constellations,
         Optional<RenderCondition> renderCondition) {
@@ -41,6 +42,7 @@ public record SkyProperties(
             Codec.FLOAT.optionalFieldOf("sunrise_alpha_modifier").forGetter(SkyProperties::sunriseModifier),
             Codec.STRING.fieldOf("sky_type").forGetter(SkyProperties::skyType),
             SkyColor.CODEC.fieldOf("sky_color").forGetter(SkyProperties::skyColor),
+            SkyColor.CODEC.optionalFieldOf("night_sky_color").forGetter(SkyProperties::nightSkyColor),
             SkyObject.CODEC.listOf().fieldOf("sky_objects").forGetter(SkyProperties::skyObjects),
             Codec.STRING.listOf().optionalFieldOf("constellations").forGetter(SkyProperties::constellations),
             RenderCondition.CODEC.optionalFieldOf("condition").forGetter(SkyProperties::renderCondition)
