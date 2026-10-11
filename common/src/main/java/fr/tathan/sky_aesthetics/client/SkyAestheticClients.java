@@ -1,6 +1,8 @@
 package fr.tathan.sky_aesthetics.client;
 
-import fr.tathan.SkyAesthetics;import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
+import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.compat.IrisCompat;
+import fr.tathan.sky_aesthetics.client.data.ConstellationsData;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import net.minecraft.resources.Identifier;
@@ -13,6 +15,7 @@ public class SkyAestheticClients {
 
     public static void init() {
         RenderPipelineRegistry.init();
+        IrisCompat.init();
     }
 
 

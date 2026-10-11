@@ -8,6 +8,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.textures.GpuTextureView;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
+import fr.tathan.sky_aesthetics.client.compat.IrisCompat;
 import fr.tathan.sky_aesthetics.client.registry.RenderPipelineRegistry;
 import fr.tathan.sky_aesthetics.client.settings.*;
 import net.minecraft.client.Minecraft;
@@ -177,9 +178,11 @@ public class DimensionRenderer {
             poseStack.popPose();
         }
 
+        Object irisPhase = IrisCompat.clearPhase();
         for(SkyObject skyObject : skyObjects) {
             skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, moonAngle);
         }
+        IrisCompat.restorePhase(irisPhase);
 
         poseStack.popPose();
     }
