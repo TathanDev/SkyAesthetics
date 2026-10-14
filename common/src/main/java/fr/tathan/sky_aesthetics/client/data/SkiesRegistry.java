@@ -30,6 +30,8 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
      */
     private static volatile SkyProperties previewSky;
 
+    private static volatile int version;
+
 
     public SkiesRegistry() {
         super(SkyProperties.CODEC, FileToIdConverter.json("sky_aesthetics"));
@@ -51,7 +53,11 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
             SkyAesthetics.LOG.info("{} | registered", skyProperties.id());
 
         });
+        version++;
+    }
 
+    public static int getVersion() {
+        return version;
     }
 
     /**
@@ -75,6 +81,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
         if (previewSky != null) invalidate(previewSky.id()); // close renderer for the old preview id
         invalidate(sky.id()); // force rebuild for the new sky
         previewSky = sky;
+        version++;
     }
 
     /** Clears the live-preview sky and drops its cached renderer. */
@@ -82,6 +89,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
         if (previewSky != null) {
             invalidate(previewSky.id());
             previewSky = null;
+            version++;
         }
     }
 
@@ -101,5 +109,6 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
             SkyAesthetics.LOG.warn("Sky with id {} already exists, overwriting it", id);
         }
         SKY_PROPERTIES.put(id, sky);
+        version++;
     }
 }

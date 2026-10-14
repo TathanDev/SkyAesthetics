@@ -6,10 +6,19 @@ import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
 import net.minecraft.world.level.Level;
 
+import java.lang.ref.WeakReference;
 import java.util.OptionalInt;
 import java.util.function.Consumer;
 
 public class SkyHelper {
+
+    // Per-tick cache for selectSky(level, true); the level is weakly held so it can be collected after leaving.
+    private static WeakReference<Level> cachedLevel = new WeakReference<>(null);
+    private static long cachedGameTime;
+    private static int cachedVersion;
+    private static String[] cachedDisabledSkies;
+    private static String[] cachedDisabledDimensions;
+    private static SkyProperties cachedSky;
 
     public static boolean canRenderSky(Level level, Consumer<SkyProperties> action) {
         SkyProperties sky = selectSky(level, true);
@@ -56,6 +65,27 @@ public class SkyHelper {
      * @return the chosen sky, or {@code null} when none applies.
      */
     private static SkyProperties selectSky(Level level, boolean honorRenderCondition) {
+        if (!honorRenderCondition) return computeSky(level, false);
+
+        // Called several times per frame (sky, lightmap, weather, clouds, fog). The answer only changes
+        // when the player moves (once per tick), the skies/preview change, or the disable lists change.
+        long gameTime = level.getGameTime();
+        int version = SkiesRegistry.getVersion();
+        String[] disabledSkies = SkyAesthetics.CONFIG.disabledSkies;
+        String[] disabledDimensions = SkyAesthetics.CONFIG.disabledDimensions;
+        if (level != cachedLevel.get() || gameTime != cachedGameTime || version != cachedVersion
+                || disabledSkies != cachedDisabledSkies || disabledDimensions != cachedDisabledDimensions) {
+            cachedSky = computeSky(level, true);
+            cachedLevel = new WeakReference<>(level);
+            cachedGameTime = gameTime;
+            cachedVersion = version;
+            cachedDisabledSkies = disabledSkies;
+            cachedDisabledDimensions = disabledDimensions;
+        }
+        return cachedSky;
+    }
+
+    private static SkyProperties computeSky(Level level, boolean honorRenderCondition) {
         SkyProperties preview = SkiesRegistry.getPreviewSky();
         if (preview != null && preview.world().equals(level.dimension())) {
             return preview;

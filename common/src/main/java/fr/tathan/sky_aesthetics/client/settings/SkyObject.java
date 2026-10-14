@@ -86,7 +86,22 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         return SkyRenderer.buildCelestialQuad(this.texture.getPath(), textureAtlas.getSprite(this.texture));
     }
 
+    /**
+     * Renders the object with a freshly built quad. Prefer
+     * {@link #renderObject(GpuBuffer, float, PoseStack, TextureAtlas, float, float)} with a cached
+     * quad from {@link #buildSkyObject(TextureAtlas)} when rendering every frame.
+     */
     public void renderObject(float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle, float moonAngle) {
+        GpuBuffer objectBuffer = this.buildSkyObject(celestial);
+        this.renderObject(objectBuffer, alpha, poseStack, celestial, sunAngle, moonAngle);
+        objectBuffer.close();
+    }
+
+    /**
+     * Renders the object using a quad previously built by {@link #buildSkyObject(TextureAtlas)}.
+     * The caller owns the buffer.
+     */
+    public void renderObject(GpuBuffer objectBuffer, float alpha, PoseStack poseStack, TextureAtlas celestial, float sunAngle, float moonAngle) {
         poseStack.pushPose();
 
         this.setObjectRotation(poseStack);
@@ -94,8 +109,6 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
 
 
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
-
-        GpuBuffer objectBuffer = this.buildSkyObject(celestial);
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         matrix4fStack.pushMatrix();
@@ -120,8 +133,6 @@ public record SkyObject(Identifier texture, boolean blend, float size, Vector3f 
         }
 
         matrix4fStack.popMatrix();
-
-        objectBuffer.close();
 
         poseStack.popPose();
 

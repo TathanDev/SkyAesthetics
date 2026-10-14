@@ -60,9 +60,15 @@ public class DimensionRenderer {
     private GpuBuffer customMoonBuffer;
     private int customMoonBufferPhase = -1;
 
+    private GpuBuffer[] skyObjectBuffers;
+
     private final List<ActiveShootingStar> activeShootingStars = new ArrayList<>();
     private final RandomSource shootingStarRng = RandomSource.create();
     private long lastGameTime = -1;
+
+    private GpuBuffer shootingStarsBuffer;
+    private int shootingStarsIndexCount;
+    private boolean shootingStarsDirty;
 
     private DimensionRenderer(List<SkyObject> skyObjects,
                               boolean weather,
@@ -179,12 +185,32 @@ public class DimensionRenderer {
         }
 
         Object irisPhase = IrisCompat.clearPhase();
-        for(SkyObject skyObject : skyObjects) {
-            skyObject.renderObject(1, poseStack, this.celestialsAtlas, sunAngle, moonAngle);
+        GpuBuffer[] objectBuffers = getSkyObjectBuffers();
+        for (int i = 0; i < skyObjects.size(); i++) {
+            skyObjects.get(i).renderObject(objectBuffers[i], 1, poseStack, this.celestialsAtlas, sunAngle, moonAngle);
         }
         IrisCompat.restorePhase(irisPhase);
 
         poseStack.popPose();
+    }
+
+    private GpuBuffer[] getSkyObjectBuffers() {
+        if (skyObjectBuffers == null || skyObjectBuffers.length != skyObjects.size()) {
+            closeSkyObjectBuffers();
+            skyObjectBuffers = new GpuBuffer[skyObjects.size()];
+            for (int i = 0; i < skyObjectBuffers.length; i++) {
+                skyObjectBuffers[i] = skyObjects.get(i).buildSkyObject(this.celestialsAtlas);
+            }
+        }
+        return skyObjectBuffers;
+    }
+
+    private void closeSkyObjectBuffers() {
+        if (skyObjectBuffers == null) return;
+        for (GpuBuffer buffer : skyObjectBuffers) {
+            buffer.close();
+        }
+        skyObjectBuffers = null;
     }
 
     // -------------------------------------------------------------------------
@@ -420,6 +446,7 @@ public class DimensionRenderer {
 
         StarSettings.ShootingStars config = starSettings.shootingStars().get();
 
+        boolean hadStars = !activeShootingStars.isEmpty();
         activeShootingStars.forEach(star -> {
             star.remainingTicks--;
             star.position.add(new Vector3f(star.direction).mul(config.speed() * 0.5f)).normalize(100.0f);
@@ -428,6 +455,10 @@ public class DimensionRenderer {
 
         if (starBrightness > 0 && shootingStarRng.nextInt(100) < config.percentage()) {
             spawnShootingStar(config);
+        }
+
+        if (hadStars || !activeShootingStars.isEmpty()) {
+            shootingStarsDirty = true;
         }
     }
 
@@ -465,76 +496,82 @@ public class DimensionRenderer {
     }
 
     private void renderShootingStars(PoseStack poseStack, SkyRenderState state) {
-        if (activeShootingStars.isEmpty()) return;
-        for (ActiveShootingStar star : activeShootingStars) {
-            renderOneShootingStar(star, poseStack, state);
+        if (shootingStarsDirty) {
+            rebuildShootingStarsBuffer();
+            shootingStarsDirty = false;
         }
-    }
-
-    private void renderOneShootingStar(ActiveShootingStar star, PoseStack poseStack, SkyRenderState state) {
-        float alpha = (star.remainingTicks / (float) star.maxTicks) * state.starBrightness;
-        if (alpha <= 0) return;
-
-        Vec3 c = star.config.color();
-        int cr = (int)(c.x * 255);
-        int cg = (int)(c.y * 255);
-        int cb = (int)(c.z * 255);
-
-        Vector3f pos = star.position;
-        Vector3f dir = star.direction;
-        Vector3f norm = new Vector3f(pos).normalize();
-        Vector3f right = new Vector3f(dir).cross(norm).normalize();
-
-        float halfLen = star.config.scale() * 2.0f;
-        float halfWid = star.config.scale() * 0.25f;
-
-        Vector3f v0 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).add(new Vector3f(right).mul(halfWid));
-        Vector3f v1 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).sub(new Vector3f(right).mul(halfWid));
-        Vector3f v2 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).sub(new Vector3f(right).mul(halfWid));
-        Vector3f v3 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).add(new Vector3f(right).mul(halfWid));
-
-        GpuBuffer shootingStarBuffer;
-        int indexCount;
-        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
-                DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 4)) {
-            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-            bufferBuilder.addVertex(v1.x, v1.y, v1.z).setColor(cr, cg, cb, 255);
-            bufferBuilder.addVertex(v0.x, v0.y, v0.z).setColor(cr, cg, cb, 255);
-            bufferBuilder.addVertex(v3.x, v3.y, v3.z).setColor(cr, cg, cb, 255);
-            bufferBuilder.addVertex(v2.x, v2.y, v2.z).setColor(cr, cg, cb, 255);
-            try (MeshData meshData = bufferBuilder.buildOrThrow()) {
-                indexCount = meshData.drawState().indexCount();
-                shootingStarBuffer = RenderSystem.getDevice().createBuffer(
-                        () -> "Shooting star", 40, meshData.vertexBuffer());
-            }
-        }
+        if (shootingStarsBuffer == null || state.starBrightness <= 0) return;
 
         Matrix4fStack matrix4fStack = RenderSystem.getModelViewStack();
         matrix4fStack.pushMatrix();
         matrix4fStack.mul(poseStack.last().pose());
 
         RenderSystem.AutoStorageIndexBuffer quadIndices = RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS);
-        GpuBuffer indexBuffer = quadIndices.getBuffer(indexCount);
+        GpuBuffer indexBuffer = quadIndices.getBuffer(shootingStarsIndexCount);
 
         GpuTextureView colorView = Minecraft.getInstance().getMainRenderTarget().getColorTextureView();
         GpuTextureView depthView = Minecraft.getInstance().getMainRenderTarget().getDepthTextureView();
 
-        // Color is in vertex attributes; DynamicTransforms alpha carries the fade
-        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms()
-                .writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, alpha), new Vector3f(), new Matrix4f());
+        GpuBufferSlice dynamicSlice = RenderSystem.getDynamicUniforms().writeTransform(matrix4fStack, new Vector4f(1f, 1f, 1f, state.starBrightness), new Vector3f(), new Matrix4f());
 
         try (RenderPass renderPass = RenderSystem.getDevice().createCommandEncoder()
-                .createRenderPass(() -> "Shooting star", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
+                .createRenderPass(() -> "Shooting stars", colorView, OptionalInt.empty(), depthView, OptionalDouble.empty())) {
             renderPass.setPipeline(RenderPipelineRegistry.COLORED_STARS);
             RenderSystem.bindDefaultUniforms(renderPass);
             renderPass.setUniform("DynamicTransforms", dynamicSlice);
-            renderPass.setVertexBuffer(0, shootingStarBuffer);
+            renderPass.setVertexBuffer(0, shootingStarsBuffer);
             renderPass.setIndexBuffer(indexBuffer, quadIndices.type());
-            renderPass.drawIndexed(0, 0, indexCount, 1);
+            renderPass.drawIndexed(0, 0, shootingStarsIndexCount, 1);
         }
 
         matrix4fStack.popMatrix();
-        shootingStarBuffer.close();
+    }
+
+    /** Rebuilds the shared quad buffer from the current shooting stars (null when there are none). */
+    private void rebuildShootingStarsBuffer() {
+        if (shootingStarsBuffer != null) {
+            shootingStarsBuffer.close();
+            shootingStarsBuffer = null;
+        }
+        shootingStarsIndexCount = 0;
+        if (activeShootingStars.isEmpty()) return;
+
+        try (ByteBufferBuilder byteBufferBuilder = ByteBufferBuilder.exactlySized(
+                DefaultVertexFormat.POSITION_COLOR.getVertexSize() * 4 * activeShootingStars.size())) {
+            BufferBuilder bufferBuilder = new BufferBuilder(byteBufferBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+
+            for (ActiveShootingStar star : activeShootingStars) {
+                Vec3 c = star.config.color();
+                int cr = (int)(c.x * 255);
+                int cg = (int)(c.y * 255);
+                int cb = (int)(c.z * 255);
+                int ca = (int)(255 * star.remainingTicks / (float) star.maxTicks);
+
+                Vector3f pos = star.position;
+                Vector3f dir = star.direction;
+                Vector3f norm = new Vector3f(pos).normalize();
+                Vector3f right = new Vector3f(dir).cross(norm).normalize();
+
+                float halfLen = star.config.scale() * 2.0f;
+                float halfWid = star.config.scale() * 0.25f;
+
+                Vector3f v0 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).add(new Vector3f(right).mul(halfWid));
+                Vector3f v1 = new Vector3f(pos).add(new Vector3f(dir).mul(halfLen)).sub(new Vector3f(right).mul(halfWid));
+                Vector3f v2 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).sub(new Vector3f(right).mul(halfWid));
+                Vector3f v3 = new Vector3f(pos).sub(new Vector3f(dir).mul(halfLen * 0.5f)).add(new Vector3f(right).mul(halfWid));
+
+                bufferBuilder.addVertex(v1.x, v1.y, v1.z).setColor(cr, cg, cb, ca);
+                bufferBuilder.addVertex(v0.x, v0.y, v0.z).setColor(cr, cg, cb, ca);
+                bufferBuilder.addVertex(v3.x, v3.y, v3.z).setColor(cr, cg, cb, ca);
+                bufferBuilder.addVertex(v2.x, v2.y, v2.z).setColor(cr, cg, cb, ca);
+            }
+
+            try (MeshData meshData = bufferBuilder.buildOrThrow()) {
+                shootingStarsIndexCount = meshData.drawState().indexCount();
+                shootingStarsBuffer = RenderSystem.getDevice().createBuffer(
+                        () -> "Shooting stars", 40, meshData.vertexBuffer());
+            }
+        }
     }
 
     /** Close GPU resources held by this renderer (called when resource packs reload). */
@@ -550,6 +587,11 @@ public class DimensionRenderer {
         }
         if (this.customMoonBuffer != null) {
             this.customMoonBuffer.close();
+        }
+        closeSkyObjectBuffers();
+        if (this.shootingStarsBuffer != null) {
+            this.shootingStarsBuffer.close();
+            this.shootingStarsBuffer = null;
         }
         activeShootingStars.clear();
     }
