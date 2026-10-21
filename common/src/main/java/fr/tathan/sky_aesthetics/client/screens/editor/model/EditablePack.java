@@ -128,6 +128,13 @@ public class EditablePack {
                     errors.add(label + ": invalid skybox texture '" + sky.skyBox.texture + "'.");
                 }
             }
+            for (int i = 0; i < sky.layers.size(); i++) {
+                try {
+                    sky.layers.get(i).toLayer();
+                } catch (IllegalStateException e) {
+                    errors.add(label + ": skybox layer " + (i + 1) + ": " + e.getMessage());
+                }
+            }
             for (int i = 0; i < sky.skyObjects.size(); i++) {
                 String tex = sky.skyObjects.get(i).texture;
                 if (!isBlank(tex) && Identifier.tryParse(tex) == null) {

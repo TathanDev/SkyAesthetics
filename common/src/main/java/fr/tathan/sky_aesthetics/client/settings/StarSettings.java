@@ -108,13 +108,16 @@ public record StarSettings(
 
 
     public void renderStars(PoseStack poseStack, SkyRenderState skyRenderState, SkyRenderer skyRenderer, @Nullable BufferHolder customStarBuffer) {
+        renderStars(poseStack, skyRenderState, skyRenderer, customStarBuffer, 1.0f);
+    }
 
+    public void renderStars(PoseStack poseStack, SkyRenderState skyRenderState, SkyRenderer skyRenderer, @Nullable BufferHolder customStarBuffer, float fade) {
         boolean isNightTime = skyRenderState.starBrightness > 0.0F;
 
         if (this.vanilla && isNightTime) {
             poseStack.pushPose();
             poseStack.mulPose(Axis.XP.rotation(skyRenderState.starAngle));
-            skyRenderer.renderStars(skyRenderState.starBrightness, poseStack);
+            skyRenderer.renderStars(skyRenderState.starBrightness * fade, poseStack);
             poseStack.popPose();
             return;
         }
@@ -126,9 +129,9 @@ public record StarSettings(
             poseStack.mulPose(Axis.XP.rotation(starsAngle));
 
             if(this.allDaysVisible()) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), 1f);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), fade);
             } else if (isNightTime) {
-                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness);
+                customStarBuffer.render(poseStack, RenderSystem.getSequentialBuffer(VertexFormat.Mode.QUADS), skyRenderState.starBrightness * fade);
             }
             poseStack.popPose();
 

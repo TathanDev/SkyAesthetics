@@ -32,7 +32,9 @@ public record Rotation(Axis axis, String rotationType) {
     public enum Axis implements StringRepresentable {
         XP("XP"),
         YP("YP"),
-        ZP("ZP");
+        ZP("ZP"),
+        // The axis of the vanilla sun, so a DAY skybox follows the sun
+        SUN("SUN");
 
 
         public final String name;
@@ -49,6 +51,8 @@ public record Rotation(Axis axis, String rotationType) {
                 case XP -> com.mojang.math.Axis.XN.rotation(rotation);
                 case YP -> com.mojang.math.Axis.YN.rotation(rotation);
                 case ZP -> com.mojang.math.Axis.ZN.rotation(rotation);
+                // The sun is drawn with YP(-90) then XP(sunAngle), so it turns around Z
+                case SUN -> com.mojang.math.Axis.ZP.rotation(rotation);
             };
         }
 

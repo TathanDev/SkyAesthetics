@@ -26,4 +26,10 @@ public class FormBuilder {
         list.addWide(control);
         return this;
     }
+
+    /** Several controls side by side on one row. */
+    public FormBuilder row(AbstractWidget... controls) {
+        list.addRow(java.util.List.of(controls));
+        return this;
+    }
 }

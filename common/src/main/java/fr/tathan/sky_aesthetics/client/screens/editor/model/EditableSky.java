@@ -44,6 +44,8 @@ public class EditableSky {
     public final Light light = new Light();
     public final Fog fog = new Fog();
     public final List<Obj> skyObjects = new ArrayList<>();
+    public final List<EditableLayer> layers = new ArrayList<>();
+    public int transitionTicks = 0;
 
     public Optional<SkyProperties.RenderCondition> renderCondition = Optional.empty();
     public Optional<EnvironmentAttributeMap> environmentAttributes = Optional.empty();
@@ -111,7 +113,7 @@ public class EditableSky {
         public String texture = "";
         public Vector3f rotation = new Vector3f();
         public boolean dynamicEnabled = false;
-        public Rotation.Axis dynamicAxis = Rotation.Axis.XP;
+        public Rotation.Axis dynamicAxis = Rotation.Axis.SUN;
         public String dynamicRotationType = "NIGHT"; // DAY / NIGHT / STATIC
     }
 
@@ -262,6 +264,11 @@ public class EditableSky {
             });
         });
 
+        for (SkyBoxLayer layer : props.skyBoxes()) {
+            e.layers.add(EditableLayer.from(layer));
+        }
+        e.transitionTicks = props.transitionTicks();
+
         e.renderCondition = props.renderCondition();
         e.environmentAttributes = props.environmentAttributes();
         return e;
@@ -350,6 +357,11 @@ public class EditableSky {
             e.skyObjects.add(c);
         }
 
+        for (EditableLayer layer : layers) {
+            e.layers.add(layer.copy());
+        }
+        e.transitionTicks = transitionTicks;
+
         e.renderCondition = this.renderCondition;
         e.environmentAttributes = this.environmentAttributes;
         return e;
@@ -413,8 +425,18 @@ public class EditableSky {
                         fog.densityEnabled ? Optional.of(new Vector2f(fog.density)) : Optional.empty()))
                 : Optional.empty();
 
+        List<SkyBoxLayer> skyBoxLayers = new ArrayList<>();
+        for (int i = 0; i < layers.size(); i++) {
+            try {
+                skyBoxLayers.add(layers.get(i).toLayer());
+            } catch (IllegalStateException ex) {
+                throw new IllegalStateException("Skybox layer " + (i + 1) + ": " + ex.getMessage(), ex);
+            }
+        }
+
         return new SkyProperties(world, id, cloudOpt, weather, sunOpt, moonOpt, starsOpt, colorOpt,
-                objects, renderCondition, environmentAttributes, skyBoxOpt, lightOpt, fogOpt);
+                objects, renderCondition, environmentAttributes, skyBoxOpt, lightOpt, fogOpt,
+                List.copyOf(skyBoxLayers), Math.clamp(transitionTicks, 0, 24000));
     }
 
     private Optional<StarSettings.ShootingStars> buildShootingStars() {

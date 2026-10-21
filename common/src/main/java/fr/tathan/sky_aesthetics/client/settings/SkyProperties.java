@@ -32,7 +32,9 @@ public record SkyProperties(
         Optional<EnvironmentAttributeMap> environmentAttributes,
         Optional<SkyBoxSetting> skyBoxSetting,
         Optional<LightSettings> lightSettings,
-        Optional<FogSettings> fogSettings
+        Optional<FogSettings> fogSettings,
+        List<SkyBoxLayer> skyBoxes,
+        int transitionTicks
 ) {
 
     public static final Codec<SkyProperties> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -49,7 +51,9 @@ public record SkyProperties(
             EnvironmentAttributeMap.CODEC.optionalFieldOf("environment_attributes").forGetter(SkyProperties::environmentAttributes),
             SkyBoxSetting.CODEC.optionalFieldOf("sky_box").forGetter(SkyProperties::skyBoxSetting),
             LightSettings.CODEC.optionalFieldOf("light_settings").forGetter(SkyProperties::lightSettings),
-            FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings)
+            FogSettings.CODEC.optionalFieldOf("fog_settings").forGetter(SkyProperties::fogSettings),
+            SkyBoxLayer.CODEC.listOf().optionalFieldOf("sky_boxes", List.of()).forGetter(SkyProperties::skyBoxes),
+            Codec.intRange(0, 24000).optionalFieldOf("transition_ticks", 0).forGetter(SkyProperties::transitionTicks)
     ).apply(instance, SkyProperties::new));
 
 
@@ -64,7 +68,8 @@ public record SkyProperties(
         this.skyColorSettings.ifPresent(builder::setSkyColorSettings);
         this.lightSettings.ifPresent(builder::setLightSettings);
         this.renderCondition.ifPresent(builder::setRenderCondition);
-        this.skyBoxSetting.ifPresent(builder::setSkyBoxSetting);
+        this.skyBoxSetting.ifPresent(setting -> builder.addSkyBoxLayer(SkyBoxLayer.fromLegacy(setting)));
+        this.skyBoxes.forEach(builder::addSkyBoxLayer);
         this.fogSettings.ifPresent(builder::setFogSettings);
 
         return builder.build();
@@ -86,8 +91,15 @@ public record SkyProperties(
                 Optional.empty(),
                 Optional.empty(),
                 Optional.empty(),
-                Optional.empty()
+                Optional.empty(),
+                List.of(),
+                0
         );
+    }
+
+    public SkyProperties withWorld(ResourceKey<Level> world) {
+        return new SkyProperties(world, id, cloudSettings, weather, sun, moon, stars, skyColorSettings, skyObjects,
+                renderCondition, environmentAttributes, skyBoxSetting, lightSettings, fogSettings, skyBoxes, transitionTicks);
     }
 
 

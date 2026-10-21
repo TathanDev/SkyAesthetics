@@ -42,17 +42,21 @@ public class ConstellationRenderer {
 
     /** Renders all loaded constellations. Must be called on the render thread. */
     public static void renderAll(PoseStack poseStack, SkyRenderState state) {
+        renderAll(poseStack, state, state.starBrightness);
+    }
+
+    public static void renderAll(PoseStack poseStack, SkyRenderState state, float brightness) {
         if (dirty) {
             rebuildBuffers();
             dirty = false;
         }
-        if (BUFFERS.isEmpty() || state.starBrightness <= 0.0F) return;
+        if (BUFFERS.isEmpty() || brightness <= 0.0F) return;
 
         poseStack.pushPose();
         poseStack.mulPose(Axis.XP.rotation(state.starAngle));
 
         for (Constellation c : ConstellationsData.CONSTELLATIONS.values()) {
-            renderOne(c, poseStack, state.starBrightness);
+            renderOne(c, poseStack, brightness);
         }
 
         poseStack.popPose();

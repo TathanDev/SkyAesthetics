@@ -1,9 +1,13 @@
 package fr.tathan.sky_aesthetics.client.utils;
 
 import fr.tathan.SkyAesthetics;
+import fr.tathan.sky_aesthetics.client.DimensionRenderer;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import fr.tathan.sky_aesthetics.helper.PlatformHelper;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SkyRenderer;
+import net.minecraft.client.renderer.state.level.SkyRenderState;
 import net.minecraft.world.level.Level;
 
 import java.lang.ref.WeakReference;
@@ -19,6 +23,34 @@ public class SkyHelper {
     private static String[] cachedDisabledSkies;
     private static String[] cachedDisabledDimensions;
     private static SkyProperties cachedSky;
+
+    private static SkyProperties previousSky;
+    private static long switchGameTime;
+
+    /** When the sky just changed and has transition_ticks, the skybox layers of the previous sky fade out */
+    public static void renderSky(Level level, SkyProperties sky, SkyRenderState state, SkyRenderer skyRenderer) {
+        DimensionRenderer renderer = SkiesRegistry.getOrBuildRenderer(sky);
+        DimensionRenderer outgoing = null;
+        float outgoingAlpha = 0.0f;
+
+        SkyProperties previous = previousSky;
+        if (previous != null && sky.transitionTicks() > 0 && SkiesRegistry.getPreviewSky() == null) {
+            float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+            double elapsed = level.getGameTime() - switchGameTime + partialTick;
+            if (elapsed < sky.transitionTicks()) {
+                outgoing = SkiesRegistry.getOrBuildRenderer(previous);
+                outgoingAlpha = (float) (1.0 - elapsed / sky.transitionTicks());
+            } else {
+                previousSky = null;
+            }
+        }
+        renderer.render(state, skyRenderer, outgoing, outgoingAlpha);
+    }
+
+    private static boolean sameSky(SkyProperties a, SkyProperties b) {
+        if (a == null || b == null) return a == b;
+        return a.id().equals(b.id());
+    }
 
     public static boolean canRenderSky(Level level, Consumer<SkyProperties> action) {
         SkyProperties sky = selectSky(level, true);
@@ -75,7 +107,14 @@ public class SkyHelper {
         String[] disabledDimensions = SkyAesthetics.CONFIG.disabledDimensions;
         if (level != cachedLevel.get() || gameTime != cachedGameTime || version != cachedVersion
                 || disabledSkies != cachedDisabledSkies || disabledDimensions != cachedDisabledDimensions) {
-            cachedSky = computeSky(level, true);
+            SkyProperties next = computeSky(level, true);
+            if (level != cachedLevel.get() || version != cachedVersion) {
+                previousSky = null;
+            } else if (!sameSky(next, cachedSky)) {
+                previousSky = cachedSky;
+                switchGameTime = gameTime;
+            }
+            cachedSky = next;
             cachedLevel = new WeakReference<>(level);
             cachedGameTime = gameTime;
             cachedVersion = version;

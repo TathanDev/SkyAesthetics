@@ -30,6 +30,8 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
      */
     private static volatile SkyProperties previewSky;
 
+    private static volatile PreviewOverrides previewOverrides = PreviewOverrides.NONE;
+
     private static volatile int version;
 
 
@@ -46,6 +48,7 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
         }
         SKY_PROPERTIES.clear();
         previewSky = null;
+        previewOverrides = PreviewOverrides.NONE;
         SkyAesthetics.LOG.info("Registering skies...");
         object.forEach((key, skyProperties) -> {
 
@@ -86,11 +89,32 @@ public class SkiesRegistry extends SimpleJsonResourceReloadListener<@NotNull Sky
 
     /** Clears the live-preview sky and drops its cached renderer. */
     public static void clearPreviewSky() {
+        previewOverrides = PreviewOverrides.NONE;
         if (previewSky != null) {
             invalidate(previewSky.id());
             previewSky = null;
             version++;
         }
+    }
+
+    public static PreviewOverrides getPreviewOverrides() {
+        return previewOverrides;
+    }
+
+    public static void setPreviewOverrides(PreviewOverrides overrides) {
+        previewOverrides = overrides;
+    }
+
+    /**
+     * @param dayTime The time in ticks (0-24000), or -1 for the real time
+     * @param weather The weather of the preview
+     */
+    public record PreviewOverrides(double dayTime, PreviewWeather weather) {
+        public static final PreviewOverrides NONE = new PreviewOverrides(-1, PreviewWeather.REAL);
+    }
+
+    public enum PreviewWeather {
+        REAL, CLEAR, RAIN, THUNDER
     }
 
     private static void invalidate(Identifier id) {

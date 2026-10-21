@@ -2,6 +2,7 @@ package fr.tathan.sky_aesthetics.client.screens.editor;
 
 import fr.tathan.SkyAesthetics;
 import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
+import fr.tathan.sky_aesthetics.client.screens.editor.model.EditableLayer;
 import fr.tathan.sky_aesthetics.client.screens.editor.model.EditablePack;
 import fr.tathan.sky_aesthetics.client.screens.editor.model.EditableSky;
 import fr.tathan.sky_aesthetics.client.screens.editor.tabs.EditorTab;
@@ -13,7 +14,10 @@ import fr.tathan.sky_aesthetics.client.screens.editor.widgets.ColorButton;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.EditorWidgets;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.FormBuilder;
 import fr.tathan.sky_aesthetics.client.screens.editor.widgets.FormList;
+import fr.tathan.sky_aesthetics.client.screens.editor.widgets.TimeSlider;
 import fr.tathan.sky_aesthetics.client.settings.Rotation;
+import fr.tathan.sky_aesthetics.client.settings.SkyBoxLayer;
+import fr.tathan.sky_aesthetics.client.settings.SkyRotation;
 import fr.tathan.sky_aesthetics.client.settings.SkyProperties;
 import net.minecraft.client.gui.screens.ConfirmScreen;
 import net.minecraft.client.gui.components.toasts.SystemToast;
@@ -30,7 +34,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The in-game sky pack editor: a tabbed screen (one tab per setting category) with a left sidebar
@@ -63,6 +69,11 @@ public class SkyEditorScreen extends Screen {
     private boolean peekPushedPreview = false;
     /** Serialization of the active sky last pushed to preview; avoids rebuilding the renderer every tick. */
     private String lastPreviewSnapshot = "";
+
+    /** Skybox-tab preview controls; applied to skybox layers only while a preview is active. */
+    private boolean previewTimeEnabled = false;
+    private int previewTime = 6000;
+    private SkiesRegistry.PreviewWeather previewWeather = SkiesRegistry.PreviewWeather.REAL;
 
     private TabManager tabManager;
     private TabNavigationBar tabNavigationBar;
@@ -129,7 +140,10 @@ public class SkyEditorScreen extends Screen {
     }
 
     private static final List<String> ROTATION_TYPES = List.of("DAY", "NIGHT", "STATIC");
-    private static final List<String> AXES = List.of("XP", "YP", "ZP");
+    private static final List<String> AXES = List.of("SUN", "XP", "YP", "ZP");
+    private static final List<String> LAYER_AXES = List.of("sun", "XP", "YP", "ZP", "custom");
+    private static final List<String> VISIBILITY = List.of("always", "day", "night", "sunrise", "sunset", EditableLayer.CUSTOM_CURVE);
+    private static final List<String> CONDITION_WEATHER = List.of("any", "clear", "rain", "thunder");
 
     /** Fills a category tab's scrollable list with setting rows bound to the sky's model fields. */
     private void populateTab(String key, FormList list, EditableSky sky) {
@@ -268,7 +282,24 @@ public class SkyEditorScreen extends Screen {
     }
 
     private void populateSkybox(FormBuilder f, EditableSky sky) {
-        f.wide(section("Enable skybox", sky.skyBox.enabled, b -> sky.skyBox.enabled = b));
+        f.wide(new StringWidget(lit("Preview controls (skybox layers only)"), this.font));
+        f.wide(EditorWidgets.check(font, lit("Override time while previewing"), previewTimeEnabled, b -> previewTimeEnabled = b));
+        f.labelled(lit("Preview time"), new TimeSlider(EditorWidgets.CONTROL_WIDTH, EditorWidgets.CONTROL_HEIGHT, previewTime, t -> previewTime = t));
+        f.labelled(lit("Preview weather"), enumCycle(List.of(SkiesRegistry.PreviewWeather.values()), previewWeather,
+                w -> w.name().toLowerCase(Locale.ROOT), w -> previewWeather = w));
+        f.labelled(lit("Sky switch fade (ticks)"), EditorWidgets.number(font, String.valueOf(sky.transitionTicks),
+                s -> sky.transitionTicks = EditorWidgets.parseInt(s, sky.transitionTicks)));
+
+        for (int i = 0; i < sky.layers.size(); i++) {
+            populateLayer(f, sky, i);
+        }
+        f.wide(Button.builder(lit("+ Add layer"), b -> {
+            sky.layers.add(new EditableLayer());
+            this.rebuildWidgets();
+        }).width(EditorWidgets.CONTROL_WIDTH).build());
+
+        f.wide(new StringWidget(lit("Legacy single skybox (sky_box)"), this.font));
+        f.wide(section("Enable legacy skybox", sky.skyBox.enabled, b -> sky.skyBox.enabled = b));
         if (!sky.skyBox.enabled) return;
         f.labelled(lit("Gradation"), EditorWidgets.number(font, String.valueOf(sky.skyBox.gradation),
                 s -> sky.skyBox.gradation = EditorWidgets.parseInt(s, sky.skyBox.gradation)));
@@ -281,6 +312,149 @@ public class SkyEditorScreen extends Screen {
             f.labelled(lit("Rotation type"), EditorWidgets.cycle(EditorWidgets.CONTROL_WIDTH, ROTATION_TYPES,
                     sky.skyBox.dynamicRotationType, v -> sky.skyBox.dynamicRotationType = v));
         }
+    }
+
+    /** One {@code sky_boxes} layer: texture, look, visibility over the day, condition, rotation and draw order. */
+    private void populateLayer(FormBuilder f, EditableSky sky, int index) {
+        EditableLayer l = sky.layers.get(index);
+        int small = 52;
+
+        f.wide(new StringWidget(lit("Layer " + (index + 1)), this.font));
+        Button up = Button.builder(lit("Up"), b -> {
+            Collections.swap(sky.layers, index, index - 1);
+            this.rebuildWidgets();
+        }).width(small).build();
+        up.active = index > 0;
+        Button down = Button.builder(lit("Down"), b -> {
+            Collections.swap(sky.layers, index, index + 1);
+            this.rebuildWidgets();
+        }).width(small).build();
+        down.active = index < sky.layers.size() - 1;
+        Button copy = Button.builder(lit("Copy"), b -> {
+            sky.layers.add(index + 1, l.copy());
+            this.rebuildWidgets();
+        }).width(small).build();
+        Button remove = Button.builder(lit("Remove"), b -> {
+            sky.layers.remove(index);
+            this.rebuildWidgets();
+        }).width(small).build();
+        f.row(up, down, copy, remove);
+
+        f.wide(section("Cubemap (six faces)", l.cubemap, b -> l.cubemap = b));
+        if (l.cubemap) {
+            for (int i = 0; i < 6; i++) {
+                final int face = i;
+                f.labelled(lit(EditableLayer.FACE_NAMES.get(i) + " face"), EditorWidgets.text(font, l.faces[i], s -> l.faces[face] = s));
+            }
+        } else {
+            f.labelled(lit("Texture"), EditorWidgets.text(font, l.texture, s -> l.texture = s));
+            f.labelled(lit("Gradation"), EditorWidgets.number(font, String.valueOf(l.gradation),
+                    s -> l.gradation = EditorWidgets.parseInt(s, l.gradation)));
+            f.labelled(lit("Scroll (u, v per tick)"), EditorWidgets.vec2f(font, l.scroll));
+        }
+
+        f.labelled(lit("Visible"), EditorWidgets.cycle(EditorWidgets.CONTROL_WIDTH, VISIBILITY, l.visible, v -> {
+            l.visible = v;
+            this.rebuildWidgets();
+        }));
+        if (EditableLayer.CUSTOM_CURVE.equals(l.visible)) {
+            f.labelled(lit("Keyframes (time:value)"), EditorWidgets.text(font, l.keyframes, s -> l.keyframes = s));
+        } else if (!"always".equals(l.visible)) {
+            f.labelled(lit("Fade (ticks)"), EditorWidgets.number(font, String.valueOf(l.fade),
+                    s -> l.fade = EditorWidgets.parseInt(s, l.fade)));
+        }
+        f.wide(section("Rain opacity", l.rainEnabled, b -> l.rainEnabled = b));
+        if (l.rainEnabled) {
+            f.labelled(lit("Opacity in rain"), EditorWidgets.number(font, String.valueOf(l.rainOpacity),
+                    s -> l.rainOpacity = EditorWidgets.parseFloat(s, l.rainOpacity)));
+        }
+        f.wide(section("Thunder opacity", l.thunderEnabled, b -> l.thunderEnabled = b));
+        if (l.thunderEnabled) {
+            f.labelled(lit("Opacity in storms"), EditorWidgets.number(font, String.valueOf(l.thunderOpacity),
+                    s -> l.thunderOpacity = EditorWidgets.parseFloat(s, l.thunderOpacity)));
+        }
+        f.labelled(lit("Moon phases (0-7)"), EditorWidgets.text(font, l.moonPhases, s -> l.moonPhases = s));
+        f.wide(EditorWidgets.check(font, lit("Follow star brightness"), l.followStarBrightness, b -> l.followStarBrightness = b));
+        f.wide(section("Fade with height", l.heightFadeEnabled, b -> l.heightFadeEnabled = b));
+        if (l.heightFadeEnabled) {
+            f.labelled(lit("Height (from, to)"), EditorWidgets.vec2f(font, l.heightFade));
+        }
+
+        f.wide(section("Condition", l.conditionEnabled, b -> l.conditionEnabled = b));
+        if (l.conditionEnabled) {
+            f.labelled(lit("Biome"), EditorWidgets.text(font, l.conditionBiome, s -> l.conditionBiome = s));
+            f.labelled(lit("Biome tag (#...)"), EditorWidgets.text(font, l.conditionBiomeTag, s -> l.conditionBiomeTag = s));
+            f.wide(section("Height range", l.conditionHeightEnabled, b -> l.conditionHeightEnabled = b));
+            if (l.conditionHeightEnabled) {
+                f.labelled(lit("Height (min, max)"), EditorWidgets.vec2f(font, l.conditionHeight));
+            }
+            f.labelled(lit("Weather"), EditorWidgets.cycle(EditorWidgets.CONTROL_WIDTH, CONDITION_WEATHER, l.conditionWeather,
+                    v -> l.conditionWeather = v));
+            f.labelled(lit("Effects (any of)"), EditorWidgets.text(font, l.conditionEffects, s -> l.conditionEffects = s));
+            f.labelled(lit("Condition fade (ticks)"), EditorWidgets.number(font, String.valueOf(l.conditionFade),
+                    s -> l.conditionFade = EditorWidgets.parseInt(s, l.conditionFade)));
+        }
+
+        f.labelled(lit("Blend"), enumCycle(List.of(SkyBoxLayer.Blend.values()), l.blend,
+                SkyBoxLayer.Blend::getSerializedName, v -> l.blend = v));
+        f.wide(section("Tint color", l.colorEnabled, b -> l.colorEnabled = b));
+        if (l.colorEnabled) {
+            f.labelled(lit("Color"), ColorButton.forVec3i(this, l.color));
+        }
+        f.labelled(lit("Brightness"), EditorWidgets.number(font, String.valueOf(l.brightness),
+                s -> l.brightness = EditorWidgets.parseFloat(s, l.brightness)));
+        f.wide(EditorWidgets.check(font, lit("Tint with sky color"), l.tintWithSky, b -> l.tintWithSky = b));
+        f.wide(section("Animated strip", l.animationEnabled, b -> l.animationEnabled = b));
+        if (l.animationEnabled) {
+            f.labelled(lit("Frames"), EditorWidgets.number(font, String.valueOf(l.frames),
+                    s -> l.frames = EditorWidgets.parseInt(s, l.frames)));
+            f.labelled(lit("Ticks per frame"), EditorWidgets.number(font, String.valueOf(l.frametime),
+                    s -> l.frametime = EditorWidgets.parseInt(s, l.frametime)));
+        }
+        f.labelled(lit("Hemisphere"), enumCycle(List.of(SkyBoxLayer.Hemisphere.values()), l.hemisphere,
+                SkyBoxLayer.Hemisphere::getSerializedName, v -> {
+                    l.hemisphere = v;
+                    this.rebuildWidgets();
+                }));
+        if (l.hemisphere == SkyBoxLayer.Hemisphere.UPPER) {
+            f.labelled(lit("Horizon fade (deg)"), EditorWidgets.number(font, String.valueOf(l.horizonFade),
+                    s -> l.horizonFade = EditorWidgets.parseFloat(s, l.horizonFade)));
+        }
+        f.wide(EditorWidgets.check(font, lit("Fade into sky fog"), l.fogFade, b -> l.fogFade = b));
+
+        f.wide(section("Rotation", l.rotationEnabled, b -> l.rotationEnabled = b));
+        if (l.rotationEnabled) {
+            f.labelled(lit("Driven by"), enumCycle(List.of(SkyRotation.Source.values()), l.source,
+                    SkyRotation.Source::getSerializedName, v -> l.source = v));
+            f.labelled(lit("Speed"), EditorWidgets.number(font, String.valueOf(l.speed),
+                    s -> l.speed = EditorWidgets.parseFloat(s, l.speed)));
+            f.labelled(lit("Offset (deg)"), EditorWidgets.number(font, String.valueOf(l.offset),
+                    s -> l.offset = EditorWidgets.parseFloat(s, l.offset)));
+            f.labelled(lit("Axis"), EditorWidgets.cycle(EditorWidgets.CONTROL_WIDTH, LAYER_AXES, l.axis, v -> {
+                l.axis = v;
+                this.rebuildWidgets();
+            }));
+            if ("custom".equals(l.axis)) {
+                f.labelled(lit("Axis (x,y,z)"), EditorWidgets.vec3f(font, l.customAxis));
+            }
+            f.labelled(lit("Tilt (x,y,z)"), EditorWidgets.vec3f(font, l.tilt));
+            f.labelled(lit("Orientation (x,y,z)"), EditorWidgets.vec3f(font, l.orientation));
+        }
+
+        f.labelled(lit("Draw slot"), enumCycle(List.of(SkyBoxLayer.Slot.values()), l.slot,
+                SkyBoxLayer.Slot::getSerializedName, v -> l.slot = v));
+        for (SkyBoxLayer.HidePart part : SkyBoxLayer.HidePart.values()) {
+            f.wide(EditorWidgets.check(font, lit("Hide " + part.getSerializedName().replace('_', ' ')), l.hide.contains(part), b -> {
+                if (b) l.hide.add(part);
+                else l.hide.remove(part);
+            }));
+        }
+    }
+
+    private <T> Button enumCycle(List<T> values, T initial, java.util.function.Function<T, String> name, java.util.function.Consumer<T> onChange) {
+        List<String> names = values.stream().map(name).toList();
+        return EditorWidgets.cycle(EditorWidgets.CONTROL_WIDTH, names, name.apply(initial),
+                v -> onChange.accept(values.get(names.indexOf(v))));
     }
 
     private void populateColors(FormBuilder f, EditableSky sky) {
@@ -473,6 +647,8 @@ public class SkyEditorScreen extends Screen {
             sidebarButtons.get(i).setMessage(Component.literal(skies.get(i).displayName()));
         }
         if (isPreviewActive()) {
+            SkiesRegistry.setPreviewOverrides(new SkiesRegistry.PreviewOverrides(
+                    previewTimeEnabled ? previewTime : -1, previewWeather));
             String snap = activeSkySnapshot();
             if (!snap.equals(lastPreviewSnapshot)) {
                 pushPreview();
@@ -509,11 +685,7 @@ public class SkyEditorScreen extends Screen {
             if (this.minecraft.level != null) {
                 var dim = this.minecraft.level.dimension();
                 if (!props.world().equals(dim)) {
-                    props = new SkyProperties(dim, props.id(), props.cloudSettings(),
-                            props.weather(), props.sun(), props.moon(), props.stars(),
-                            props.skyColorSettings(), props.skyObjects(), props.renderCondition(),
-                            props.environmentAttributes(), props.skyBoxSetting(),
-                            props.lightSettings(), props.fogSettings());
+                    props = props.withWorld(dim);
                 }
             }
             SkiesRegistry.setPreviewSky(props);

@@ -5,8 +5,6 @@ import com.mojang.blaze3d.framegraph.FrameGraphBuilder;
 import com.mojang.blaze3d.framegraph.FramePass;
 import com.mojang.blaze3d.systems.RenderSystem;
 import fr.tathan.SkyAesthetics;
-import fr.tathan.sky_aesthetics.client.DimensionRenderer;
-import fr.tathan.sky_aesthetics.client.data.SkiesRegistry;
 import fr.tathan.sky_aesthetics.client.utils.SkyHelper;
 import java.util.OptionalInt;
 import net.minecraft.client.CloudStatus;
@@ -62,9 +60,8 @@ public abstract class LevelRendererMixin {
                         this.targets.main = framePass.readsAndWrites(this.targets.main);
 
                         framePass.executes(() -> {
-                            DimensionRenderer renderer = SkiesRegistry.getOrBuildRenderer(planetSky);
                             RenderSystem.setShaderFog(skyFog);
-                            renderer.render(skyRenderState, skyRenderer);
+                            SkyHelper.renderSky(level, planetSky, skyRenderState, skyRenderer);
                         });
                         ci.cancel();
                     }));

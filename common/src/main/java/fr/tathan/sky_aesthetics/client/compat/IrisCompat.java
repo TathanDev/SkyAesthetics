@@ -55,6 +55,8 @@ public class IrisCompat {
             api.assignPipeline(RenderPipelineRegistry.CELESTIAL_BLEND, IrisProgram.SKY_TEXTURED);
             api.assignPipeline(RenderPipelineRegistry.CELESTIAL_NO_BLEND, IrisProgram.SKY_TEXTURED);
             api.assignPipeline(RenderPipelineRegistry.COLORED_STARS, IrisProgram.SKY_BASIC);
+            RenderPipelineRegistry.skyboxPipelines().forEach(pipeline -> api.assignPipeline(pipeline, IrisProgram.SKY_TEXTURED));
+            api.assignPipeline(RenderPipelineRegistry.SKY_DISC_BLEND, IrisProgram.SKY_BASIC);
         }
 
         // These 2 blocks are to make the custom rendered sky stuff not be assigned to the renderStage MC_RENDER_STAGE_SUN or MOON.
