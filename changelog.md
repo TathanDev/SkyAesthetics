@@ -1,4 +1,4 @@
-# Sky Aesthetics 2.1.5 for MC 26.1.x changelog
+# Sky Aesthetics 2.2.0 for MC 26.1.x changelog
 
 ## Features
 - New skybox system, now a lot more customizable!

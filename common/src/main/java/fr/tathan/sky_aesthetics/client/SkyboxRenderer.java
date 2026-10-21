@@ -96,12 +96,12 @@ public class SkyboxRenderer {
         Vector3f localUp = new Matrix3f(layerMatrix).transpose().transform(new Vector3f(0.0f, 1.0f, 0.0f));
 
         Vector4f color = getLayerColor(look, alpha);
-        RenderPipeline pipeline = getPipeline(look.blend(), alpha);
+        RenderPipeline pipeline = getPipeline(look, alpha);
 
-        // The shader settings are sent in the last column of the texture matrix, which the UVs don't use
         float blendMode = switch (look.blend()) {
             case MULTIPLY -> 1.0f;
             case SCREEN -> 2.0f;
+            case ADD -> 3.0f;
             default -> 0.0f;
         };
         float upperHemisphere = look.hemisphere() == SkyBoxLayer.Hemisphere.UPPER ? 1.0f : 0.0f;
@@ -142,10 +142,11 @@ public class SkyboxRenderer {
         }
     }
 
-    private static RenderPipeline getPipeline(SkyBoxLayer.Blend blend, float alpha) {
-        return switch (blend) {
-            // An opaque layer that fades needs to blend
-            case OPAQUE -> alpha >= 0.999f ? RenderPipelineRegistry.SKYBOX_OPAQUE : RenderPipelineRegistry.SKYBOX_ALPHA;
+    private static RenderPipeline getPipeline(SkyBoxLayer.Look look, float alpha) {
+        boolean horizonFade = look.hemisphere() == SkyBoxLayer.Hemisphere.UPPER && look.horizonFade() > 0.0f;
+        return switch (look.blend()) {
+            // An opaque layer that fades, over time or near the horizon, needs to blend
+            case OPAQUE -> alpha >= 0.999f && !horizonFade ? RenderPipelineRegistry.SKYBOX_OPAQUE : RenderPipelineRegistry.SKYBOX_ALPHA;
             case ALPHA -> RenderPipelineRegistry.SKYBOX_ALPHA;
             case ADD -> RenderPipelineRegistry.SKYBOX_ADD;
             case MULTIPLY -> RenderPipelineRegistry.SKYBOX_MULTIPLY;

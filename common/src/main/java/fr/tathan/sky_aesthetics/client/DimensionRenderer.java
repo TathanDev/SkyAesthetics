@@ -169,8 +169,10 @@ public class DimensionRenderer {
    }
 
     private void drawSkyboxLayers(SkyBoxLayer.Slot slot, @Nullable DimensionRenderer outgoing, float outgoingAlpha) {
+        Object irisPhase = IrisCompat.clearPhase();
         skybox.draw(slot, 1.0f);
         if (outgoing != null) outgoing.skybox.draw(slot, outgoingAlpha);
+        IrisCompat.restorePhase(irisPhase);
     }
 
     private static void renderSkyDisc(SkyRenderer skyRenderer, int color, float keep) {

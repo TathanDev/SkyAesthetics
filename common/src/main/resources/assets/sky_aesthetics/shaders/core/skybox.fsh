@@ -14,8 +14,9 @@ void main() {
     vec4 color = texture(Sampler0, texCoord0) * ColorModulator;
 
     // The layer settings are in the third column of TextureMat, which the UVs don't use
-    // x = blend mode (0 normal, 1 multiply, 2 screen), y = upper hemisphere, z = horizon fade, w = fog fade
+    // x = blend mode (0 normal, 1 multiply, 2 screen, 3 add), y = upper hemisphere, z = horizon fade, w = fog fade
     vec4 settings = TextureMat[2];
+    int blendMode = int(settings.x + 0.5);
     // ModelOffset is the world up seen from the layer, so the horizon doesn't move when the layer turns
     float elevation = dot(normalize(localPosition), ModelOffset);
 
@@ -29,13 +30,18 @@ void main() {
     if (settings.w > 0.5) {
         // Same fog as the vanilla sky disc, which is at y = 16
         float discDistance = elevation > 0.0 ? min(16.0 / elevation, 512.0) : 512.0;
-        float fogValue = linear_fog_value(discDistance, 0.0, FogSkyEnd);
-        color.rgb = mix(color.rgb, FogColor.rgb, fogValue * FogColor.a);
+        float fogValue = linear_fog_value(discDistance, 0.0, FogSkyEnd) * FogColor.a;
+        if (blendMode == 0) {
+            color.rgb = mix(color.rgb, FogColor.rgb, fogValue);
+        } else {
+            // Multiply, screen and add would tint the sky with the fog color, so they fade out instead
+            color.a *= 1.0 - fogValue;
+        }
     }
 
-    if (settings.x > 1.5) {
+    if (blendMode == 2) {
         color.rgb *= color.a;
-    } else if (settings.x > 0.5) {
+    } else if (blendMode == 1) {
         color.rgb = mix(vec3(1.0), color.rgb, color.a);
     }
 
